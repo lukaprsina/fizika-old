@@ -4,11 +4,11 @@ pub enum Operator {
     Times,
     Divide,
     Modulo,
-    Power,    
+    Power,
 }
 
 pub enum Node {
-    Int(f64),
+    Number(f64),
     Unary {
         op: Operator,
         child: Box<Node>,

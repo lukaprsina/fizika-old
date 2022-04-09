@@ -8,6 +8,12 @@ UnaryExpr = { Operator ~ Term }
 
 BinaryExpr = { Term ~ (Operator ~ Term)* }
 
+String = { (!"'" ~ ASCII)* }
+
+FunctionArg = { Term }
+
+Function = { String ~ "(" ~ FunctionArg ~ ("," ~ FunctionArg)* ~ ")" }
+
 Operator = { "+" | "-" | "*" | "/" | "%" | "^" }
 
 Int = @{ Operator? ~ ASCII_DIGIT+ }
