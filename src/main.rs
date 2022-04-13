@@ -1,4 +1,6 @@
-use math_eval::{Node, Operator};
+use math_eval::{
+    new::Item, EquationSide, Expression, ExpressionType, Node, Operator, Product, Sign,
+};
 
 fn main() {
     // (6 + a)^2
@@ -39,4 +41,43 @@ fn main() {
     };
 
     println!("{}", a.eval());
+
+    let c = Expression {
+        expression_type: ExpressionType::Expression,
+        children: vec![Product {
+            sign: Sign::Plus,
+            side: EquationSide::Left,
+            top: vec![Item::Power {
+                base: Expression {
+                    expression_type: ExpressionType::Expression,
+                    children: vec![
+                        Product {
+                            sign: Sign::Plus,
+                            side: EquationSide::Left,
+                            top: vec![Item::Number(6.)],
+                            bottom: vec![],
+                        },
+                        Product {
+                            sign: Sign::Plus,
+                            side: EquationSide::Left,
+                            top: vec![Item::Variable("a".to_string())],
+                            bottom: vec![],
+                        },
+                    ],
+                },
+                power: Expression {
+                    expression_type: ExpressionType::Expression,
+                    children: vec![Product {
+                        sign: Sign::Plus,
+                        side: EquationSide::Left,
+                        top: vec![Item::Number(2.)],
+                        bottom: vec![],
+                    }],
+                },
+            }],
+            bottom: vec![],
+        }],
+    };
+
+    c.foo();
 }
