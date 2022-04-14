@@ -3,8 +3,8 @@ use math_eval::{
 };
 
 fn main() {
-    /* // (6 + a)^2
-    let a = Node::Binary {
+    // (6 + a)^2
+    let _a = Node::Binary {
         op: Operator::Power,
         lhs: Box::new(Node::Binary {
             op: Operator::Plus,
@@ -14,10 +14,10 @@ fn main() {
         }),
         rhs: Box::new(Node::Number(2.)),
     };
-    println!("{}", a.eval());
+    // println!("{}", a.eval());
 
     // f(x) = log(2, x) + 3x - 2
-    let b = Node::Binary {
+    let _b = Node::Binary {
         op: Operator::Equals,
         lhs: Box::new(Node::Function {
             name: "f".to_string(),
@@ -41,10 +41,10 @@ fn main() {
         }),
     };
 
-    println!("{}", b.eval()); */
+    // println!("{}", b.eval());
 
     // (6 + a)^2
-    let c = Expression {
+    /* let _c = Expression {
         expression_type: ExpressionType::Expression,
         children: vec![Product {
             sign: Sign::Plus,
@@ -79,7 +79,32 @@ fn main() {
             }],
             bottom: vec![],
         }],
+    }; */
+
+    // f(x) = log(2, x)/(5-x) - (3/4)x - 2
+    let d = Expression {
+        expression_type: ExpressionType::Equation,
+        children: vec![
+            Product {
+                sign: Sign::Plus,
+                side: EquationSide::Left,
+                top: vec![Item::Function {
+                    name: "f".to_string(),
+                    arguments: vec![Item::Variable("x".to_string())],
+                }],
+                bottom: vec![],
+            },
+            Product {
+                sign: Sign::Minus,
+                side: EquationSide::Right,
+                top: vec![Item::Function {
+                    name: "log".to_string(),
+                    arguments: vec![Item::Number(2.), Item::Variable("x".to_string())],
+                }],
+                bottom: vec![Item::Number(5.), Item::Variable("x".to_string())],
+            },
+        ],
     };
 
-    println!("{}", c);
+    println!("{}", d);
 }

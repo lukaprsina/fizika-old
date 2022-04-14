@@ -47,7 +47,7 @@ impl fmt::Display for Item {
         match self {
             Item::Number(number) => product_string += &number.to_string(),
             Item::Variable(variable_name) => product_string += &variable_name,
-            Item::Power { base, power } => product_string += &format!("({}^({}))", base, power),
+            Item::Power { base, power } => product_string += &format!("{}^{}", base, power),
             Item::Function { name, arguments } => {
                 product_string += &format!("{}(", name);
                 for (index, argument) in arguments.iter().enumerate() {
@@ -69,7 +69,6 @@ impl fmt::Display for Expression {
         let mut left: Vec<&Product> = Vec::new();
         let mut right: Vec<&Product> = Vec::new();
 
-        let mut product_string = String::new();
         let mut result_string = String::new();
 
         for product in self.children.iter() {
@@ -80,23 +79,42 @@ impl fmt::Display for Expression {
         }
 
         for side in [left, right] {
-            for product in side {
+            if side.len() > 1 {
+                result_string += "(";
+            }
+
+            for (position, product) in side.iter().enumerate() {
                 match product.sign {
-                    Sign::Plus => product_string += "+ ",
-                    Sign::Minus => product_string += "- ",
+                    Sign::Plus => {
+                        if position != 0 {
+                            result_string += " + "
+                        }
+                    }
+                    Sign::Minus => result_string += " - ",
                 }
 
                 for expression in [&product.top, &product.bottom] {
+                    if expression.len() > 1 {
+                        result_string += "(";
+                    }
+
                     for item in expression.iter() {
-                        product_string += &item.to_string();
+                        result_string += &item.to_string();
+                    }
+
+                    if expression.len() > 1 {
+                        result_string += ")";
                     }
                 }
-                result_string += &product_string;
+            }
+
+            if side.len() > 1 {
+                result_string += ")";
             }
 
             match self.expression_type {
-                ExpressionType::Equation => result_string += "= ",
-                ExpressionType::Ineqatuon => result_string += "> ",
+                ExpressionType::Equation => result_string += " = ",
+                ExpressionType::Ineqatuon => result_string += " > ",
                 ExpressionType::Expression => (),
             }
         }
