@@ -3,7 +3,7 @@ use math_eval::{
 };
 
 fn main() {
-    // (6 + a)^2
+    /* // (6 + a)^2
     let a = Node::Binary {
         op: Operator::Power,
         lhs: Box::new(Node::Binary {
@@ -14,9 +14,10 @@ fn main() {
         }),
         rhs: Box::new(Node::Number(2.)),
     };
+    println!("{}", a.eval());
 
     // f(x) = log(2, x) + 3x - 2
-    let _ = Node::Binary {
+    let b = Node::Binary {
         op: Operator::Equals,
         lhs: Box::new(Node::Function {
             name: "f".to_string(),
@@ -40,8 +41,9 @@ fn main() {
         }),
     };
 
-    println!("{}", a.eval());
+    println!("{}", b.eval()); */
 
+    // (6 + a)^2
     let c = Expression {
         expression_type: ExpressionType::Expression,
         children: vec![Product {
@@ -79,5 +81,5 @@ fn main() {
         }],
     };
 
-    c.foo();
+    println!("{}", c);
 }
