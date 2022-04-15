@@ -1,15 +1,22 @@
 use std::fmt;
 
 #[derive(Debug)]
-pub enum ExpressionType {
-    Expression,
-    Equation,
-    Ineqatuon,
+pub enum EquationOperators {
+    LessThan,
+    LessThanOrEqual,
+    Equal,
+    GreaterThan,
+    GreaterThanOrEqual,
+    None,
+}
+
+#[derive(Debug)]
+pub struct Equation {
+    pub expressions: Vec<(Expression, EquationOperators)>,
 }
 
 #[derive(Debug)]
 pub struct Expression {
-    pub expression_type: ExpressionType,
     pub children: Vec<Product>,
 }
 
@@ -29,8 +36,8 @@ pub enum EquationSide {
 pub struct Product {
     pub sign: Sign,
     pub side: EquationSide,
-    pub top: Vec<Item>,
-    pub bottom: Vec<Item>,
+    pub top: Vec<Expression>,
+    pub bottom: Vec<Expression>,
 }
 
 #[derive(Debug)]
