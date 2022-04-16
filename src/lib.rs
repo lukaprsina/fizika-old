@@ -1,3 +1,3 @@
-pub mod v3;
+pub mod ast;
 
-pub use crate::v3::{Context, Equation, Expression, Node, NodeOrExpression, Product, Sign};
+pub use crate::ast::{Context, Equation, Expression, Node, NodeOrExpression, Product, Sign};
