@@ -50,27 +50,40 @@ impl Display for Equation {
     }
 }
 
+trait ShouldBeParenthesized {
+    fn should_be_parenthesized(&self) -> bool;
+}
+
 #[derive(Debug)]
 pub struct Expression {
     pub products: Vec<Product>,
+}
+
+impl ShouldBeParenthesized for Expression {
+    fn should_be_parenthesized(&self) -> bool {
+        // self.products.len() > 1
+        true
+    }
 }
 
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
+        if self.products.len() > 1 {
+            result.push('(');
+        }
+
         for (position, product) in self.products.iter().enumerate() {
             let mut open = false;
-            // result += " | ";
             match product.sign {
                 Sign::Positive => {
                     if position != 0 {
-                        result += " + ";
+                        result += "+ ";
                     }
                 }
-                // TODO: - / when top empty, bottom not
                 Sign::Negative => {
-                    result += " - ";
+                    result += "- ";
                     if product.top.len() > 1 {
                         open = true;
                         result.push('(');
@@ -83,6 +96,14 @@ impl Display for Expression {
             if open {
                 result.push(')');
             }
+
+            if position != self.products.len() - 1 {
+                result.push(' ');
+            }
+        }
+
+        if self.products.len() > 1 {
+            result.push(')');
         }
 
         // println!("Expression: {}", result);
@@ -116,6 +137,15 @@ pub enum Node {
     },
 }
 
+impl ShouldBeParenthesized for Node {
+    fn should_be_parenthesized(&self) -> bool {
+        match self {
+            Node::Power { .. } => true,
+            _ => false,
+        }
+    }
+}
+
 impl Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
@@ -127,22 +157,38 @@ impl Display for Node {
                 result += &variable;
             }
             Node::Power { base, power } => {
-                let mut open = false;
-                // TODO: check for parentheses around both base and power
-                // and theirs top and bottom
+                let mut parenethesis = false;
 
-                if base.products.len() > 1 {
-                    result.push('(');
-                    open = true;
-                } else if base.products.len() == 1 {
-                    // match base.products[0].bottom {}
+                for expression in [&base.products, &power.products] {
+                    if parenethesis {
+                        continue;
+                    }
+
+                    if expression.len() > 1 {
+                        parenethesis = true;
+                    } else if expression.len() == 1 {
+                        for side in [&expression[0].top, &expression[0].bottom] {
+                            if side.len() > 1 {
+                                parenethesis = true;
+                            } else if side.len() == 1 {
+                                match &side[0] {
+                                    NodeOrExpression::Node(_) => (),
+                                    NodeOrExpression::Expression(expression) => {
+                                        parenethesis |= expression.should_be_parenthesized();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
-                result += &format!("{}^{}", base, power);
-
-                if open {
-                    result.push(')');
-                }
+                result += &format!(
+                    "{}^{}{}{}",
+                    base,
+                    if parenethesis { "(" } else { "" },
+                    power,
+                    if parenethesis { ")" } else { "" }
+                );
             }
             Node::Function { name, arguments } => {
                 result += &format!("{}(", name);
@@ -191,6 +237,10 @@ impl Display for Product {
         let mut result = String::new();
 
         let mut top_side = true;
+        if self.top.is_empty() {
+            result.push('1');
+        }
+
         for side in [&self.top, &self.bottom] {
             if side.len() > 1 {
                 result.push('(');
