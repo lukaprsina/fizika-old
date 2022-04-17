@@ -7,7 +7,7 @@ pub struct Context {
 }
 
 #[derive(Debug)]
-pub enum EqualSign {
+pub enum ComparisonSign {
     Equal,
     NotEqual,
     LessThan,
@@ -16,15 +16,15 @@ pub enum EqualSign {
     GreaterThan,
 }
 
-impl Display for EqualSign {
+impl Display for ComparisonSign {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let result = match self {
-            EqualSign::Equal => "=",
-            EqualSign::NotEqual => "!=",
-            EqualSign::LessThan => "<",
-            EqualSign::LessThanOrEqual => "<=",
-            EqualSign::GreaterThanOrEqual => ">=",
-            EqualSign::GreaterThan => ">",
+            ComparisonSign::Equal => "=",
+            ComparisonSign::NotEqual => "!=",
+            ComparisonSign::LessThan => "<",
+            ComparisonSign::LessThanOrEqual => "<=",
+            ComparisonSign::GreaterThanOrEqual => ">=",
+            ComparisonSign::GreaterThan => ">",
         };
 
         // println!("Equal sign: {}", result);
@@ -35,7 +35,7 @@ impl Display for EqualSign {
 #[derive(Debug)]
 pub struct Equation {
     pub lhs: Expression,
-    pub sign: EqualSign,
+    pub sign: ComparisonSign,
     pub rhs: Expression,
 }
 
@@ -61,8 +61,7 @@ pub struct Expression {
 
 impl ShouldBeParenthesized for Expression {
     fn should_be_parenthesized(&self) -> bool {
-        // self.products.len() > 1
-        true
+        self.products.len() > 1
     }
 }
 
@@ -140,7 +139,9 @@ pub enum Node {
 impl ShouldBeParenthesized for Node {
     fn should_be_parenthesized(&self) -> bool {
         match self {
-            Node::Power { .. } => true,
+            Node::Power { base, power } => {
+                base.should_be_parenthesized() || power.should_be_parenthesized()
+            }
             _ => false,
         }
     }
@@ -225,6 +226,30 @@ impl Display for NodeOrExpression {
     }
 }
 
+impl NodeOrExpression {
+    fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
+        match self {
+            // last * thing
+            NodeOrExpression::Node(node) => match node {
+                Node::Number(_) => true,
+                Node::Variable(_) => match last {
+                    NodeOrExpression::Node(var_node) => match var_node {
+                        Node::Number(_) => false,
+                        Node::Variable(_) => false,
+                        _ => true,
+                    },
+                    // TODO: get first from expression
+                    NodeOrExpression::Expression(_) => false,
+                },
+                Node::Power { .. } => true,
+                Node::Function { .. } => true,
+            },
+            // TODO
+            NodeOrExpression::Expression(_) => false,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Product {
     pub sign: Sign,
@@ -241,13 +266,21 @@ impl Display for Product {
             result.push('1');
         }
 
+        let mut last: Option<&NodeOrExpression> = None;
+
         for side in [&self.top, &self.bottom] {
             if side.len() > 1 {
                 result.push('(');
             }
 
             for node_or_expression in side {
+                if let Some(last) = last {
+                    if node_or_expression.is_times_visible(last) {
+                        result += " * ";
+                    }
+                }
                 result += &node_or_expression.to_string();
+                last = Some(node_or_expression);
             }
 
             if side.len() > 1 {

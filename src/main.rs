@@ -24,9 +24,12 @@ fn main() {
                             power: Expression {
                                 products: vec![Product {
                                     sign: Sign::Positive,
-                                    top: vec![NodeOrExpression::Node(Node::Variable(
-                                        "x".to_string(),
-                                    ))],
+                                    top: vec![
+                                        NodeOrExpression::Node(Node::Number(12.2)),
+                                        NodeOrExpression::Node(Node::Variable("x".to_string())),
+                                        NodeOrExpression::Node(Node::Number(6.)),
+                                        NodeOrExpression::Node(Node::Number(2.)),
+                                    ],
                                     bottom: vec![NodeOrExpression::Expression(Expression {
                                         products: vec![
                                             Product {
@@ -103,5 +106,5 @@ fn main() {
     };
 
     println!("{}", a);
-    println!("(- 1/x + 2^(x/(a + b)) - 3^2 + 1/(2 + x))");
+    println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))");
 }
