@@ -104,9 +104,17 @@ fn test() {
     let _a = alt((parse_test(), parse_test()))("a");
 } */
 
+fn parse_and_map<'a, OutputType, FuncError>(
+    name: &'a str,
+    function: impl FnMut(&'a str) -> Result<OutputType, FuncError>,
+) -> impl FnMut(&'a str) -> IResult<&'a str, OutputType> {
+    map_res(ws(tag(name)), function)
+}
+
 fn parse_operation(input: &str) -> IResult<&str, Operation> {
     alt((
-        map_res(ws(tag("+")), |_| Ok::<Operation, ()>(Operation::Add)),
+        parse_and_map("+", |_| Ok::<Operation, ()>(Operation::Add)),
+        // map_res(ws(tag("+")), |_| Ok::<Operation, ()>(Operation::Add)),
         map_res(ws(tag("-")), |_| Ok::<Operation, ()>(Operation::Subtract)),
         map_res(ws(tag("*")), |_| Ok::<Operation, ()>(Operation::Multiply)),
         map_res(ws(tag("/")), |_| Ok::<Operation, ()>(Operation::Divide)),
@@ -215,9 +223,11 @@ mod test {
     #[test]
     fn test_operation() {
         assert_eq!(
-            parse_operation("    \n\t+  a  "),
-            Ok(("a  ", Operation::Add))
+            parse_operation("    \n\t/  a  "),
+            Ok(("a  ", Operation::Divide))
         );
+
+        assert_eq!(parse_operation("+"), Ok(("", Operation::Add)));
     }
 
     #[test]
