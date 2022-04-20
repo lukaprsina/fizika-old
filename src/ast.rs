@@ -50,6 +50,10 @@ impl Display for Equation {
     }
 }
 
+pub struct AnalyzedEquation {
+    pub equation: Equation,
+}
+
 trait ShouldBeParenthesized {
     fn should_be_parenthesized(&self) -> bool;
 }
@@ -155,32 +159,38 @@ impl Display for Node {
                 result += &number.to_string();
             }
             Node::Variable(variable) => {
-                result += &variable;
+                result += variable;
             }
             Node::Power { base, power } => {
                 let mut parenethesis = false;
 
                 for expression in [&base.products, &power.products] {
-                    if parenethesis {
-                        continue;
-                    }
-
-                    if expression.len() > 1 {
-                        parenethesis = true;
-                    } else if expression.len() == 1 {
-                        for side in [&expression[0].top, &expression[0].bottom] {
-                            if side.len() > 1 {
-                                parenethesis = true;
-                            } else if side.len() == 1 {
-                                match &side[0] {
-                                    NodeOrExpression::Node(_) => (),
-                                    NodeOrExpression::Expression(expression) => {
-                                        parenethesis |= expression.should_be_parenthesized();
+                    match expression.len() {
+                        2.. => {
+                            parenethesis = true;
+                            break;
+                        }
+                        1 => {
+                            for side in [&expression[0].top, &expression[0].bottom] {
+                                match side.len() {
+                                    2.. => {
+                                        parenethesis = true;
+                                        break;
                                     }
+                                    1 => {
+                                        if let NodeOrExpression::Expression(expression) = &side[0] {
+                                            if expression.should_be_parenthesized() {
+                                                parenethesis = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    _ => (),
                                 }
                             }
                         }
-                    }
+                        _ => (),
+                    };
                 }
 
                 result += &format!(
@@ -233,11 +243,9 @@ impl NodeOrExpression {
             NodeOrExpression::Node(node) => match node {
                 Node::Number(_) => true,
                 Node::Variable(_) => match last {
-                    NodeOrExpression::Node(var_node) => match var_node {
-                        Node::Number(_) => false,
-                        Node::Variable(_) => false,
-                        _ => true,
-                    },
+                    NodeOrExpression::Node(var_node) => {
+                        !matches!(var_node, Node::Number(_) | Node::Variable(_))
+                    }
                     // TODO: get first from expression
                     NodeOrExpression::Expression(_) => false,
                 },

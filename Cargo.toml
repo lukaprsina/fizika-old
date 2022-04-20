@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 nom = "7.1.1"
-num = "0.4.0"
 ryu = "1.0.9"
 smallvec = "1.8.0"
