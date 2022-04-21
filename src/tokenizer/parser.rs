@@ -1,7 +1,7 @@
 use nom::IResult;
 
 use crate::tokenizer::{
-    parsers::{
+    small_parsers::{
         parse_left_expression, parse_right_expression, parse_right_expression_no_parenthesis,
         parse_right_expression_with_comma,
     },

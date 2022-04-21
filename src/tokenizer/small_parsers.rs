@@ -1,13 +1,14 @@
 use super::Number;
 use crate::tokenizer::{Operation, Token, Unit};
-use std::num::NonZeroUsize;
+use std::{cmp::Ordering, collections::HashMap, num::NonZeroUsize};
 
+use lazy_static::lazy_static;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, tag_no_case, take_until},
     character::complete::{char, multispace0, one_of},
     combinator::{complete, map_res, opt, recognize, value},
-    error::{Error, ErrorKind, ParseError},
+    error::{self, Error, ErrorKind, ParseError},
     multi::{many0, many1},
     sequence::{delimited, pair, preceded, terminated, tuple},
     Err, IResult, Needed,
@@ -37,6 +38,36 @@ where
     delimited(multispace0, inner, multispace0)
 }
 
+fn finish(m: &mut HashMap<&'static str, Token>, v: &mut Vec<HashMap<&'static str, Token>>) {
+    v.push(m.clone());
+    m.clear();
+}
+
+lazy_static! {
+    static ref BINARY_EXPRESSION_MAPS: Vec<HashMap<&'static str, Token>> = {
+        let mut v = Vec::new();
+        let mut m = HashMap::new();
+
+        m.insert("+", Token::Binary(Operation::Add));
+        m.insert("-", Token::Binary(Operation::Subtract));
+        m.insert("*", Token::Binary(Operation::Multiply));
+        m.insert("/", Token::Binary(Operation::Divide));
+        m.insert("%", Token::Binary(Operation::Mod));
+        m.insert("^", Token::Binary(Operation::Power));
+        m.insert("!", Token::Binary(Operation::Factorial));
+        m.insert("=", Token::Binary(Operation::Equal));
+        m.insert("<", Token::Binary(Operation::LessThan));
+        m.insert(">", Token::Binary(Operation::GreaterThan));
+        finish(&mut m, &mut v);
+
+        m.insert("!=", Token::Binary(Operation::NotEqual));
+        m.insert("<=", Token::Binary(Operation::LessThanOrEqual));
+        m.insert(">=", Token::Binary(Operation::GreaterThanOrEqual));
+        finish(&mut m, &mut v);
+        v
+    };
+}
+
 fn parse_and_map<'a, OutputType, FuncError>(
     name: &'a str,
     function: impl FnMut(&'a str) -> Result<OutputType, FuncError>,
@@ -45,32 +76,24 @@ fn parse_and_map<'a, OutputType, FuncError>(
 }
 
 fn parse_binary_expressions(input: &str) -> IResult<&str, Token> {
-    alt((
-        // longest operations first for corect parsing
-        /* parse_and_map("=", |_| Ok::<Token, ()>(Token::Binary(Operation::Equal))),
-        parse_and_map("!=", |_| {
-            Ok::<Token, ()>(Token::Binary(Operation::NotEqual))
-        }),
-        parse_and_map("<=", |_| {
-            Ok::<Token, ()>(Token::Binary(Operation::LessThanOrEqual))
-        }),
-        parse_and_map(">=", |_| {
-            Ok::<Token, ()>(Token::Binary(Operation::GreaterThanOrEqual))
-        }),
-        parse_and_map("<", |_| Ok::<Token, ()>(Token::Binary(Operation::LessThan))),
-        parse_and_map(">", |_| {
-            Ok::<Token, ()>(Token::Binary(Operation::GreaterThan))
-        }), */
-        parse_and_map("+", |_| Ok::<Token, ()>(Token::Binary(Operation::Add))),
-        parse_and_map("-", |_| Ok::<Token, ()>(Token::Binary(Operation::Subtract))),
-        parse_and_map("*", |_| Ok::<Token, ()>(Token::Binary(Operation::Multiply))),
-        parse_and_map("/", |_| Ok::<Token, ()>(Token::Binary(Operation::Divide))),
-        parse_and_map("%", |_| Ok::<Token, ()>(Token::Binary(Operation::Mod))),
-        parse_and_map("^", |_| Ok::<Token, ()>(Token::Binary(Operation::Power))),
-        parse_and_map("!", |_| {
-            Ok::<Token, ()>(Token::Binary(Operation::Factorial))
-        }),
-    ))(input)
+    for (position, map) in BINARY_EXPRESSION_MAPS.iter().enumerate().rev() {
+        let length = position + 1;
+
+        let work_string = match input.len().cmp(&length) {
+            Ordering::Less => continue,
+            Ordering::Equal => input,
+            Ordering::Greater => &input[..length],
+        };
+
+        if let Some(token) = map.get(work_string) {
+            return Ok((&input[length..], token.clone()));
+        }
+    }
+
+    Err(nom::Err::Error(error::Error {
+        input,
+        code: ErrorKind::LengthValue,
+    }))
 }
 
 fn parse_unit(input: &str) -> IResult<&str, Unit> {
@@ -178,7 +201,7 @@ fn parse_number(input: &str) -> IResult<&str, Token> {
         trim(parse_float),
         trim(parse_hexadecimal),
         trim(parse_octal),
-        trim(parse_binary_expressions),
+        trim(parse_binary),
         trim(parse_decimal),
     ))(input)
 }
@@ -318,7 +341,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_operation() {
+    fn test_binary_expressions() {
         let cases = [
             ("+", Token::Binary(Operation::Add)),
             ("-", Token::Binary(Operation::Subtract)),
@@ -375,7 +398,7 @@ mod tests {
     fn test_parse_binary() {
         assert_eq!(
             Ok(("", Token::Number(Number::Int(0b011001), None))),
-            parse_binary_expressions("0b011001")
+            parse_binary("0b011001")
         );
     }
 

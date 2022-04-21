@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Operation {
     Add,
     Subtract,
@@ -15,7 +15,7 @@ pub enum Operation {
     GreaterThan,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Unit {
     Degree,
     Second,
@@ -25,13 +25,13 @@ pub enum Unit {
     Custom(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Number {
     Int(i64),
     Float(f64),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Binary(Operation),
     Unary(Operation),
