@@ -166,11 +166,11 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
 
 fn parse_number(input: &str) -> IResult<&str, Token> {
     alt((
+        trim(parse_float),
         trim(parse_hexadecimal),
         trim(parse_octal),
         trim(parse_binary),
         trim(parse_decimal),
-        trim(parse_float),
     ))(input)
 }
 
@@ -210,6 +210,49 @@ fn parse_function(input: &str) -> IResult<&str, Token> {
         ),
         |s: &str| -> Result<Token, ()> { Ok(Token::Function(s.to_string(), None)) },
     )(input)
+}
+
+fn parse_unary_sign(input: &str) -> IResult<&str, Token> {
+    alt((
+        parse_and_map("+", |_| Ok::<Token, ()>(Token::Unary(Operation::Add))),
+        parse_and_map("-", |_| Ok::<Token, ()>(Token::Unary(Operation::Subtract))),
+    ))(input)
+}
+
+fn parse_factorial(input: &str) -> IResult<&str, Token> {
+    parse_and_map("!", |_| Ok::<Token, ()>(Token::Unary(Operation::Factorial)))(input)
+}
+
+fn parse_left_parenthesis(input: &str) -> IResult<&str, Token> {
+    parse_and_map("(", |_| Ok::<Token, ()>(Token::LeftParenthesis))(input)
+}
+
+fn parse_right_parenthesis(input: &str) -> IResult<&str, Token> {
+    parse_and_map(")", |_| Ok::<Token, ()>(Token::RightParenthesis))(input)
+}
+
+fn parse_comma(input: &str) -> IResult<&str, Token> {
+    parse_and_map(",", |_| Ok::<Token, ()>(Token::Comma))(input)
+}
+
+fn parse_left_expression(input: &str) -> IResult<&str, Token> {
+    alt((
+        trim(parse_number),
+        trim(parse_function),
+        trim(parse_variable),
+        trim(parse_unary_sign),
+        trim(parse_left_parenthesis),
+    ))(input)
+}
+
+fn parse_right_expression(input: &str) -> IResult<&str, Token> {
+    alt((
+        trim(parse_factorial),
+        trim(parse_function),
+        trim(parse_variable),
+        trim(parse_unary_sign),
+        trim(parse_left_parenthesis),
+    ))(input)
 }
 
 #[cfg(test)]
@@ -275,51 +318,137 @@ mod tests {
 
     #[test]
     fn test_parse_unit() {
-        // TODO
+        let cases = [
+            ("grad", Unit::Gradian),
+            ("rad", Unit::Radian),
+            ("\'\'", Unit::Minute),
+            ("\'", Unit::Second),
+            ("°", Unit::Second),
+        ];
+
+        for case in cases {
+            assert_eq!(case.1, parse_unit(case.0).unwrap().1);
+        }
     }
 
     #[test]
     fn test_parse_hexadecimal() {
-        // TODO
+        assert_eq!(
+            Ok(("", Token::Number(Number::Int(0x1A), None))),
+            parse_hexadecimal("0x1A")
+        );
     }
 
     #[test]
     fn test_parse_octal() {
-        // TODO
+        assert_eq!(
+            Ok(("", Token::Number(Number::Int(0o73), None))),
+            parse_octal("0o73")
+        );
     }
 
     #[test]
     fn test_parse_binary() {
-        // TODO
+        assert_eq!(
+            Ok(("", Token::Number(Number::Int(0b011001), None))),
+            parse_binary("0b011001")
+        );
     }
 
     #[test]
     fn test_parse_decimal() {
-        // TODO
+        assert_eq!(
+            Ok(("", Token::Number(Number::Int(297), None))),
+            parse_decimal("297")
+        );
     }
 
     #[test]
     fn test_parse_float() {
-        // TODO
+        assert_eq!(
+            Ok(("", Token::Number(Number::Float(0.42), None))),
+            parse_float(".42")
+        );
+
+        assert_eq!(
+            Ok(("", Token::Number(Number::Float(10e3), None))),
+            parse_float("10e3")
+        );
+
+        assert_eq!(
+            Ok(("", Token::Number(Number::Float(10.1e3), None))),
+            parse_float("10.1e3")
+        );
+
+        assert_eq!(
+            Ok(("", Token::Number(Number::Float(297.42), None))),
+            parse_float("297.42")
+        );
     }
 
     #[test]
     fn test_parse_number() {
-        // TODO
+        let cases = [
+            ("0x1A", Token::Number(Number::Int(0x1A), None)),
+            ("0o73", Token::Number(Number::Int(0o73), None)),
+            ("0b011001", Token::Number(Number::Int(0b011001), None)),
+            ("297", Token::Number(Number::Int(297), None)),
+            (".42", Token::Number(Number::Float(0.42), None)),
+            ("10e3", Token::Number(Number::Float(10e3), None)),
+            ("10.1e3", Token::Number(Number::Float(10.1e3), None)),
+            ("297.42", Token::Number(Number::Float(297.42), None)),
+        ];
+
+        for case in cases {
+            assert_eq!(case.1, parse_number(case.0).unwrap().1);
+        }
     }
 
     #[test]
     fn test_parse_identifier() {
-        // TODO
+        assert_eq!(Ok(("", "abc")), parse_idenifier("abc"));
+        assert_eq!(Ok(("", "Abc")), parse_idenifier("Abc"));
+        assert_eq!(Ok(("", "_abc")), parse_idenifier("_abc"));
+        assert_eq!(Ok(("", "a_Bc")), parse_idenifier("a_Bc"));
     }
 
     #[test]
     fn test_parse_variable() {
-        // TODO
+        assert_eq!(
+            Ok(("", Token::Variable("abc".to_string()))),
+            parse_variable("abc")
+        );
+        assert_eq!(
+            Ok(("", Token::Variable("Abc".to_string()))),
+            parse_variable("Abc")
+        );
+        assert_eq!(
+            Ok(("", Token::Variable("_abc".to_string()))),
+            parse_variable("_abc")
+        );
+        assert_eq!(
+            Ok(("", Token::Variable("a_Bc".to_string()))),
+            parse_variable("a_Bc")
+        );
     }
 
     #[test]
     fn test_parse_function() {
-        // TODO
+        assert_eq!(
+            Ok((")", Token::Function("abc".to_string(), None))),
+            parse_function("abc()")
+        );
+        assert_eq!(
+            Ok(("x)", Token::Function("Abc".to_string(), None))),
+            parse_function("Abc(x)")
+        );
+        assert_eq!(
+            Ok(("1)", Token::Function("_abc".to_string(), None))),
+            parse_function("_abc(1)")
+        );
+        assert_eq!(
+            Ok(("", Token::Function("a_Bc".to_string(), None))),
+            parse_function("a_Bc(")
+        );
     }
 }

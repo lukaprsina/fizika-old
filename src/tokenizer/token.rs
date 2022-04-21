@@ -25,13 +25,13 @@ pub enum Unit {
     Custom(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Number {
     Int(i64),
     Float(f64),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     Binary(Operation),
     Unary(Operation),
