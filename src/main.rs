@@ -1,7 +1,7 @@
-use math_eval::{Expression, Node, NodeOrExpression, Product, Sign};
+use math_eval::{tokenizer::parser::tokenize, Expression, Node, NodeOrExpression, Product, Sign};
 
 fn main() {
-    let a = Expression {
+    let _a = Expression {
         products: vec![
             Product {
                 sign: Sign::Negative,
@@ -105,6 +105,17 @@ fn main() {
         ],
     };
 
-    println!("{}", a);
-    println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))");
+    /* println!("{}", _a);
+    println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */
+
+    let cases = vec![
+        "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
+        "1+1",
+        "1+\n\n\t1",
+        "1      +1",
+    ];
+
+    for case in cases {
+        println!("{:?}\n\n{}\n", tokenize(case), "-".repeat(80));
+    }
 }

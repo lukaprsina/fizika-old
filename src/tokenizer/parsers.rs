@@ -44,23 +44,32 @@ fn parse_and_map<'a, OutputType, FuncError>(
     map_res(trim(tag_no_case(name)), function)
 }
 
-fn parse_operation(input: &str) -> IResult<&str, Operation> {
+fn parse_binary_expressions(input: &str) -> IResult<&str, Token> {
     alt((
-        // same as map_res(ws(tag("+")), |_| Ok::<Operation, ()>(Operation::Add)),
         // longest operations first for corect parsing
-        parse_and_map("=", |_| Ok::<Operation, ()>(Operation::Equal)),
-        parse_and_map("!=", |_| Ok::<Operation, ()>(Operation::NotEqual)),
-        parse_and_map("<=", |_| Ok::<Operation, ()>(Operation::LessThanOrEqual)),
-        parse_and_map(">=", |_| Ok::<Operation, ()>(Operation::GreaterThanOrEqual)),
-        parse_and_map("<", |_| Ok::<Operation, ()>(Operation::LessThan)),
-        parse_and_map(">", |_| Ok::<Operation, ()>(Operation::GreaterThan)),
-        parse_and_map("+", |_| Ok::<Operation, ()>(Operation::Add)),
-        parse_and_map("-", |_| Ok::<Operation, ()>(Operation::Subtract)),
-        parse_and_map("*", |_| Ok::<Operation, ()>(Operation::Multiply)),
-        parse_and_map("/", |_| Ok::<Operation, ()>(Operation::Divide)),
-        parse_and_map("%", |_| Ok::<Operation, ()>(Operation::Mod)),
-        parse_and_map("^", |_| Ok::<Operation, ()>(Operation::Power)),
-        parse_and_map("!", |_| Ok::<Operation, ()>(Operation::Factorial)),
+        /* parse_and_map("=", |_| Ok::<Token, ()>(Token::Binary(Operation::Equal))),
+        parse_and_map("!=", |_| {
+            Ok::<Token, ()>(Token::Binary(Operation::NotEqual))
+        }),
+        parse_and_map("<=", |_| {
+            Ok::<Token, ()>(Token::Binary(Operation::LessThanOrEqual))
+        }),
+        parse_and_map(">=", |_| {
+            Ok::<Token, ()>(Token::Binary(Operation::GreaterThanOrEqual))
+        }),
+        parse_and_map("<", |_| Ok::<Token, ()>(Token::Binary(Operation::LessThan))),
+        parse_and_map(">", |_| {
+            Ok::<Token, ()>(Token::Binary(Operation::GreaterThan))
+        }), */
+        parse_and_map("+", |_| Ok::<Token, ()>(Token::Binary(Operation::Add))),
+        parse_and_map("-", |_| Ok::<Token, ()>(Token::Binary(Operation::Subtract))),
+        parse_and_map("*", |_| Ok::<Token, ()>(Token::Binary(Operation::Multiply))),
+        parse_and_map("/", |_| Ok::<Token, ()>(Token::Binary(Operation::Divide))),
+        parse_and_map("%", |_| Ok::<Token, ()>(Token::Binary(Operation::Mod))),
+        parse_and_map("^", |_| Ok::<Token, ()>(Token::Binary(Operation::Power))),
+        parse_and_map("!", |_| {
+            Ok::<Token, ()>(Token::Binary(Operation::Factorial))
+        }),
     ))(input)
 }
 
@@ -169,7 +178,7 @@ fn parse_number(input: &str) -> IResult<&str, Token> {
         trim(parse_float),
         trim(parse_hexadecimal),
         trim(parse_octal),
-        trim(parse_binary),
+        trim(parse_binary_expressions),
         trim(parse_decimal),
     ))(input)
 }
@@ -212,6 +221,10 @@ fn parse_function(input: &str) -> IResult<&str, Token> {
     )(input)
 }
 
+/*
+    All of the following functions are used directly for parsing.
+*/
+
 fn parse_unary_sign(input: &str) -> IResult<&str, Token> {
     alt((
         parse_and_map("+", |_| Ok::<Token, ()>(Token::Unary(Operation::Add))),
@@ -235,7 +248,7 @@ fn parse_comma(input: &str) -> IResult<&str, Token> {
     parse_and_map(",", |_| Ok::<Token, ()>(Token::Comma))(input)
 }
 
-fn parse_left_expression(input: &str) -> IResult<&str, Token> {
+pub(crate) fn parse_left_expression(input: &str) -> IResult<&str, Token> {
     alt((
         trim(parse_number),
         trim(parse_function),
@@ -245,13 +258,24 @@ fn parse_left_expression(input: &str) -> IResult<&str, Token> {
     ))(input)
 }
 
-fn parse_right_expression(input: &str) -> IResult<&str, Token> {
+pub(crate) fn parse_right_expression(input: &str) -> IResult<&str, Token> {
     alt((
         trim(parse_factorial),
-        trim(parse_function),
-        trim(parse_variable),
-        trim(parse_unary_sign),
-        trim(parse_left_parenthesis),
+        trim(parse_binary_expressions),
+        trim(parse_right_parenthesis),
+    ))(input)
+}
+
+pub(crate) fn parse_right_expression_no_parenthesis(input: &str) -> IResult<&str, Token> {
+    alt((trim(parse_factorial), trim(parse_binary_expressions)))(input)
+}
+
+pub(crate) fn parse_right_expression_with_comma(input: &str) -> IResult<&str, Token> {
+    alt((
+        trim(parse_factorial),
+        trim(parse_binary_expressions),
+        trim(parse_right_parenthesis),
+        trim(parse_comma),
     ))(input)
 }
 
@@ -296,23 +320,23 @@ mod tests {
     #[test]
     fn test_parse_operation() {
         let cases = [
-            ("+", Operation::Add),
-            ("-", Operation::Subtract),
-            ("*", Operation::Multiply),
-            ("/", Operation::Divide),
-            ("%", Operation::Mod),
-            ("^", Operation::Power),
-            ("!", Operation::Factorial),
-            ("=", Operation::Equal),
-            ("!=", Operation::NotEqual),
-            ("<", Operation::LessThan),
-            ("<=", Operation::LessThanOrEqual),
-            (">=", Operation::GreaterThanOrEqual),
-            (">", Operation::GreaterThan),
+            ("+", Token::Binary(Operation::Add)),
+            ("-", Token::Binary(Operation::Subtract)),
+            ("*", Token::Binary(Operation::Multiply)),
+            ("/", Token::Binary(Operation::Divide)),
+            ("%", Token::Binary(Operation::Mod)),
+            ("^", Token::Binary(Operation::Power)),
+            ("!", Token::Binary(Operation::Factorial)),
+            ("=", Token::Binary(Operation::Equal)),
+            ("!=", Token::Binary(Operation::NotEqual)),
+            ("<", Token::Binary(Operation::LessThan)),
+            ("<=", Token::Binary(Operation::LessThanOrEqual)),
+            (">=", Token::Binary(Operation::GreaterThanOrEqual)),
+            (">", Token::Binary(Operation::GreaterThan)),
         ];
 
         for case in cases {
-            assert_eq!(case.1, parse_operation(case.0).unwrap().1);
+            assert_eq!(case.1, parse_binary_expressions(case.0).unwrap().1);
         }
     }
 
@@ -351,7 +375,7 @@ mod tests {
     fn test_parse_binary() {
         assert_eq!(
             Ok(("", Token::Number(Number::Int(0b011001), None))),
-            parse_binary("0b011001")
+            parse_binary_expressions("0b011001")
         );
     }
 
