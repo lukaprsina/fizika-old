@@ -38,33 +38,43 @@ where
     delimited(multispace0, inner, multispace0)
 }
 
-fn finish(m: &mut HashMap<&'static str, Token>, v: &mut Vec<HashMap<&'static str, Token>>) {
-    v.push(m.clone());
-    m.clear();
+fn add_str_token_pairs(
+    pairs: &'static [(&str, &Token)],
+) -> Vec<HashMap<&'static str, &'static Token>> {
+    let mut result: Vec<HashMap<&'static str, &Token>> = vec![];
+
+    for (name, token) in pairs {
+        let index = name.len() - 1;
+
+        if let Some(map) = result.get_mut(index) {
+            map.insert(name, &token);
+        } else {
+            let mut map = HashMap::new();
+            map.insert(*name, *token);
+            result.resize(index, HashMap::new());
+            result.insert(index, map);
+        }
+    }
+    result
 }
 
 lazy_static! {
-    static ref BINARY_EXPRESSION_MAPS: Vec<HashMap<&'static str, Token>> = {
-        let mut v = Vec::new();
-        let mut m = HashMap::new();
-
-        m.insert("+", Token::Binary(Operation::Add));
-        m.insert("-", Token::Binary(Operation::Subtract));
-        m.insert("*", Token::Binary(Operation::Multiply));
-        m.insert("/", Token::Binary(Operation::Divide));
-        m.insert("%", Token::Binary(Operation::Mod));
-        m.insert("^", Token::Binary(Operation::Power));
-        m.insert("!", Token::Binary(Operation::Factorial));
-        m.insert("=", Token::Binary(Operation::Equal));
-        m.insert("<", Token::Binary(Operation::LessThan));
-        m.insert(">", Token::Binary(Operation::GreaterThan));
-        finish(&mut m, &mut v);
-
-        m.insert("!=", Token::Binary(Operation::NotEqual));
-        m.insert("<=", Token::Binary(Operation::LessThanOrEqual));
-        m.insert(">=", Token::Binary(Operation::GreaterThanOrEqual));
-        finish(&mut m, &mut v);
-        v
+    static ref BINARY_EXPRESSION_MAPS: Vec<HashMap<&'static str, &'static Token>> = {
+        add_str_token_pairs(&[
+            ("+", &Token::Binary(Operation::Add)),
+            ("-", &Token::Binary(Operation::Subtract)),
+            ("*", &Token::Binary(Operation::Multiply)),
+            ("/", &Token::Binary(Operation::Divide)),
+            ("%", &Token::Binary(Operation::Mod)),
+            ("^", &Token::Binary(Operation::Power)),
+            ("!", &Token::Binary(Operation::Factorial)),
+            ("=", &Token::Binary(Operation::Equal)),
+            ("<", &Token::Binary(Operation::LessThan)),
+            (">", &Token::Binary(Operation::GreaterThan)),
+            ("<=", &Token::Binary(Operation::LessThanOrEqual)),
+            (">=", &Token::Binary(Operation::GreaterThanOrEqual)),
+            ("!=", &Token::Binary(Operation::NotEqual)),
+        ])
     };
 }
 
@@ -85,7 +95,7 @@ fn parse_binary_expressions(input: &str) -> IResult<&str, Token> {
             Ordering::Greater => &input[..length],
         };
 
-        if let Some(token) = map.get(work_string) {
+        if let Some(&token) = map.get(work_string) {
             return Ok((&input[length..], token.clone()));
         }
     }
