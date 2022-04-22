@@ -1,5 +1,5 @@
 use super::Number;
-use crate::tokenizer::{Operation, Token, Unit};
+use crate::tokenizer::{Operation, Token};
 use std::{cmp::Ordering, collections::HashMap, num::NonZeroUsize};
 
 use lazy_static::lazy_static;
@@ -106,17 +106,6 @@ fn parse_binary_expressions(input: &str) -> IResult<&str, Token> {
     }))
 }
 
-fn parse_unit(input: &str) -> IResult<&str, Unit> {
-    alt((
-        // add a custom unit
-        parse_and_map("grad", |_| Ok::<Unit, ()>(Unit::Gradian)),
-        parse_and_map("rad", |_| Ok::<Unit, ()>(Unit::Radian)),
-        parse_and_map("\'\'", |_| Ok::<Unit, ()>(Unit::Minute)),
-        parse_and_map("\'", |_| Ok::<Unit, ()>(Unit::Second)),
-        parse_and_map("°", |_| Ok::<Unit, ()>(Unit::Second)),
-    ))(input)
-}
-
 fn parse_hexadecimal(input: &str) -> IResult<&str, Token> {
     map_res(
         preceded(
@@ -128,7 +117,7 @@ fn parse_hexadecimal(input: &str) -> IResult<&str, Token> {
         ),
         |out: &str| -> Result<Token, std::num::ParseIntError> {
             let number = i64::from_str_radix(&str::replace(out, "_", ""), 16)?;
-            Ok(Token::Number(Number::Int(number), None))
+            Ok(Token::Number(Number::Int(number)))
         },
     )(input)
 }
@@ -141,7 +130,7 @@ fn parse_octal(input: &str) -> IResult<&str, Token> {
         ),
         |out: &str| -> Result<Token, std::num::ParseIntError> {
             let number = i64::from_str_radix(&str::replace(out, "_", ""), 8)?;
-            Ok(Token::Number(Number::Int(number), None))
+            Ok(Token::Number(Number::Int(number)))
         },
     )(input)
 }
@@ -154,7 +143,7 @@ fn parse_binary(input: &str) -> IResult<&str, Token> {
         ),
         |out: &str| -> Result<Token, std::num::ParseIntError> {
             let number = i64::from_str_radix(&str::replace(out, "_", ""), 2)?;
-            Ok(Token::Number(Number::Int(number), None))
+            Ok(Token::Number(Number::Int(number)))
         },
     )(input)
 }
@@ -164,7 +153,7 @@ fn parse_decimal(input: &str) -> IResult<&str, Token> {
         recognize(many1(terminated(one_of("0123456789"), many0(char('_'))))),
         |out: &str| -> Result<Token, std::num::ParseIntError> {
             let number = str::replace(out, "_", "").parse::<i64>()?;
-            Ok(Token::Number(Number::Int(number), None))
+            Ok(Token::Number(Number::Int(number)))
         },
     )(input)
 }
@@ -180,7 +169,7 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
             ))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number), None))
+                Ok(Token::Number(Number::Float(number)))
             },
         ), // Case two: 42e42 and 42.42e42
         map_res(
@@ -193,14 +182,14 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
             ))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number), None))
+                Ok(Token::Number(Number::Float(number)))
             },
         ), // Case three: 42. and 42.42
         map_res(
             recognize(tuple((parse_decimal, char('.'), opt(parse_decimal)))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number), None))
+                Ok(Token::Number(Number::Float(number)))
             },
         ),
     ))(input)
@@ -236,6 +225,23 @@ fn parse_idenifier(input: &str) -> IResult<&str, &str> {
     } else {
         IResult::Err(Err::Incomplete(Needed::Size(NonZeroUsize::new(1).unwrap())))
     }
+}
+
+fn parse_unit(input: &str) -> IResult<&str, Token> {
+    alt((
+        map_res(
+            preceded(parse_number, complete(parse_idenifier)),
+            |s| -> Result<Token, ()> { Ok(Token::Unit(s.to_string())) },
+        ),
+        map_res(
+            preceded(parse_right_parenthesis, complete(parse_idenifier)),
+            |s| -> Result<Token, ()> { Ok(Token::Unit(s.to_string())) },
+        ),
+        map_res(
+            preceded(parse_binary_expressions, complete(parse_idenifier)),
+            |s| -> Result<Token, ()> { Ok(Token::Unit(s.to_string())) },
+        ),
+    ))(input)
 }
 
 fn parse_variable(input: &str) -> IResult<&str, Token> {
@@ -373,25 +379,14 @@ mod tests {
         }
     }
 
+    // TODO
     #[test]
-    fn test_parse_unit() {
-        let cases = [
-            ("grad", Unit::Gradian),
-            ("rad", Unit::Radian),
-            ("\'\'", Unit::Minute),
-            ("\'", Unit::Second),
-            ("°", Unit::Second),
-        ];
-
-        for case in cases {
-            assert_eq!(case.1, parse_unit(case.0).unwrap().1);
-        }
-    }
+    fn test_parse_unit() {}
 
     #[test]
     fn test_parse_hexadecimal() {
         assert_eq!(
-            Ok(("", Token::Number(Number::Int(0x1A), None))),
+            Ok(("", Token::Number(Number::Int(0x1A)))),
             parse_hexadecimal("0x1A")
         );
     }
@@ -399,7 +394,7 @@ mod tests {
     #[test]
     fn test_parse_octal() {
         assert_eq!(
-            Ok(("", Token::Number(Number::Int(0o73), None))),
+            Ok(("", Token::Number(Number::Int(0o73)))),
             parse_octal("0o73")
         );
     }
@@ -407,7 +402,7 @@ mod tests {
     #[test]
     fn test_parse_binary() {
         assert_eq!(
-            Ok(("", Token::Number(Number::Int(0b011001), None))),
+            Ok(("", Token::Number(Number::Int(0b011001)))),
             parse_binary("0b011001")
         );
     }
@@ -415,7 +410,7 @@ mod tests {
     #[test]
     fn test_parse_decimal() {
         assert_eq!(
-            Ok(("", Token::Number(Number::Int(297), None))),
+            Ok(("", Token::Number(Number::Int(297)))),
             parse_decimal("297")
         );
     }
@@ -423,22 +418,22 @@ mod tests {
     #[test]
     fn test_parse_float() {
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(0.42), None))),
+            Ok(("", Token::Number(Number::Float(0.42)))),
             parse_float(".42")
         );
 
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(10e3), None))),
+            Ok(("", Token::Number(Number::Float(10e3)))),
             parse_float("10e3")
         );
 
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(10.1e3), None))),
+            Ok(("", Token::Number(Number::Float(10.1e3)))),
             parse_float("10.1e3")
         );
 
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(297.42), None))),
+            Ok(("", Token::Number(Number::Float(297.42)))),
             parse_float("297.42")
         );
     }
@@ -446,14 +441,14 @@ mod tests {
     #[test]
     fn test_parse_number() {
         let cases = [
-            ("0x1A", Token::Number(Number::Int(0x1A), None)),
-            ("0o73", Token::Number(Number::Int(0o73), None)),
-            ("0b011001", Token::Number(Number::Int(0b011001), None)),
-            ("297", Token::Number(Number::Int(297), None)),
-            (".42", Token::Number(Number::Float(0.42), None)),
-            ("10e3", Token::Number(Number::Float(10e3), None)),
-            ("10.1e3", Token::Number(Number::Float(10.1e3), None)),
-            ("297.42", Token::Number(Number::Float(297.42), None)),
+            ("0x1A", Token::Number(Number::Int(0x1A))),
+            ("0o73", Token::Number(Number::Int(0o73))),
+            ("0b011001", Token::Number(Number::Int(0b011001))),
+            ("297", Token::Number(Number::Int(297))),
+            (".42", Token::Number(Number::Float(0.42))),
+            ("10e3", Token::Number(Number::Float(10e3))),
+            ("10.1e3", Token::Number(Number::Float(10.1e3))),
+            ("297.42", Token::Number(Number::Float(297.42))),
         ];
 
         for case in cases {

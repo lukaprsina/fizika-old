@@ -16,16 +16,6 @@ pub enum Operation {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Unit {
-    Degree,
-    Second,
-    Minute,
-    Radian,
-    Gradian,
-    Custom(String),
-}
-
-#[derive(Debug, PartialEq, Clone)]
 pub enum Number {
     Int(i64),
     Float(f64),
@@ -38,7 +28,8 @@ pub enum Token {
     LeftParenthesis,
     RightParenthesis,
     Comma,
-    Number(Number, Option<Unit>),
+    Number(Number),
+    Unit(String),
     Variable(String),
     Function(String, Option<usize>),
 }
