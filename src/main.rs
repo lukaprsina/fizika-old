@@ -109,13 +109,11 @@ fn main() {
     println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */
 
     let cases = vec![
-        "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
-        "1+1",
-        "1+\n\n\t1",
-        "1      +1",
+        // "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
+        "1*m"
     ];
 
     for case in cases {
-        println!("{:?}\n\n{}\n", tokenize(case), "-".repeat(80));
+        println!("Case: {}\n{:?}\n\n{}\n",case, tokenize(case), "-".repeat(80));
     }
 }

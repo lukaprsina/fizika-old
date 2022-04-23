@@ -1,9 +1,9 @@
-use nom::IResult;
+use nom::{IResult, character::complete::multispace0};
 
 use crate::tokenizer::{
     small_parsers::{
         parse_left_expression, parse_right_expression, parse_right_expression_no_parenthesis,
-        parse_right_expression_with_comma,
+        parse_right_expression_with_comma, trim
     },
     Token,
 };
@@ -30,9 +30,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
     let mut parenthesis_stack: Vec<ParenthesisState> = vec![];
     let mut state = TokenizerState::LeftExpression;
 
-    let mut work_string = input;
+    let mut work_string = input;    
 
     while !work_string.is_empty() {
+        if let Ok(trimmed) = multispace0::<&str, nom::error::Error<_>>(work_string) {
+            work_string = trimmed.0;
+        }
+        
         let parsing_result: IResult<&str, Token> = match (&state, parenthesis_stack.last()) {
             (TokenizerState::LeftExpression, _) => parse_left_expression(work_string),
             (TokenizerState::RightExpression, None) => {

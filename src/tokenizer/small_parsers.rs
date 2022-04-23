@@ -29,7 +29,7 @@ fn parse_inline_comment<'a, E: ParseError<&'a str>>(i: &'a str) -> IResult<&'a s
     )(i)
 }
 
-fn trim<'a, F: 'a, O, E: ParseError<&'a str>>(
+pub fn trim<'a, F: 'a, O, E: ParseError<&'a str>>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
 where
@@ -82,7 +82,7 @@ fn parse_and_map<'a, OutputType, FuncError>(
     name: &'a str,
     function: impl FnMut(&'a str) -> Result<OutputType, FuncError>,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, OutputType> {
-    map_res(trim(tag_no_case(name)), function)
+    map_res(tag_no_case(name), function)
 }
 
 fn parse_binary_expressions(input: &str) -> IResult<&str, Token> {
@@ -197,11 +197,11 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
 
 fn parse_number(input: &str) -> IResult<&str, Token> {
     alt((
-        trim(parse_float),
-        trim(parse_hexadecimal),
-        trim(parse_octal),
-        trim(parse_binary),
-        trim(parse_decimal),
+        parse_float,
+        parse_hexadecimal,
+        parse_octal,
+        parse_binary,
+        parse_decimal,
     ))(input)
 }
 
@@ -242,6 +242,9 @@ fn parse_unit(input: &str) -> IResult<&str, Token> {
             |s| -> Result<Token, ()> { Ok(Token::Identifier{name: s.to_string(), could_be_unit: true}) },
         ),
     ))(input)
+    /* map_res(complete(parse_idenifier), |s| -> Result<Token, ()> {
+        Ok(Token::Identifier{name: s.to_string(), could_be_unit: true})
+    })(input) */
 }
 
 fn parse_variable(input: &str) -> IResult<&str, Token> {
@@ -289,33 +292,35 @@ fn parse_comma(input: &str) -> IResult<&str, Token> {
 
 pub(crate) fn parse_left_expression(input: &str) -> IResult<&str, Token> {
     alt((
-        trim(parse_number),
-        trim(parse_function),
-        trim(parse_unit),
-        trim(parse_variable),
-        trim(parse_unary_sign),
-        trim(parse_left_parenthesis),
+        // parse_unit,
+        parse_number,
+        parse_function,
+        parse_variable,
+        parse_unary_sign,
+        parse_left_parenthesis,
     ))(input)
 }
 
 pub(crate) fn parse_right_expression(input: &str) -> IResult<&str, Token> {
     alt((
-        trim(parse_factorial),
-        trim(parse_binary_expressions),
-        trim(parse_right_parenthesis),
+        parse_unit,
+        parse_factorial,
+        parse_binary_expressions,
+        parse_right_parenthesis,
     ))(input)
 }
 
 pub(crate) fn parse_right_expression_no_parenthesis(input: &str) -> IResult<&str, Token> {
-    alt((trim(parse_factorial), trim(parse_binary_expressions)))(input)
+    alt((parse_unit, parse_factorial, parse_binary_expressions))(input)
 }
 
 pub(crate) fn parse_right_expression_with_comma(input: &str) -> IResult<&str, Token> {
     alt((
-        trim(parse_factorial),
-        trim(parse_binary_expressions),
-        trim(parse_right_parenthesis),
-        trim(parse_comma),
+        parse_unit,
+        parse_factorial,
+        parse_binary_expressions,
+        parse_right_parenthesis,
+        parse_comma,
     ))(input)
 }
 
