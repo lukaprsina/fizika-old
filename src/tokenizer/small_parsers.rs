@@ -33,7 +33,7 @@ pub fn trim<'a, F: 'a, O, E: ParseError<&'a str>>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
 where
-    F: Fn(&'a str) -> IResult<&'a str, O, E>,
+    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
 {
     delimited(multispace0, inner, multispace0)
 }
@@ -227,7 +227,7 @@ fn parse_idenifier(input: &str) -> IResult<&str, &str> {
     }
 }
 
-fn parse_unit(input: &str) -> IResult<&str, Token> {
+pub fn parse_unit(input: &str) -> IResult<&str, Token> {
     alt((
         map_res(
             preceded(parse_number, complete(parse_idenifier)),
@@ -278,9 +278,6 @@ fn parse_unit(input: &str) -> IResult<&str, Token> {
             },
         ),
     ))(input)
-    /* map_res(complete(parse_idenifier), |s| -> Result<Token, ()> {
-        Ok(Token::Identifier{name: s.to_string(), could_be_unit: true})
-    })(input) */
 }
 
 fn parse_variable(input: &str) -> IResult<&str, Token> {
@@ -341,7 +338,7 @@ pub(crate) fn parse_left_expression(input: &str) -> IResult<&str, Token> {
 
 pub(crate) fn parse_right_expression(input: &str) -> IResult<&str, Token> {
     alt((
-        parse_unit,
+        // parse_unit,
         parse_factorial,
         parse_binary_expressions,
         parse_right_parenthesis,
@@ -349,12 +346,16 @@ pub(crate) fn parse_right_expression(input: &str) -> IResult<&str, Token> {
 }
 
 pub(crate) fn parse_right_expression_no_parenthesis(input: &str) -> IResult<&str, Token> {
-    alt((parse_unit, parse_factorial, parse_binary_expressions))(input)
+    alt((
+        /* parse_unit, */
+        parse_factorial,
+        parse_binary_expressions,
+    ))(input)
 }
 
 pub(crate) fn parse_right_expression_with_comma(input: &str) -> IResult<&str, Token> {
     alt((
-        parse_unit,
+        // parse_unit,
         parse_factorial,
         parse_binary_expressions,
         parse_right_parenthesis,

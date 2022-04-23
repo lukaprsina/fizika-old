@@ -109,8 +109,8 @@ fn main() {
     println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */
 
     let cases = vec![
-        // "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
-        "1*m", "a/b",
+        // "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)","1*m", "a/b",
+        "1/a", "1a",
     ];
 
     for case in cases {
@@ -122,3 +122,5 @@ fn main() {
         );
     }
 }
+
+/* TODO: unit must see last token, but not be parsed like that */

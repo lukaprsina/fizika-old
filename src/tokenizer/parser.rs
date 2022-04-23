@@ -1,9 +1,9 @@
-use nom::{IResult, character::complete::multispace0};
+use nom::{character::complete::multispace0, IResult};
 
 use crate::tokenizer::{
     small_parsers::{
         parse_left_expression, parse_right_expression, parse_right_expression_no_parenthesis,
-        parse_right_expression_with_comma, trim
+        parse_right_expression_with_comma, parse_unit,
     },
     Token,
 };
@@ -15,11 +15,13 @@ pub enum ParseError {
     MissingArgument,
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum TokenizerState {
     LeftExpression,
     RightExpression,
 }
 
+#[derive(Debug, Copy, Clone)]
 enum ParenthesisState {
     Subexpression,
     Function,
@@ -29,14 +31,18 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
     let mut result: Vec<Token> = vec![];
     let mut parenthesis_stack: Vec<ParenthesisState> = vec![];
     let mut state = TokenizerState::LeftExpression;
+    let mut next_is_unit = false;
+    let mut work_string = input;
 
-    let mut work_string = input;    
+    let mut last_string = work_string;
+    let mut last_state;
 
     while !work_string.is_empty() {
         if let Ok(trimmed) = multispace0::<&str, nom::error::Error<_>>(work_string) {
             work_string = trimmed.0;
+            last_string = work_string;
         }
-        
+
         let parsing_result: IResult<&str, Token> = match (&state, parenthesis_stack.last()) {
             (TokenizerState::LeftExpression, _) => parse_left_expression(work_string),
             (TokenizerState::RightExpression, None) => {
@@ -50,8 +56,33 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
             }
         };
 
+        println!("State: {:?}, stack: {:?}", state, parenthesis_stack.last());
+        // TODO: add an exception that multiply can be right expr
+
         match parsing_result {
-            Ok((rest, token)) => {
+            Ok((rest, mut token)) => {
+                if next_is_unit {
+                    next_is_unit = false;
+                    if let Token::Identifier {
+                        name,
+                        could_be_unit,
+                    } = token
+                    {
+                        token = Token::Identifier {
+                            name,
+                            could_be_unit: true,
+                        };
+                        if could_be_unit {
+                            unreachable!();
+                        }
+                    } else {
+                        unreachable!();
+                    }
+                }
+
+                last_state = state.clone();
+
+                println!("Token: {:?}\n", token);
                 match token {
                     Token::Binary(_) | Token::Comma => state = TokenizerState::LeftExpression,
                     Token::LeftParenthesis => {
@@ -60,7 +91,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
                     Token::RightParenthesis => {
                         parenthesis_stack.pop().expect("Missing left parenthesis");
                     }
-                    Token::Identifier {..} | Token::Number(..) => {
+                    Token::Identifier { .. } | Token::Number(..) => {
                         state = TokenizerState::RightExpression
                     }
                     Token::Function(..) => parenthesis_stack.push(ParenthesisState::Function),
@@ -69,6 +100,13 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
 
                 result.push(token);
                 work_string = rest;
+
+                if last_state == TokenizerState::RightExpression {
+                    if let Ok(_) = parse_unit(last_string) {
+                        println!("Overriding unit in identifier");
+                        next_is_unit = true;
+                    }
+                }
             }
             Err(nom::Err::Error(_)) => {
                 // TODO: handle error
