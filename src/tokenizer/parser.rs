@@ -56,7 +56,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
                     Token::RightParenthesis => {
                         parenthesis_stack.pop().expect("Missing left parenthesis");
                     }
-                    Token::Variable(_) | Token::Number(..) => {
+                    Token::Identifier {..} | Token::Number(..) => {
                         state = TokenizerState::RightExpression
                     }
                     Token::Function(..) => parenthesis_stack.push(ParenthesisState::Function),

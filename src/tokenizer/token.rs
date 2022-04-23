@@ -29,7 +29,9 @@ pub enum Token {
     RightParenthesis,
     Comma,
     Number(Number),
-    Unit(String),
-    Variable(String),
+    Identifier {
+        name: String,
+        could_be_unit: bool,
+    },
     Function(String, Option<usize>),
 }

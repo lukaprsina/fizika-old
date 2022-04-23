@@ -231,22 +231,22 @@ fn parse_unit(input: &str) -> IResult<&str, Token> {
     alt((
         map_res(
             preceded(parse_number, complete(parse_idenifier)),
-            |s| -> Result<Token, ()> { Ok(Token::Unit(s.to_string())) },
+            |s| -> Result<Token, ()> { Ok(Token::Identifier{name: s.to_string(), could_be_unit: true}) },
         ),
         map_res(
             preceded(parse_right_parenthesis, complete(parse_idenifier)),
-            |s| -> Result<Token, ()> { Ok(Token::Unit(s.to_string())) },
+            |s| -> Result<Token, ()> { Ok(Token::Identifier{name: s.to_string(), could_be_unit: true}) },
         ),
         map_res(
             preceded(parse_binary_expressions, complete(parse_idenifier)),
-            |s| -> Result<Token, ()> { Ok(Token::Unit(s.to_string())) },
+            |s| -> Result<Token, ()> { Ok(Token::Identifier{name: s.to_string(), could_be_unit: true}) },
         ),
     ))(input)
 }
 
 fn parse_variable(input: &str) -> IResult<&str, Token> {
     map_res(complete(parse_idenifier), |s| -> Result<Token, ()> {
-        Ok(Token::Variable(s.to_string()))
+        Ok(Token::Identifier{name: s.to_string(), could_be_unit: false})
     })(input)
 }
 
@@ -291,6 +291,7 @@ pub(crate) fn parse_left_expression(input: &str) -> IResult<&str, Token> {
     alt((
         trim(parse_number),
         trim(parse_function),
+        trim(parse_unit),
         trim(parse_variable),
         trim(parse_unary_sign),
         trim(parse_left_parenthesis),
@@ -467,19 +468,19 @@ mod tests {
     #[test]
     fn test_parse_variable() {
         assert_eq!(
-            Ok(("", Token::Variable("abc".to_string()))),
+            Ok(("", Token::Identifier{name: "abc".to_string(), could_be_unit: false})),
             parse_variable("abc")
         );
         assert_eq!(
-            Ok(("", Token::Variable("Abc".to_string()))),
+            Ok(("", Token::Identifier{name: "Abc".to_string(), could_be_unit: false})),
             parse_variable("Abc")
         );
         assert_eq!(
-            Ok(("", Token::Variable("_abc".to_string()))),
+            Ok(("", Token::Identifier{name: "_abc".to_string(), could_be_unit: false})),
             parse_variable("_abc")
         );
         assert_eq!(
-            Ok(("", Token::Variable("a_Bc".to_string()))),
+            Ok(("", Token::Identifier{name: "a_Bc".to_string(), could_be_unit: false})),
             parse_variable("a_Bc")
         );
     }
