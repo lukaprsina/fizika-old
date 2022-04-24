@@ -5,7 +5,7 @@ use crate::tokenizer::{
         parse_left_expression, parse_right_expression, parse_right_expression_no_parenthesis,
         parse_right_expression_with_comma, parse_unit,
     },
-    Token,
+    Operation, Token,
 };
 
 #[derive(Debug)]
@@ -40,10 +40,9 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
     while !work_string.is_empty() {
         if let Ok(trimmed) = multispace0::<&str, nom::error::Error<_>>(work_string) {
             work_string = trimmed.0;
-            last_string = work_string;
         }
 
-        let parsing_result: IResult<&str, Token> = match (&state, parenthesis_stack.last()) {
+        let mut parsing_result: IResult<&str, Token> = match (&state, parenthesis_stack.last()) {
             (TokenizerState::LeftExpression, _) => parse_left_expression(work_string),
             (TokenizerState::RightExpression, None) => {
                 parse_right_expression_no_parenthesis(work_string)
@@ -57,30 +56,32 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
         };
 
         println!("State: {:?}, stack: {:?}", state, parenthesis_stack.last());
-        // TODO: add an exception that multiply can be right expr
+        last_state = state.clone();
 
-        match parsing_result {
-            Ok((rest, mut token)) => {
+        match &mut parsing_result {
+            Ok((ref rest, token)) => {
                 if next_is_unit {
                     next_is_unit = false;
-                    if let Token::Identifier {
-                        name,
-                        could_be_unit,
-                    } = token
-                    {
-                        token = Token::Identifier {
-                            name,
-                            could_be_unit: true,
-                        };
-                        if could_be_unit {
-                            unreachable!();
-                        }
-                    } else {
-                        unreachable!();
-                    }
-                }
 
-                last_state = state.clone();
+                    match token {
+                        Token::Identifier {
+                            name,
+                            could_be_unit,
+                        } => {
+                            if *could_be_unit {
+                                unreachable!();
+                            }
+                            *token = Token::Identifier {
+                                name: name.clone(),
+                                could_be_unit: true,
+                            };
+                        }
+                        Token::LeftParenthesis => {
+                            next_is_unit = true;
+                        }
+                        _ => unreachable!(),
+                    };
+                }
 
                 println!("Token: {:?}\n", token);
                 match token {
@@ -98,7 +99,8 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
                     _ => (),
                 }
 
-                result.push(token);
+                result.push(token.clone());
+                last_string = work_string;
                 work_string = rest;
 
                 if last_state == TokenizerState::RightExpression {
@@ -110,6 +112,18 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
             }
             Err(nom::Err::Error(_)) => {
                 // TODO: handle error
+                println!("Normal: {}\nLast: {}", work_string, last_string);
+                if let Some(last_token) = result.last() {
+                    state = TokenizerState::LeftExpression;
+                    next_is_unit = true;
+                    match last_token {
+                        Token::Number(_) => {
+                            result.push(Token::Binary(Operation::Multiply));
+                            continue;
+                        }
+                        _ => (),
+                    };
+                }
                 return Err(ParseError::UnexpectedToken(1));
             }
             Err(error) => panic!("{}", error),

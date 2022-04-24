@@ -110,7 +110,7 @@ fn main() {
 
     let cases = vec![
         // "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)","1*m", "a/b",
-        "1/a", "1a",
+        "1(a)",
     ];
 
     for case in cases {
