@@ -109,8 +109,18 @@ fn main() {
     println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */
 
     let cases = vec![
-        // "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)","1*m", "a/b",
-        "1(a)",
+        "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
+        "1*m",
+        "a/b",
+        "(1)",
+        "(1)a",
+        "a",
+        "1(b+c)",
+        "(2+x)^2",
+        "a*b",
+        // TODO: pazii UTF8, units aren't enforced in the expression in token forum
+        // "674(374c−4)=40329464",
+        "674(374c-4)=40329464",
     ];
 
     for case in cases {

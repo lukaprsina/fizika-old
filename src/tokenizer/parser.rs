@@ -31,10 +31,10 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
     let mut result: Vec<Token> = vec![];
     let mut parenthesis_stack: Vec<ParenthesisState> = vec![];
     let mut state = TokenizerState::LeftExpression;
-    let mut next_is_unit = false;
+    let mut next_is_unit = true;
     let mut work_string = input;
 
-    let mut last_string = work_string;
+    let mut last_string; /*  = work_string; */
     let mut last_state;
 
     while !work_string.is_empty() {
@@ -55,7 +55,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
             }
         };
 
-        println!("State: {:?}, stack: {:?}", state, parenthesis_stack.last());
+        // println!("State: {:?}, stack: {:?}", state, parenthesis_stack.last());
         last_state = state.clone();
 
         match &mut parsing_result {
@@ -66,24 +66,21 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
                     match token {
                         Token::Identifier {
                             name,
-                            could_be_unit,
+                            could_be_unit: _,
                         } => {
-                            if *could_be_unit {
-                                unreachable!();
-                            }
                             *token = Token::Identifier {
                                 name: name.clone(),
                                 could_be_unit: true,
                             };
                         }
-                        Token::LeftParenthesis => {
+                        Token::LeftParenthesis | Token::RightParenthesis => {
                             next_is_unit = true;
                         }
-                        _ => unreachable!(),
+                        _ => (), //println!("next_is_unit is set, but token is {:?}", token),
                     };
                 }
 
-                println!("Token: {:?}\n", token);
+                // println!("Token: {:?}\n", token);
                 match token {
                     Token::Binary(_) | Token::Comma => state = TokenizerState::LeftExpression,
                     Token::LeftParenthesis => {
@@ -105,19 +102,19 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, ParseError> {
 
                 if last_state == TokenizerState::RightExpression {
                     if let Ok(_) = parse_unit(last_string) {
-                        println!("Overriding unit in identifier");
+                        // println!("Overriding unit in identifier");
                         next_is_unit = true;
                     }
                 }
             }
             Err(nom::Err::Error(_)) => {
                 // TODO: handle error
-                println!("Normal: {}\nLast: {}", work_string, last_string);
+                // println!("Normal: {}\nLast: {}", work_string, last_string);
                 if let Some(last_token) = result.last() {
                     state = TokenizerState::LeftExpression;
                     next_is_unit = true;
                     match last_token {
-                        Token::Number(_) => {
+                        Token::Number(_) | Token::RightParenthesis => {
                             result.push(Token::Binary(Operation::Multiply));
                             continue;
                         }
