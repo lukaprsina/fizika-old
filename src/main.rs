@@ -1,4 +1,6 @@
-use math_eval::{tokenizer::parser::tokenize, Expression, Node, NodeOrExpression, Product, Sign};
+use math_eval::{
+    tokenizer::parser::TokenizedString, Expression, Node, NodeOrExpression, Product, Sign,
+};
 
 fn main() {
     let _a = Expression {
@@ -110,24 +112,24 @@ fn main() {
 
     let cases = vec![
         "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
-        "1*m",
+        "1*  m",
         "a/b",
-        "(1)",
+        "(1\t)",
         "(1)a",
         "a",
-        "1(b+c)",
+        "1(\n b+c)",
         "(2+x)^2",
         "a*b",
-        // TODO: pazii UTF8, units aren't enforced in the expression in token forum
-        // "674(374c−4)=40329464",
         "674(374c-4)=40329464",
+        // TODO: error
+        "a+c//b",
     ];
 
     for case in cases {
         println!(
             "Case: {}\n{:?}\n\n{}\n",
             case,
-            tokenize(case),
+            TokenizedString::try_new(case),
             "-".repeat(80)
         );
     }

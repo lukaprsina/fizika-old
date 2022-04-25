@@ -10,23 +10,28 @@ use nom::{
     combinator::{complete, map_res, opt, recognize, value},
     error::{self, Error, ErrorKind, ParseError},
     multi::{many0, many1},
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{pair, preceded, terminated, tuple},
     Err, IResult, Needed,
 };
 
-// TODO: add whitespace
-fn parse_eol_comment<'a, E: ParseError<&'a str>>(i: &'a str) -> IResult<&'a str, (), E> {
-    value(
+fn parse_eol_comment<'a, E: ParseError<&'a str> + 'a>(i: &'a str) -> IResult<&'a str, (), E> {
+    trim(value(
         (), // Output is thrown away.
         pair(tag(r"//"), is_not("\n\r")),
-    )(i)
+    ))(i)
 }
 
-fn parse_inline_comment<'a, E: ParseError<&'a str>>(i: &'a str) -> IResult<&'a str, (), E> {
-    value(
+fn parse_inline_comment<'a, E: ParseError<&'a str> + 'a>(i: &'a str) -> IResult<&'a str, (), E> {
+    trim(value(
         (), // Output is thrown away.
         tuple((tag("/*"), take_until("*/"), tag("*/"))),
-    )(i)
+    ))(i)
+}
+
+pub fn trim_with_comments<'a, E: ParseError<&'a str> + 'a>(
+    i: &'a str,
+) -> IResult<&'a str, Vec<()>, E> {
+    trim(many0(alt((parse_eol_comment, parse_inline_comment))))(i)
 }
 
 pub fn trim<'a, F: 'a, O, E: ParseError<&'a str>>(
@@ -35,7 +40,7 @@ pub fn trim<'a, F: 'a, O, E: ParseError<&'a str>>(
 where
     F: FnMut(&'a str) -> IResult<&'a str, O, E>,
 {
-    delimited(multispace0, inner, multispace0)
+    preceded(multispace0, inner)
 }
 
 fn add_str_token_pairs(
@@ -47,7 +52,7 @@ fn add_str_token_pairs(
         let index = name.len() - 1;
 
         if let Some(map) = result.get_mut(index) {
-            map.insert(name, &token);
+            map.insert(name, token);
         } else {
             let mut map = HashMap::new();
             map.insert(*name, *token);
@@ -253,10 +258,9 @@ pub fn parse_unit(input: &str) -> IResult<&str, Token> {
                     parse_binary_expressions,
                     |token: Token| -> Result<Token, ()> {
                         let can_preceed_unit = match &token {
-                            Token::Binary(operation) => match operation {
-                                Operation::Multiply | Operation::Divide => true,
-                                _ => false,
-                            },
+                            Token::Binary(operation) => {
+                                matches!(operation, Operation::Multiply | Operation::Divide)
+                            }
                             Token::RightParenthesis => true,
                             _ => false,
                         };

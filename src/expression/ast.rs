@@ -114,6 +114,18 @@ impl Display for Expression {
     }
 }
 
+impl Expression {
+    pub fn new() -> Expression {
+        Expression { products: vec![] }
+    }
+}
+
+impl Default for Expression {
+    fn default() -> Expression {
+        Expression::new()
+    }
+}
+
 #[derive(Debug)]
 pub enum Sign {
     Positive,
@@ -304,4 +316,9 @@ impl Display for Product {
         // println!("Product: {}", result);
         write!(f, "{}", result)
     }
+}
+
+pub enum ExpressionOrEquation {
+    Expression(Expression),
+    Equation(Equation),
 }
