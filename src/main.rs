@@ -3,7 +3,7 @@ use math_eval::{
 };
 
 fn main() {
-    let _a = Expression {
+    /* let _a = Expression {
         products: vec![
             Product {
                 sign: Sign::Negative,
@@ -105,7 +105,7 @@ fn main() {
                 })],
             },
         ],
-    };
+    }; */
 
     /* println!("{}", _a);
     println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */

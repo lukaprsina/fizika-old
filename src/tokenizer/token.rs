@@ -1,3 +1,7 @@
+use std::fmt::Display;
+
+use crate::Node;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Operation {
     Add,
@@ -21,6 +25,18 @@ pub enum Number {
     Float(f64),
 }
 
+impl Display for Number {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Number::Int(integer) => write!(f, "{}", integer),
+            Number::Float(float) => {
+                let mut buffer = ryu::Buffer::new();
+                write!(f, "{}", buffer.format(*float))
+            }
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Binary(Operation),
@@ -31,4 +47,53 @@ pub enum Token {
     Number(Number),
     Identifier { name: String, could_be_unit: bool },
     Function(String, Option<usize>),
+}
+
+#[derive(Clone, Copy)]
+pub enum Associativity {
+    Left,
+    Right,
+    NA,
+}
+
+impl Token {
+    pub fn get_precedence_and_associativity(self: &Self) -> (u32, Associativity) {
+        match self {
+            Token::Binary(operation) => match operation {
+                Operation::Add | Operation::Subtract => (1, Associativity::Left),
+                Operation::Multiply | Operation::Divide | Operation::Mod => {
+                    (2, Associativity::Left)
+                }
+                Operation::Power => (4, Associativity::Right),
+                _ => unimplemented!(),
+            },
+            Token::Unary(operation) => match operation {
+                Operation::Add | Operation::Subtract => (3, Associativity::NA),
+                Operation::Factorial => (5, Associativity::NA),
+                _ => unimplemented!(),
+            },
+            _ => (0, Associativity::NA),
+        }
+    }
+
+    pub fn token_to_node(self: &Self) -> Node {
+        match self {
+            Token::Number(number) => Node::Number(number.clone()),
+            Token::Identifier {
+                name,
+                could_be_unit,
+            } => {
+                if *could_be_unit {
+                    Node::Unit(name.clone())
+                } else {
+                    Node::Variable(name.clone())
+                }
+            }
+            Token::Function(name, _) => Node::Function {
+                name: name.clone(),
+                arguments: vec![],
+            },
+            _ => unimplemented!(),
+        }
+    }
 }

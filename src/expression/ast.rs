@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use crate::tokenizer::Number;
+
 #[derive(Debug)]
 pub struct Context {
     pub expressions: Vec<Expression>,
@@ -140,8 +142,9 @@ pub enum EquationSide {
 
 #[derive(Debug)]
 pub enum Node {
-    Number(f64),
+    Number(Number),
     Variable(String),
+    Unit(String),
     Power {
         base: Expression,
         power: Expression,
@@ -170,9 +173,8 @@ impl Display for Node {
             Node::Number(number) => {
                 result += &number.to_string();
             }
-            Node::Variable(variable) => {
-                result += variable;
-            }
+            Node::Variable(variable) => result += variable,
+            Node::Unit(unit) => result += unit,
             Node::Power { base, power } => {
                 let mut parenethesis = false;
 
@@ -253,16 +255,14 @@ impl NodeOrExpression {
         match self {
             // last * thing
             NodeOrExpression::Node(node) => match node {
-                Node::Number(_) => true,
-                Node::Variable(_) => match last {
+                Node::Number(_) | Node::Power { .. } | Node::Function { .. } => true,
+                Node::Variable(_) | Node::Unit(_) => match last {
                     NodeOrExpression::Node(var_node) => {
                         !matches!(var_node, Node::Number(_) | Node::Variable(_))
                     }
                     // TODO: get first from expression
                     NodeOrExpression::Expression(_) => false,
                 },
-                Node::Power { .. } => true,
-                Node::Function { .. } => true,
             },
             // TODO
             NodeOrExpression::Expression(_) => false,
