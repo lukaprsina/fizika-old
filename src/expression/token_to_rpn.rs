@@ -120,7 +120,6 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
 
         output.shrink_to_fit();
 
-        println!("{:#?}", &output);
         Ok(ReversePolishNotation { tokens: output })
     }
 }

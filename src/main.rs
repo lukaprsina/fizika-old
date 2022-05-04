@@ -1,5 +1,5 @@
 use math_eval::{
-    expression::{ast::ExpressionOrEquation, rpn::ReversePolishNotation},
+    expression::{ast::ExpressionOrEquation, token_to_rpn::ReversePolishNotation},
     tokenizer::parser::TokenizedString,
     Expression, Node, NodeOrExpression, Product, Sign,
 };
