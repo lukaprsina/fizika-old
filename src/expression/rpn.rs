@@ -1,21 +1,21 @@
-use crate::{
-    tokenizer::{parser::TokenizedString, token::Associativity, Token},
-    Expression,
-};
-
-use super::ast::ExpressionOrEquation;
+use crate::tokenizer::{parser::TokenizedString, token::Associativity, Token};
 
 #[derive(Debug)]
 pub enum TokenParseError {
     MismatchedParenthesis,
     UnexpectedComma,
+    NotEnoughOperands,
+    TooManyOperands,
 }
 
-impl TryFrom<TokenizedString> for ExpressionOrEquation {
+pub struct ReversePolishNotation {
+    pub tokens: Vec<Token>,
+}
+
+impl TryFrom<TokenizedString> for ReversePolishNotation {
     type Error = TokenParseError;
 
-    fn try_from(tokens: TokenizedString) -> Result<ExpressionOrEquation, TokenParseError> {
-        let result = Expression::new();
+    fn try_from(tokens: TokenizedString) -> Result<ReversePolishNotation, TokenParseError> {
         let mut stack: Vec<Token> = Vec::new();
         let mut output: Vec<Token> = Vec::new();
 
@@ -30,9 +30,11 @@ impl TryFrom<TokenizedString> for ExpressionOrEquation {
                         let pa2 = prev_token.get_precedence_and_associativity();
                         match (pa1, pa2) {
                             ((i, Associativity::Left), (j, _)) if i <= j => {
+                                println!("Left: {:?}", prev_token);
                                 output.push(prev_token.clone());
                             }
                             ((i, Associativity::Right), (j, _)) if i < j => {
+                                println!("Right: {:?}", prev_token);
                                 output.push(prev_token.clone());
                             }
                             _ => {
@@ -85,7 +87,40 @@ impl TryFrom<TokenizedString> for ExpressionOrEquation {
                 }
             }
         }
-        println!("{:?}", &output);
-        Ok(ExpressionOrEquation::Expression(result))
+
+        // add the last operation at the end
+        while let Some(token) = stack.pop() {
+            match token {
+                Token::Unary(_) | Token::Binary(_) => output.push(token),
+                Token::LeftParenthesis | Token::Function(..) => {
+                    return Err(TokenParseError::MismatchedParenthesis)
+                }
+                _ => panic!("Unexpected token on stack."),
+            }
+        }
+
+        // verify RPN
+        let mut n_operands = 0isize;
+        for (_index, token) in output.iter().enumerate() {
+            match *token {
+                Token::Identifier { .. } | Token::Number(_) => n_operands += 1,
+                Token::Unary(_) => (),
+                Token::Binary(_) => n_operands -= 1,
+                Token::Function(_, Some(n_args)) => n_operands -= n_args as isize - 1,
+                _ => panic!("Nothing else should be here"),
+            }
+            if n_operands <= 0 {
+                return Err(TokenParseError::NotEnoughOperands);
+            }
+        }
+
+        if n_operands > 1 {
+            return Err(TokenParseError::TooManyOperands);
+        }
+
+        output.shrink_to_fit();
+
+        println!("{:#?}", &output);
+        Ok(ReversePolishNotation { tokens: output })
     }
 }

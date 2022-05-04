@@ -1,6 +1,7 @@
 use math_eval::{
-    expression::ast::ExpressionOrEquation, tokenizer::parser::TokenizedString, Expression, Node,
-    NodeOrExpression, Product, Sign,
+    expression::{ast::ExpressionOrEquation, rpn::ReversePolishNotation},
+    tokenizer::parser::TokenizedString,
+    Expression, Node, NodeOrExpression, Product, Sign,
 };
 
 fn main() {
@@ -131,7 +132,7 @@ fn main() {
         println!("Case: {}\n{:?}\n\n", case, tokens);
 
         if let Ok(tokens) = tokens {
-            let _ = ExpressionOrEquation::try_from(tokens);
+            let _ = ReversePolishNotation::try_from(tokens);
         }
         println!("{}", "-".repeat(80));
     }
