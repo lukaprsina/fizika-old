@@ -318,6 +318,7 @@ impl Display for Product {
     }
 }
 
+#[derive(Debug)]
 pub enum ExpressionOrEquation {
     Expression(Expression),
     Equation(Equation),

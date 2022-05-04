@@ -1,5 +1,6 @@
 use math_eval::{
-    tokenizer::parser::TokenizedString, Expression, Node, NodeOrExpression, Product, Sign,
+    expression::ast::ExpressionOrEquation, tokenizer::parser::TokenizedString, Expression, Node,
+    NodeOrExpression, Product, Sign,
 };
 
 fn main() {
@@ -126,12 +127,13 @@ fn main() {
     ];
 
     for case in cases {
-        println!(
-            "Case: {}\n{:?}\n\n{}\n",
-            case,
-            TokenizedString::try_new(case),
-            "-".repeat(80)
-        );
+        let tokens = TokenizedString::try_new(case);
+        println!("Case: {}\n{:?}\n\n", case, tokens);
+
+        if let Ok(tokens) = tokens {
+            let _ = ExpressionOrEquation::try_from(tokens);
+        }
+        println!("{}", "-".repeat(80));
     }
 }
 
