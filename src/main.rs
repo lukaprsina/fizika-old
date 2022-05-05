@@ -1,5 +1,5 @@
 use math_eval::{
-    expression::{ast::ExpressionOrEquation, token_to_rpn::ReversePolishNotation},
+    expression::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation},
     tokenizer::parser::TokenizedString,
     Expression, Node, NodeOrExpression, Product, Sign,
 };
@@ -113,8 +113,7 @@ fn main() {
     println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */
 
     let cases = vec![
-        "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
-        "1*  m",
+        "1*  m", // can be an unit
         "a/b",
         "(1\t)",
         "(1)a",
@@ -122,6 +121,7 @@ fn main() {
         "1(\n b+c)",
         "(2+x)^2",
         "a*b",
+        "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
         // "674(374c-4)=40329464",
         // TODO: error
         // "a+c//b",
@@ -132,11 +132,12 @@ fn main() {
         println!("Case: {}\n", case);
 
         if let Ok(tokens) = tokens {
-            println!("Tokens:\n{:?}\n", &tokens);
+            println!("Tokens:\n{:#?}\n", &tokens);
             if let Ok(rpn) = ReversePolishNotation::try_from(tokens.clone()) {
-                println!("Reverse Polish notation\n{:?}\n", &rpn);
-                let expr = ExpressionOrEquation::from(rpn);
-                println!("Expression\n{:?}\n", &expr);
+                println!("Reverse Polish notation:\n{:#?}\n", &rpn);
+                let expr = NodeOrExpressionOrEquation::from(rpn);
+                println!("Expression:\n{:#?}\n", &expr);
+                println!("Converted back:\n{}", expr);
             } else {
                 println!("Reverse Polish notation failed");
             }

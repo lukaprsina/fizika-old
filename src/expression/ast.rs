@@ -345,6 +345,7 @@ impl Sub for NodeOrExpression {
 impl Mul for NodeOrExpression {
     type Output = NodeOrExpression;
     fn mul(self, other: NodeOrExpression) -> NodeOrExpression {
+        // println!("{} * {}", self, other);
         match_over_node_or_expression(
             self,
             other,
@@ -442,7 +443,20 @@ impl Display for Product {
 }
 
 #[derive(Debug)]
-pub enum ExpressionOrEquation {
+pub enum NodeOrExpressionOrEquation {
+    Node(Node),
     Expression(Expression),
     Equation(Equation),
+}
+
+impl Display for NodeOrExpressionOrEquation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NodeOrExpressionOrEquation::Node(node) => write!(f, "{}", node),
+            NodeOrExpressionOrEquation::Expression(expression) => {
+                write!(f, "{}", expression)
+            }
+            NodeOrExpressionOrEquation::Equation(equation) => write!(f, "{}", equation),
+        }
+    }
 }

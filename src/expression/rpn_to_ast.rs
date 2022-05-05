@@ -3,18 +3,17 @@ use crate::{
     Expression, Node, NodeOrExpression,
 };
 
-use super::{ast::ExpressionOrEquation, token_to_rpn::ReversePolishNotation};
+use super::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation};
 
-impl From<ReversePolishNotation> for ExpressionOrEquation {
+impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
     fn from(rpn: ReversePolishNotation) -> Self {
-        let result = Expression::new();
         let mut stack: Vec<NodeOrExpression> = Vec::new();
 
         for token in rpn.tokens.into_iter() {
             match token {
                 Token::Binary(operation) => {
-                    let left = stack.pop().unwrap();
                     let right = stack.pop().unwrap();
+                    let left = stack.pop().unwrap();
                     let r = match operation {
                         Operation::Add => left + right,
                         Operation::Subtract => left - right,
@@ -55,24 +54,12 @@ impl From<ReversePolishNotation> for ExpressionOrEquation {
                 _ => (),
             }
         }
-        ExpressionOrEquation::Expression(result)
+        assert!(stack.len() == 1);
+        match stack.pop().unwrap() {
+            NodeOrExpression::Node(node) => NodeOrExpressionOrEquation::Node(node),
+            NodeOrExpression::Expression(expression) => {
+                NodeOrExpressionOrEquation::Expression(expression)
+            }
+        }
     }
 }
-
-/*
-           Token::Number(number) => Node::Number(number.clone()),
-           Token::Identifier {
-               name,
-               could_be_unit,
-           } => {
-               if *could_be_unit {
-                   Node::Unit(name.clone())
-               } else {
-                   Node::Variable(name.clone())
-               }
-           }
-           Token::Function(name, _) => Node::Function {
-               name: name.clone(),
-               arguments: vec![],
-           },
-*/
