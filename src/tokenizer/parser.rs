@@ -29,7 +29,7 @@ enum ParenthesisState {
     Function,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TokenizedString {
     pub tokens: Vec<Token>,
 }

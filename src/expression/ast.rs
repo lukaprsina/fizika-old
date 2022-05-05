@@ -1,4 +1,7 @@
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    ops::{Add, Div, Mul, Neg, Sub},
+};
 
 use crate::tokenizer::Number;
 
@@ -270,11 +273,131 @@ impl NodeOrExpression {
     }
 }
 
+fn match_over_node_or_expression(
+    lhs: NodeOrExpression,
+    rhs: NodeOrExpression,
+    mut func: impl FnMut(NodeOrExpression, NodeOrExpression) -> NodeOrExpression,
+) -> NodeOrExpression {
+    match lhs {
+        NodeOrExpression::Node(node_lhs) => match rhs {
+            NodeOrExpression::Node(node_rhs) => func(
+                NodeOrExpression::Node(node_lhs),
+                NodeOrExpression::Node(node_rhs),
+            ),
+            NodeOrExpression::Expression(exp_rhs) => func(
+                NodeOrExpression::Node(node_lhs),
+                NodeOrExpression::Expression(exp_rhs),
+            ),
+        },
+        NodeOrExpression::Expression(exp_lhs) => match rhs {
+            NodeOrExpression::Node(node_rhs) => func(
+                NodeOrExpression::Expression(exp_lhs),
+                NodeOrExpression::Node(node_rhs),
+            ),
+            NodeOrExpression::Expression(exp_rhs) => func(
+                NodeOrExpression::Expression(exp_lhs),
+                NodeOrExpression::Expression(exp_rhs),
+            ),
+        },
+    }
+}
+
+impl Add for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn add(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_over_node_or_expression(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs], vec![]));
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![rhs], vec![]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Sub for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn sub(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_over_node_or_expression(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs], vec![]));
+                result
+                    .products
+                    .push(Product::new(Sign::Negative, vec![rhs], vec![]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Mul for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn mul(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_over_node_or_expression(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs, rhs], vec![]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Div for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn div(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_over_node_or_expression(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs], vec![rhs]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Neg for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn neg(self) -> NodeOrExpression {
+        let mut result = Expression::new();
+        result
+            .products
+            .push(Product::new(Sign::Negative, vec![self], vec![]));
+        NodeOrExpression::Expression(result)
+    }
+}
+
 #[derive(Debug)]
 pub struct Product {
     pub sign: Sign,
     pub top: Vec<NodeOrExpression>,
     pub bottom: Vec<NodeOrExpression>,
+}
+
+impl Product {
+    fn new(sign: Sign, top: Vec<NodeOrExpression>, bottom: Vec<NodeOrExpression>) -> Product {
+        Product { sign, top, bottom }
+    }
 }
 
 impl Display for Product {

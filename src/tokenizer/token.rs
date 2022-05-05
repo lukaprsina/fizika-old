@@ -75,25 +75,4 @@ impl Token {
             _ => (0, Associativity::NA),
         }
     }
-
-    pub fn token_to_node(self: &Self) -> Node {
-        match self {
-            Token::Number(number) => Node::Number(number.clone()),
-            Token::Identifier {
-                name,
-                could_be_unit,
-            } => {
-                if *could_be_unit {
-                    Node::Unit(name.clone())
-                } else {
-                    Node::Variable(name.clone())
-                }
-            }
-            Token::Function(name, _) => Node::Function {
-                name: name.clone(),
-                arguments: vec![],
-            },
-            _ => unimplemented!(),
-        }
-    }
 }

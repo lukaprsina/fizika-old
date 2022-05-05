@@ -8,6 +8,7 @@ pub enum TokenParseError {
     TooManyOperands,
 }
 
+#[derive(Debug)]
 pub struct ReversePolishNotation {
     pub tokens: Vec<Token>,
 }
@@ -30,11 +31,11 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
                         let pa2 = prev_token.get_precedence_and_associativity();
                         match (pa1, pa2) {
                             ((i, Associativity::Left), (j, _)) if i <= j => {
-                                println!("Left: {:?}", prev_token);
+                                // println!("Left: {:?}", prev_token);
                                 output.push(prev_token.clone());
                             }
                             ((i, Associativity::Right), (j, _)) if i < j => {
-                                println!("Right: {:?}", prev_token);
+                                // println!("Right: {:?}", prev_token);
                                 output.push(prev_token.clone());
                             }
                             _ => {
