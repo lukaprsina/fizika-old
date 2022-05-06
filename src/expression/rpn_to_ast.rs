@@ -1,6 +1,7 @@
 use crate::{
+    expression::ast::match_over_node_or_expression,
     tokenizer::{Number, Operation, Token},
-    Expression, Node, NodeOrExpression,
+    Expression, Node, NodeOrExpression, Product, Sign,
 };
 
 use super::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation};
@@ -19,11 +20,55 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                         Operation::Subtract => left - right,
                         Operation::Multiply => left * right,
                         Operation::Divide => left / right,
+                        Operation::Mod => match_over_node_or_expression(
+                            left,
+                            right,
+                            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                                let mut result = Expression::new();
+                                result.products.push(Product::new(
+                                    Sign::Positive,
+                                    vec![NodeOrExpression::Node(Node::Modulo {
+                                        lhs: Box::new(lhs),
+                                        rhs: Box::new(rhs),
+                                    })],
+                                    vec![],
+                                ));
+                                NodeOrExpression::Expression(result)
+                            },
+                        ),
+                        Operation::Power => match_over_node_or_expression(
+                            left,
+                            right,
+                            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                                let mut result = Expression::new();
+                                result.products.push(Product::new(
+                                    Sign::Positive,
+                                    vec![NodeOrExpression::Node(Node::Power {
+                                        base: Box::new(lhs),
+                                        power: Box::new(rhs),
+                                    })],
+                                    vec![],
+                                ));
+                                NodeOrExpression::Expression(result)
+                            },
+                        ),
+                        Operation::Factorial => match_over_node_or_expression(
+                            left,
+                            right,
+                            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                                let mut result = Expression::new();
+                                result.products.push(Product::new(
+                                    Sign::Positive,
+                                    vec![NodeOrExpression::Node(Node::Factorial {
+                                        child: Box::new(lhs),
+                                    })],
+                                    vec![],
+                                ));
+                                NodeOrExpression::Expression(result)
+                            },
+                        ),
                         _ => left,
-                        /* Operation::Mod => todo!(),
-                        Operation::Power => todo!(),
-                        Operation::Factorial => todo!(),
-                        Operation::Equal => todo!(),
+                        /* Operation::Equal => todo!(),
                         Operation::NotEqual => todo!(),
                         Operation::LessThan => todo!(),
                         Operation::LessThanOrEqual => todo!(),

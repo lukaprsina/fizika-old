@@ -350,16 +350,11 @@ pub(crate) fn parse_right_expression(input: &str) -> IResult<&str, Token> {
 }
 
 pub(crate) fn parse_right_expression_no_parenthesis(input: &str) -> IResult<&str, Token> {
-    alt((
-        /* parse_unit, */
-        parse_factorial,
-        parse_binary_expressions,
-    ))(input)
+    alt((parse_factorial, parse_binary_expressions))(input)
 }
 
 pub(crate) fn parse_right_expression_with_comma(input: &str) -> IResult<&str, Token> {
     alt((
-        // parse_unit,
         parse_factorial,
         parse_binary_expressions,
         parse_right_parenthesis,
@@ -428,7 +423,6 @@ mod tests {
         }
     }
 
-    // TODO
     #[test]
     fn test_parse_unit() {}
 

@@ -32,7 +32,6 @@ impl Display for ComparisonSign {
             ComparisonSign::GreaterThan => ">",
         };
 
-        // println!("Equal sign: {}", result);
         write!(f, "{}", result)
     }
 }
@@ -50,7 +49,6 @@ impl Display for Equation {
 
         result += &format!("{} {} {}", self.lhs, self.sign, self.rhs);
 
-        // println!("Equation: {}", result);
         write!(f, "{}", result)
     }
 }
@@ -114,7 +112,6 @@ impl Display for Expression {
             result.push(')');
         }
 
-        // println!("Expression: {}", result);
         write!(f, "{}", result)
     }
 }
@@ -149,12 +146,19 @@ pub enum Node {
     Variable(String),
     Unit(String),
     Power {
-        base: Expression,
-        power: Expression,
+        base: Box<NodeOrExpression>,
+        power: Box<NodeOrExpression>,
+    },
+    Modulo {
+        lhs: Box<NodeOrExpression>,
+        rhs: Box<NodeOrExpression>,
+    },
+    Factorial {
+        child: Box<NodeOrExpression>,
     },
     Function {
         name: String,
-        arguments: Vec<Expression>,
+        arguments: Vec<NodeOrExpression>,
     },
 }
 
@@ -230,7 +234,6 @@ impl Display for Node {
             }
         }
 
-        // println!("Node: {}", result);
         write!(f, "{}", result)
     }
 }
@@ -248,12 +251,15 @@ impl Display for NodeOrExpression {
             NodeOrExpression::Expression(expression) => expression.to_string(),
         };
 
-        // println!("NodeOrExpression: {}", result);
         write!(f, "{}", result)
     }
 }
 
-impl NodeOrExpression {
+trait IsTimesVisible {
+    fn is_times_visible(&self, last: &NodeOrExpression) -> bool;
+}
+
+impl IsTimesVisible for NodeOrExpression {
     fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
         match self {
             // last * thing
@@ -264,17 +270,21 @@ impl NodeOrExpression {
                         var_node,
                         Node::Number(_) | Node::Variable(_) | Node::Unit(_)
                     ),
-                    // TODO: get first from expression
                     NodeOrExpression::Expression(_) => false,
                 },
             },
-            // TODO
-            NodeOrExpression::Expression(_) => false,
+            NodeOrExpression::Expression(expression) => {
+                if expression.products.len() >= 1 {
+                    expression.products[0].is_times_visible(last)
+                } else {
+                    true
+                }
+            }
         }
     }
 }
 
-fn match_over_node_or_expression(
+pub(crate) fn match_over_node_or_expression(
     lhs: NodeOrExpression,
     rhs: NodeOrExpression,
     mut func: impl FnMut(NodeOrExpression, NodeOrExpression) -> NodeOrExpression,
@@ -397,8 +407,18 @@ pub struct Product {
 }
 
 impl Product {
-    fn new(sign: Sign, top: Vec<NodeOrExpression>, bottom: Vec<NodeOrExpression>) -> Product {
+    pub fn new(sign: Sign, top: Vec<NodeOrExpression>, bottom: Vec<NodeOrExpression>) -> Product {
         Product { sign, top, bottom }
+    }
+}
+
+impl IsTimesVisible for Product {
+    fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
+        if self.top.len() >= 1 {
+            self.top[0].is_times_visible(last)
+        } else {
+            true
+        }
     }
 }
 
