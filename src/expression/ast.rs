@@ -168,6 +168,10 @@ impl ShouldBeParenthesized for Node {
             Node::Power { base, power } => {
                 base.should_be_parenthesized() || power.should_be_parenthesized()
             }
+            Node::Modulo { lhs, rhs } => {
+                lhs.should_be_parenthesized() || rhs.should_be_parenthesized()
+            }
+            Node::Factorial { child } => child.should_be_parenthesized(),
             _ => false,
         }
     }
@@ -183,9 +187,18 @@ impl Display for Node {
             Node::Variable(variable) => result += variable,
             Node::Unit(unit) => result += unit,
             Node::Power { base, power } => {
-                let mut parenethesis = false;
+                let parenethesis =
+                    base.should_be_parenthesized() || power.should_be_parenthesized();
 
-                for expression in [&base.products, &power.products] {
+                result += &format!(
+                    "{}^{}{}{}",
+                    base,
+                    if parenethesis { "(" } else { "" },
+                    power,
+                    if parenethesis { ")" } else { "" }
+                );
+
+                /* for expression in [&base.products, &power.products] {
                     match expression.len() {
                         2.. => {
                             parenethesis = true;
@@ -212,15 +225,13 @@ impl Display for Node {
                         }
                         _ => (),
                     };
-                }
-
-                result += &format!(
-                    "{}^{}{}{}",
-                    base,
-                    if parenethesis { "(" } else { "" },
-                    power,
-                    if parenethesis { ")" } else { "" }
-                );
+                } */
+            }
+            Node::Modulo { lhs, rhs } => {
+                result += &format!("{}%{}", lhs, rhs);
+            }
+            Node::Factorial { child } => {
+                result += &format!("{}!", child);
             }
             Node::Function { name, arguments } => {
                 result += &format!("{}(", name);
@@ -255,6 +266,15 @@ impl Display for NodeOrExpression {
     }
 }
 
+impl ShouldBeParenthesized for NodeOrExpression {
+    fn should_be_parenthesized(&self) -> bool {
+        match self {
+            NodeOrExpression::Node(node) => node.should_be_parenthesized(),
+            NodeOrExpression::Expression(expression) => expression.should_be_parenthesized(),
+        }
+    }
+}
+
 trait IsTimesVisible {
     fn is_times_visible(&self, last: &NodeOrExpression) -> bool;
 }
@@ -264,7 +284,11 @@ impl IsTimesVisible for NodeOrExpression {
         match self {
             // last * thing
             NodeOrExpression::Node(node) => match node {
-                Node::Number(_) | Node::Power { .. } | Node::Function { .. } => true,
+                Node::Number(_)
+                | Node::Power { .. }
+                | Node::Function { .. }
+                | Node::Modulo { .. }
+                | Node::Factorial { .. } => true,
                 Node::Variable(_) | Node::Unit(_) => match last {
                     NodeOrExpression::Node(var_node) => !matches!(
                         var_node,

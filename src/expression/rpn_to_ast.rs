@@ -52,22 +52,7 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                                 NodeOrExpression::Expression(result)
                             },
                         ),
-                        Operation::Factorial => match_over_node_or_expression(
-                            left,
-                            right,
-                            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
-                                let mut result = Expression::new();
-                                result.products.push(Product::new(
-                                    Sign::Positive,
-                                    vec![NodeOrExpression::Node(Node::Factorial {
-                                        child: Box::new(lhs),
-                                    })],
-                                    vec![],
-                                ));
-                                NodeOrExpression::Expression(result)
-                            },
-                        ),
-                        _ => left,
+                        _ => unimplemented!(),
                         /* Operation::Equal => todo!(),
                         Operation::NotEqual => todo!(),
                         Operation::LessThan => todo!(),
