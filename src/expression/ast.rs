@@ -260,9 +260,10 @@ impl NodeOrExpression {
             NodeOrExpression::Node(node) => match node {
                 Node::Number(_) | Node::Power { .. } | Node::Function { .. } => true,
                 Node::Variable(_) | Node::Unit(_) => match last {
-                    NodeOrExpression::Node(var_node) => {
-                        !matches!(var_node, Node::Number(_) | Node::Variable(_))
-                    }
+                    NodeOrExpression::Node(var_node) => !matches!(
+                        var_node,
+                        Node::Number(_) | Node::Variable(_) | Node::Unit(_)
+                    ),
                     // TODO: get first from expression
                     NodeOrExpression::Expression(_) => false,
                 },

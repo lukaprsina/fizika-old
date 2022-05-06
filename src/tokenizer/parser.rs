@@ -50,9 +50,11 @@ impl TokenizedString {
         let mut last_state;
 
         while !work_string.is_empty() {
-            // let a: Result<(&str, &str), nom::Err<nom::error::Error<&str>>> = multispace0::<&str, nom::error::Error<_>>(work_string)
             if let Ok(trimmed) = trim_with_comments::<nom::error::Error<_>>(work_string) {
                 work_string = trimmed.0;
+                if work_string.is_empty() {
+                    break;
+                }
             }
 
             let mut parsing_result: IResult<&str, Token> = match (&state, parenthesis_stack.last())
@@ -69,7 +71,6 @@ impl TokenizedString {
                 }
             };
 
-            // println!("State: {:?}, stack: {:?}", state, parenthesis_stack.last());
             last_state = state;
 
             match &mut parsing_result {
