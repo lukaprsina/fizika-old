@@ -101,6 +101,7 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
         }
 
         // verify RPN
+        // TODO
         let mut n_operands = 0isize;
         for (_index, token) in output.iter().enumerate() {
             match *token {

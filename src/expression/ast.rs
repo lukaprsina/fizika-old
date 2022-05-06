@@ -473,7 +473,7 @@ impl Display for Product {
             }
 
             if side.len() > 1 {
-                result.push('(');
+                result.push(')');
             }
 
             if top_side && !self.bottom.is_empty() {
@@ -499,7 +499,45 @@ impl Display for NodeOrExpressionOrEquation {
         match self {
             NodeOrExpressionOrEquation::Node(node) => write!(f, "{}", node),
             NodeOrExpressionOrEquation::Expression(expression) => {
-                write!(f, "{}", expression)
+                let mut result = expression.to_string();
+
+                let mut min = usize::MAX;
+                let mut counter = 0;
+
+                if !result.is_empty()
+                    && result.chars().next().unwrap() == '('
+                    && result.chars().last().unwrap() == ')'
+                {
+                    for (pos, c) in result.chars().enumerate() {
+                        match c {
+                            '(' => {
+                                counter += 1;
+                                min = min.min(counter);
+                            }
+                            ')' => {
+                                counter -= 1;
+                                if pos != result.len() - 1 {
+                                    min = min.min(counter);
+                                }
+                            }
+                            _ => (),
+                        }
+                    }
+
+                    result = result
+                        .chars()
+                        .enumerate()
+                        .filter_map(|(pos, c)| {
+                            if pos >= min && (result.len() - pos) > min {
+                                Some(c)
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+                }
+
+                write!(f, "{}", result)
             }
             NodeOrExpressionOrEquation::Equation(equation) => write!(f, "{}", equation),
         }
