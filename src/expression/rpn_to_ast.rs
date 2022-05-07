@@ -3,14 +3,14 @@ use core::panic;
 use crate::{
     expression::ast::match_over_node_or_expression,
     tokenizer::{parser::TokenizedString, Number, Operation, Token},
-    Expression, Node, NodeOrExpression, Product, Sign,
+    Equation, Expression, Node, NodeOrExpression, Product, Sign,
 };
 
 use super::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation};
 
 impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
     fn from(rpn: ReversePolishNotation) -> Self {
-        let mut stack: Vec<NodeOrExpression> = Vec::new();
+        let mut stack: Vec<NodeOrExpressionOrEquation> = Vec::new();
         // println!("{:?}", rpn);
 
         for token in rpn.tokens.into_iter() {
@@ -53,6 +53,17 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                                     vec![],
                                 ));
                                 NodeOrExpression::Expression(result)
+                            },
+                        ),
+                        Operation::Equal => match_over_node_or_expression(
+                            left,
+                            right,
+                            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                                Equation {
+                                    lhs,
+                                    sign: Operation::Equal,
+                                    rhs,
+                                }
                             },
                         ),
                         _ => unimplemented!(),
@@ -113,11 +124,11 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
 
         // println!("{:#?}", stack);
         assert!(stack.len() == 1);
-        match stack.pop().unwrap() {
+        /* match stack.pop().unwrap() {
             NodeOrExpression::Node(node) => NodeOrExpressionOrEquation::Node(node),
             NodeOrExpression::Expression(expression) => {
                 NodeOrExpressionOrEquation::Expression(expression)
             }
-        }
+        } */
     }
 }

@@ -38,9 +38,9 @@ impl Display for ComparisonSign {
 
 #[derive(Debug)]
 pub struct Equation {
-    pub lhs: Expression,
+    pub lhs: NodeOrExpression,
     pub sign: ComparisonSign,
-    pub rhs: Expression,
+    pub rhs: NodeOrExpression,
 }
 
 impl Display for Equation {

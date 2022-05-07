@@ -72,6 +72,12 @@ impl Token {
                     (2, Associativity::Left)
                 }
                 Operation::Power => (4, Associativity::Right),
+                Operation::Equal
+                | Operation::NotEqual
+                | Operation::LessThan
+                | Operation::LessThanOrEqual
+                | Operation::GreaterThanOrEqual
+                | Operation::GreaterThan => (5, Associativity::Left),
                 _ => unimplemented!(),
             },
             Token::Unary(operation) => match operation {
