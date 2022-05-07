@@ -1,6 +1,8 @@
+use core::panic;
+
 use crate::{
     expression::ast::match_over_node_or_expression,
-    tokenizer::{Number, Operation, Token},
+    tokenizer::{parser::TokenizedString, Number, Operation, Token},
     Expression, Node, NodeOrExpression, Product, Sign,
 };
 
@@ -9,6 +11,7 @@ use super::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation
 impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
     fn from(rpn: ReversePolishNotation) -> Self {
         let mut stack: Vec<NodeOrExpression> = Vec::new();
+        println!("{:?}", rpn);
 
         for token in rpn.tokens.into_iter() {
             match token {
@@ -78,17 +81,37 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                 // TODO
                 Token::Function {
                     name,
-                    num_of_args,
+                    num_of_args: _,
                     arguments,
                 } => {
+                    let mut result = Vec::new();
+                    for argument in arguments.into_iter() {
+                        let tokenized_string = TokenizedString::new_from_tokens(argument);
+                        if let Ok(rpn) = ReversePolishNotation::try_from(tokenized_string) {
+                            result.push(match NodeOrExpressionOrEquation::from(rpn) {
+                                NodeOrExpressionOrEquation::Node(node) => {
+                                    NodeOrExpression::Node(node)
+                                }
+                                NodeOrExpressionOrEquation::Expression(expression) => {
+                                    NodeOrExpression::Expression(expression)
+                                }
+                                NodeOrExpressionOrEquation::Equation(_) => {
+                                    panic!("Can't have equations in functions")
+                                }
+                            });
+                        }
+                    }
+
                     stack.push(NodeOrExpression::Node(Node::Function {
                         name: name.clone(),
-                        arguments: vec![],
+                        arguments: result,
                     }));
                 }
                 _ => (),
             }
         }
+
+        println!("{:#?}", stack);
         assert!(stack.len() == 1);
         match stack.pop().unwrap() {
             NodeOrExpression::Node(node) => NodeOrExpressionOrEquation::Node(node),
