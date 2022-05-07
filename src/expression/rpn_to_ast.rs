@@ -11,7 +11,7 @@ use super::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation
 impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
     fn from(rpn: ReversePolishNotation) -> Self {
         let mut stack: Vec<NodeOrExpression> = Vec::new();
-        println!("{:?}", rpn);
+        // println!("{:?}", rpn);
 
         for token in rpn.tokens.into_iter() {
             match token {
@@ -111,7 +111,7 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
             }
         }
 
-        println!("{:#?}", stack);
+        // println!("{:#?}", stack);
         assert!(stack.len() == 1);
         match stack.pop().unwrap() {
             NodeOrExpression::Node(node) => NodeOrExpressionOrEquation::Node(node),

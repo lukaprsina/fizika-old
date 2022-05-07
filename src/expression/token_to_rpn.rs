@@ -28,7 +28,7 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
         let mut stack: Vec<Token> = Vec::new();
         let mut output: Vec<Token> = Vec::new();
         let mut skip_n = 0;
-        println!("{:#?}", tokenized_string);
+        // println!("{:#?}", tokenized_string);
 
         for (pos, token) in tokenized_string.tokens.iter().enumerate() {
             // TODO: maybe filter
@@ -36,7 +36,7 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
                 skip_n -= 1;
                 continue;
             }
-            println!("{:?}", stack);
+            // println!("stack:{:?}\noutput:{:#?}\n", stack, output);
 
             let token = token.clone();
 
@@ -81,14 +81,14 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
                 Token::Binary(_) => {
                     let pa1 = token.get_precedence_and_associativity();
 
-                    for prev_token in stack.iter_mut().rev() {
-                        let pa2 = prev_token.get_precedence_and_associativity();
+                    while !stack.is_empty() {
+                        let pa2 = stack.last().unwrap().get_precedence_and_associativity();
                         match (pa1, pa2) {
                             ((i, Associativity::Left), (j, _)) if i <= j => {
-                                output.push(prev_token.clone());
+                                output.push(stack.pop().unwrap());
                             }
                             ((i, Associativity::Right), (j, _)) if i < j => {
-                                output.push(prev_token.clone());
+                                output.push(stack.pop().unwrap());
                             }
                             _ => {
                                 break;
@@ -127,7 +127,7 @@ impl TryFrom<TokenizedString> for ReversePolishNotation {
             }
         }
 
-        println!("stack:{:?}\noutput:{:#?}", stack, output);
+        // println!("stack:{:?}\noutput:{:#?}", stack, output);
 
         // add the last operation at the end
         while let Some(token) = stack.pop() {
