@@ -113,19 +113,21 @@ fn main() {
     println!("(- 1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x))"); */
 
     let cases = vec![
-        "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
-        "(1\t)",
-        "1*  m", // can be an unit
-        "(2+x)^2",
-        "a/b",
-        "(1)a",
-        "a",
-        "1(\n b+c)",
-        "a*b",
-        // "674(374c-4)=40329464",
-        // TODO: error
-        // "a+c//b",
+        "f(x,y)", /* "1/x + 2^(x * 6 * 2/(a + b)) - 3^2 + 1/(2 + x)",
+                 "(1\t)",
+                 "1*  m", // can be an unit
+                 "(2+x)^2",
+                 "a/b",
+                 "(1)a",
+                 "a",
+                 "1(\n b+c)",
+                 "a*b", */
+                 // "674(374c-4)=40329464",
+                 // TODO: error
+                 // "a+c//b",
     ];
+
+    // TODO: unit, functions consume
 
     for case in cases {
         let tokens = TokenizedString::try_new(case);

@@ -45,8 +45,15 @@ pub enum Token {
     RightParenthesis,
     Comma,
     Number(Number),
-    Identifier { name: String, could_be_unit: bool },
-    Function(String, Option<usize>),
+    Identifier {
+        name: String,
+        could_be_unit: bool,
+    },
+    Function {
+        name: String,
+        num_of_args: Option<usize>,
+        arguments: Vec<Vec<Token>>,
+    },
 }
 
 #[derive(Clone, Copy)]

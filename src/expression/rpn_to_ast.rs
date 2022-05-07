@@ -75,7 +75,12 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
 
                     stack.push(NodeOrExpression::Node(node));
                 }
-                Token::Function(name, _) => {
+                // TODO
+                Token::Function {
+                    name,
+                    num_of_args,
+                    arguments,
+                } => {
                     stack.push(NodeOrExpression::Node(Node::Function {
                         name: name.clone(),
                         arguments: vec![],

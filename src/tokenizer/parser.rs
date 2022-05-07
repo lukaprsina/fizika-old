@@ -107,7 +107,9 @@ impl TokenizedString {
                         Token::Identifier { .. } | Token::Number(..) => {
                             state = TokenizerState::RightExpression
                         }
-                        Token::Function(..) => parenthesis_stack.push(ParenthesisState::Function),
+                        Token::Function { .. } => {
+                            parenthesis_stack.push(ParenthesisState::Function)
+                        }
                         _ => (),
                     }
 
