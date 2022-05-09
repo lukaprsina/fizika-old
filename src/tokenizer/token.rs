@@ -19,6 +19,26 @@ pub enum Operation {
     GreaterThan,
 }
 
+impl Display for Operation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Operation::Add => write!(f, "+"),
+            Operation::Subtract => write!(f, "-"),
+            Operation::Multiply => write!(f, "*"),
+            Operation::Divide => write!(f, "/"),
+            Operation::Mod => write!(f, "%"),
+            Operation::Power => write!(f, "^"),
+            Operation::Factorial => write!(f, "!"),
+            Operation::Equal => write!(f, "="),
+            Operation::NotEqual => write!(f, "!="),
+            Operation::LessThan => write!(f, "<"),
+            Operation::LessThanOrEqual => write!(f, "<="),
+            Operation::GreaterThanOrEqual => write!(f, ">="),
+            Operation::GreaterThan => write!(f, ">"),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Number {
     Int(i64),

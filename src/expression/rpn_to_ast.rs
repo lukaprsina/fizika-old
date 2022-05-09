@@ -1,7 +1,7 @@
 use core::panic;
 
 use crate::{
-    expression::ast::match_over_node_or_expression,
+    expression::ast::match_over_equation,
     tokenizer::{parser::TokenizedString, Number, Operation, Token},
     Equation, Expression, Node, NodeOrExpression, Product, Sign,
 };
@@ -23,7 +23,7 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                         Operation::Subtract => left - right,
                         Operation::Multiply => left * right,
                         Operation::Divide => left / right,
-                        Operation::Mod => match_over_node_or_expression(
+                        Operation::Mod => match_over_equation(
                             left,
                             right,
                             |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
@@ -39,7 +39,7 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                                 NodeOrExpression::Expression(result)
                             },
                         ),
-                        Operation::Power => match_over_node_or_expression(
+                        Operation::Power => match_over_equation(
                             left,
                             right,
                             |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
@@ -55,7 +55,7 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
                                 NodeOrExpression::Expression(result)
                             },
                         ),
-                        Operation::Equal => match_over_node_or_expression(
+                        Operation::Equal => match_over_equation(
                             left,
                             right,
                             |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
@@ -124,11 +124,6 @@ impl From<ReversePolishNotation> for NodeOrExpressionOrEquation {
 
         // println!("{:#?}", stack);
         assert!(stack.len() == 1);
-        /* match stack.pop().unwrap() {
-            NodeOrExpression::Node(node) => NodeOrExpressionOrEquation::Node(node),
-            NodeOrExpression::Expression(expression) => {
-                NodeOrExpressionOrEquation::Expression(expression)
-            }
-        } */
+        stack.pop().unwrap()
     }
 }

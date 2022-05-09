@@ -3,7 +3,7 @@ use std::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 
-use crate::tokenizer::Number;
+use crate::tokenizer::{Number, Operation};
 
 #[derive(Debug)]
 pub struct Context {
@@ -21,33 +21,18 @@ pub enum ComparisonSign {
     GreaterThan,
 }
 
-impl Display for ComparisonSign {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let result = match self {
-            ComparisonSign::Equal => "=",
-            ComparisonSign::NotEqual => "!=",
-            ComparisonSign::LessThan => "<",
-            ComparisonSign::LessThanOrEqual => "<=",
-            ComparisonSign::GreaterThanOrEqual => ">=",
-            ComparisonSign::GreaterThan => ">",
-        };
-
-        write!(f, "{}", result)
-    }
-}
-
 #[derive(Debug)]
 pub struct Equation {
-    pub lhs: NodeOrExpression,
-    pub sign: ComparisonSign,
-    pub rhs: NodeOrExpression,
+    pub expressions: Vec<(Expression, Operation)>,
 }
 
 impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        result += &format!("{} {} {}", self.lhs, self.sign, self.rhs);
+        for (expression, operation) in self.expressions.iter() {
+            result += &format!("{} {} ", expression, operation);
+        }
 
         write!(f, "{}", result)
     }
@@ -308,42 +293,47 @@ impl IsTimesVisible for NodeOrExpression {
     }
 }
 
-pub(crate) fn match_over_node_or_expression(
-    lhs: NodeOrExpression,
-    rhs: NodeOrExpression,
-    mut func: impl FnMut(NodeOrExpression, NodeOrExpression) -> NodeOrExpression,
-) -> NodeOrExpression {
+pub(crate) fn match_over_equation(
+    lhs: NodeOrExpressionOrEquation,
+    rhs: NodeOrExpressionOrEquation,
+    mut func: impl FnMut(
+        NodeOrExpressionOrEquation,
+        NodeOrExpressionOrEquation,
+    ) -> NodeOrExpressionOrEquation,
+) -> NodeOrExpressionOrEquation {
     match lhs {
-        NodeOrExpression::Node(node_lhs) => match rhs {
-            NodeOrExpression::Node(node_rhs) => func(
-                NodeOrExpression::Node(node_lhs),
-                NodeOrExpression::Node(node_rhs),
+        NodeOrExpressionOrEquation::Node(node_lhs) => match rhs {
+            NodeOrExpressionOrEquation::Node(node_rhs) => func(
+                NodeOrExpressionOrEquation::Node(node_lhs),
+                NodeOrExpressionOrEquation::Node(node_rhs),
             ),
-            NodeOrExpression::Expression(exp_rhs) => func(
-                NodeOrExpression::Node(node_lhs),
-                NodeOrExpression::Expression(exp_rhs),
+            NodeOrExpressionOrEquation::Expression(exp_rhs) => func(
+                NodeOrExpressionOrEquation::Node(node_lhs),
+                NodeOrExpressionOrEquation::Expression(exp_rhs),
             ),
         },
-        NodeOrExpression::Expression(exp_lhs) => match rhs {
-            NodeOrExpression::Node(node_rhs) => func(
-                NodeOrExpression::Expression(exp_lhs),
-                NodeOrExpression::Node(node_rhs),
+        NodeOrExpressionOrEquation::Expression(exp_lhs) => match rhs {
+            NodeOrExpressionOrEquation::Node(node_rhs) => func(
+                NodeOrExpressionOrEquation::Expression(exp_lhs),
+                NodeOrExpressionOrEquation::Node(node_rhs),
             ),
-            NodeOrExpression::Expression(exp_rhs) => func(
-                NodeOrExpression::Expression(exp_lhs),
-                NodeOrExpression::Expression(exp_rhs),
+            NodeOrExpressionOrEquation::Expression(exp_rhs) => func(
+                NodeOrExpressionOrEquation::Expression(exp_lhs),
+                NodeOrExpressionOrEquation::Expression(exp_rhs),
             ),
         },
     }
 }
 
-impl Add for NodeOrExpression {
-    type Output = NodeOrExpression;
-    fn add(self, other: NodeOrExpression) -> NodeOrExpression {
-        match_over_node_or_expression(
+impl Add for NodeOrExpressionOrEquation {
+    type Output = NodeOrExpressionOrEquation;
+    fn add(self, other: NodeOrExpressionOrEquation) -> NodeOrExpressionOrEquation {
+        match_over_equation(
             self,
             other,
-            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+            |lhs: NodeOrExpressionOrEquation,
+             rhs: NodeOrExpressionOrEquation|
+             -> NodeOrExpressionOrEquation {
                 let mut result = Expression::new();
                 result
                     .products
@@ -351,19 +341,21 @@ impl Add for NodeOrExpression {
                 result
                     .products
                     .push(Product::new(Sign::Positive, vec![rhs], vec![]));
-                NodeOrExpression::Expression(result)
+                NodeOrExpressionOrEquation::Expression(result)
             },
         )
     }
 }
 
-impl Sub for NodeOrExpression {
-    type Output = NodeOrExpression;
-    fn sub(self, other: NodeOrExpression) -> NodeOrExpression {
-        match_over_node_or_expression(
+impl Sub for NodeOrExpressionOrEquation {
+    type Output = NodeOrExpressionOrEquation;
+    fn sub(self, other: NodeOrExpressionOrEquation) -> NodeOrExpressionOrEquation {
+        match_over_equation(
             self,
             other,
-            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+            |lhs: NodeOrExpressionOrEquation,
+             rhs: NodeOrExpressionOrEquation|
+             -> NodeOrExpressionOrEquation {
                 let mut result = Expression::new();
                 result
                     .products
@@ -371,55 +363,59 @@ impl Sub for NodeOrExpression {
                 result
                     .products
                     .push(Product::new(Sign::Negative, vec![rhs], vec![]));
-                NodeOrExpression::Expression(result)
+                NodeOrExpressionOrEquation::Expression(result)
             },
         )
     }
 }
 
-impl Mul for NodeOrExpression {
-    type Output = NodeOrExpression;
-    fn mul(self, other: NodeOrExpression) -> NodeOrExpression {
+impl Mul for NodeOrExpressionOrEquation {
+    type Output = NodeOrExpressionOrEquation;
+    fn mul(self, other: NodeOrExpressionOrEquation) -> NodeOrExpressionOrEquation {
         // println!("{} * {}", self, other);
-        match_over_node_or_expression(
+        match_over_equation(
             self,
             other,
-            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+            |lhs: NodeOrExpressionOrEquation,
+             rhs: NodeOrExpressionOrEquation|
+             -> NodeOrExpressionOrEquation {
                 let mut result = Expression::new();
                 result
                     .products
                     .push(Product::new(Sign::Positive, vec![lhs, rhs], vec![]));
-                NodeOrExpression::Expression(result)
+                NodeOrExpressionOrEquation::Expression(result)
             },
         )
     }
 }
 
-impl Div for NodeOrExpression {
-    type Output = NodeOrExpression;
-    fn div(self, other: NodeOrExpression) -> NodeOrExpression {
-        match_over_node_or_expression(
+impl Div for NodeOrExpressionOrEquation {
+    type Output = NodeOrExpressionOrEquation;
+    fn div(self, other: NodeOrExpressionOrEquation) -> NodeOrExpressionOrEquation {
+        match_over_equation(
             self,
             other,
-            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+            |lhs: NodeOrExpressionOrEquation,
+             rhs: NodeOrExpressionOrEquation|
+             -> NodeOrExpressionOrEquation {
                 let mut result = Expression::new();
                 result
                     .products
                     .push(Product::new(Sign::Positive, vec![lhs], vec![rhs]));
-                NodeOrExpression::Expression(result)
+                NodeOrExpressionOrEquation::Expression(result)
             },
         )
     }
 }
 
-impl Neg for NodeOrExpression {
-    type Output = NodeOrExpression;
-    fn neg(self) -> NodeOrExpression {
+impl Neg for NodeOrExpressionOrEquation {
+    type Output = NodeOrExpressionOrEquation;
+    fn neg(self) -> NodeOrExpressionOrEquation {
         let mut result = Expression::new();
         result
             .products
             .push(Product::new(Sign::Negative, vec![self], vec![]));
-        NodeOrExpression::Expression(result)
+        NodeOrExpressionOrEquation::Expression(result)
     }
 }
 
