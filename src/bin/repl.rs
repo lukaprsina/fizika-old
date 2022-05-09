@@ -1,7 +1,4 @@
-use math_eval::{
-    expression::{ast::NodeOrExpressionOrEquation, token_to_rpn::ReversePolishNotation},
-    tokenizer::parser::TokenizedString,
-};
+use math_eval::tokenizer::parser::TokenizedString;
 
 fn main() {
     loop {
@@ -12,7 +9,7 @@ fn main() {
 
         let tokens = TokenizedString::try_new(input.as_str());
 
-        if let Ok(tokens) = tokens {
+        /* if let Ok(tokens) = tokens {
             println!("Tokens:\n{:#?}\n", &tokens);
             if let Ok(rpn) = ReversePolishNotation::try_from(tokens.clone()) {
                 println!("Reverse Polish notation:\n{:#?}\n", &rpn);
@@ -24,7 +21,7 @@ fn main() {
             }
         } else {
             println!("Error: {:?}", tokens);
-        }
+        } */
         println!("{}", "-".repeat(80));
     }
 }

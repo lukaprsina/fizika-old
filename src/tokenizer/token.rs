@@ -1,7 +1,5 @@
 use std::fmt::Display;
 
-use crate::Node;
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum Operation {
     Add,
