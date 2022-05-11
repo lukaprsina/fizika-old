@@ -131,19 +131,19 @@ fn main() {
         let tokens = TokenizedString::try_new(case);
         println!("Case: {}\n", case);
 
-        /* if let Ok(tokens) = tokens {
-            // println!("Tokens:\n{:#?}\n", &tokens);
-            if let Ok(rpn) = ReversePolishNotation::try_from(tokens.clone()) {
+        if let Ok(tokens) = tokens {
+            println!("Tokens:\n{:#?}\n", &tokens);
+            /* if let Ok(rpn) = ReversePolishNotation::try_from(tokens.clone()) {
                 // println!("Reverse Polish notation:\n{:#?}\n", &rpn);
                 let expr = NodeOrExpressionOrEquation::from(rpn);
                 // println!("Expression:\n{:#?}\n", &expr);
                 println!("Converted back:\n{}", expr);
             } else {
                 println!("Reverse Polish notation failed");
-            }
+            } */
         } else {
             println!("Error: {:?}", tokens);
-        } */
+        }
         println!("{}", "-".repeat(80));
     }
 }
