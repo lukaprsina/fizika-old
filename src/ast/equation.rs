@@ -1,6 +1,6 @@
-use crate::{ast::Expression, tokenizer::Operation};
+use crate::{ast::NodeOrExpression, tokenizer::Operation};
 
 #[derive(Debug)]
 pub struct Equation {
-    pub expressions: Vec<(Expression, Option<Operation>)>,
+    pub expressions: Vec<(NodeOrExpression, Option<Operation>)>,
 }

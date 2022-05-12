@@ -35,7 +35,7 @@ impl Display for Expression {
                 }
                 Sign::Negative => {
                     result += "- ";
-                    if product.top.len() > 1 {
+                    if product.numerator.len() > 1 {
                         open = true;
                         result.push('(');
                     }
@@ -123,13 +123,13 @@ impl Display for Product {
         let mut result = String::new();
 
         let mut top_side = true;
-        if self.top.is_empty() {
+        if self.numerator.is_empty() {
             result.push('1');
         }
 
         let mut last: Option<&NodeOrExpression> = None;
 
-        for side in [&self.top, &self.bottom] {
+        for side in [&self.numerator, &self.denominator] {
             if side.len() > 1 {
                 result.push('(');
             }
@@ -148,7 +148,7 @@ impl Display for Product {
                 result.push(')');
             }
 
-            if top_side && !self.bottom.is_empty() {
+            if top_side && !self.denominator.is_empty() {
                 result += "/";
                 top_side = false;
             }

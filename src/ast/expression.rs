@@ -1,4 +1,8 @@
+use std::ops::{Add, Div, Mul, Neg, Sub};
+
 use crate::ast::Node;
+
+use super::token_to_node::match_binary;
 pub(crate) trait ShouldBeParenthesized {
     fn should_be_parenthesized(&self) -> bool;
 }
@@ -40,14 +44,28 @@ pub enum Sign {
 #[derive(Debug, Clone)]
 pub struct Product {
     pub sign: Sign,
-    pub top: Vec<NodeOrExpression>,
-    pub bottom: Vec<NodeOrExpression>,
+    pub numerator: Vec<NodeOrExpression>,
+    pub denominator: Vec<NodeOrExpression>,
+}
+
+impl Product {
+    pub fn new(
+        sign: Sign,
+        numerator: Vec<NodeOrExpression>,
+        denominator: Vec<NodeOrExpression>,
+    ) -> Product {
+        Product {
+            sign,
+            numerator,
+            denominator,
+        }
+    }
 }
 
 impl IsTimesVisible for Product {
     fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
-        if self.top.len() >= 1 {
-            self.top[0].is_times_visible(last)
+        if self.numerator.len() >= 1 {
+            self.numerator[0].is_times_visible(last)
         } else {
             true
         }
@@ -80,5 +98,90 @@ impl IsTimesVisible for Expression {
 impl ShouldBeParenthesized for Expression {
     fn should_be_parenthesized(&self) -> bool {
         self.products.len() > 1
+    }
+}
+
+impl Add for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn add(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_binary(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs], vec![]));
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![rhs], vec![]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Sub for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn sub(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_binary(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs], vec![]));
+                result
+                    .products
+                    .push(Product::new(Sign::Negative, vec![rhs], vec![]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Mul for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn mul(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_binary(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs, rhs], vec![]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Div for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn div(self, other: NodeOrExpression) -> NodeOrExpression {
+        match_binary(
+            self,
+            other,
+            |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
+                let mut result = Expression::new();
+                result
+                    .products
+                    .push(Product::new(Sign::Positive, vec![lhs], vec![rhs]));
+                NodeOrExpression::Expression(result)
+            },
+        )
+    }
+}
+
+impl Neg for NodeOrExpression {
+    type Output = NodeOrExpression;
+    fn neg(self) -> NodeOrExpression {
+        let mut result = Expression::new();
+        result
+            .products
+            .push(Product::new(Sign::Negative, vec![self], vec![]));
+        NodeOrExpression::Expression(result)
     }
 }
