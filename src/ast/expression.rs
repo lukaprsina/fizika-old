@@ -7,7 +7,7 @@ pub(crate) trait IsTimesVisible {
     fn is_times_visible(&self, last: &NodeOrExpression) -> bool;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum NodeOrExpression {
     Node(Node),
     Expression(Expression),
@@ -31,13 +31,13 @@ impl ShouldBeParenthesized for NodeOrExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Sign {
     Positive,
     Negative,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Product {
     pub sign: Sign,
     pub top: Vec<NodeOrExpression>,
@@ -54,7 +54,7 @@ impl IsTimesVisible for Product {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Expression {
     pub products: Vec<Product>,
 }

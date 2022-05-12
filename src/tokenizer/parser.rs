@@ -1,4 +1,5 @@
 use nom::IResult;
+use std::ops::Deref;
 
 use crate::tokenizer::{
     small_parsers::{
@@ -32,6 +33,14 @@ enum ParenthesisState {
 #[derive(Debug, Clone)]
 pub struct TokenizedString {
     pub tokens: Vec<Token>,
+}
+
+impl Deref for TokenizedString {
+    type Target = Vec<Token>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.tokens
+    }
 }
 
 impl TokenizedString {

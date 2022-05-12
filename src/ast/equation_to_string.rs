@@ -10,7 +10,11 @@ impl Display for Equation {
         let mut result = String::new();
 
         for (expression, operation) in self.expressions.iter() {
-            result += &format!("{} {} ", expression, operation);
+            if let Some(operation) = operation {
+                result += &format!("{} {} ", expression, operation);
+            } else {
+                result += &format!("{}", expression);
+            }
         }
 
         write!(f, "{}", result)

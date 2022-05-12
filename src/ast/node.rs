@@ -6,7 +6,7 @@ use crate::{
     tokenizer::Number,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Node {
     Number(Number),
     Variable(String),
