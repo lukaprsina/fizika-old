@@ -303,7 +303,6 @@ fn parse_function(input: &str) -> IResult<&str, Token> {
             Ok(Token::Function {
                 name: s.to_string(),
                 num_of_args: None,
-                arguments: vec![],
             })
         },
     )(input)

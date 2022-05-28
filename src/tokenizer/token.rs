@@ -18,7 +18,7 @@ pub enum Operation {
 }
 
 impl Operation {
-    pub fn is_equal_sign(&self) -> bool {
+    pub fn is_comparison_sign(&self) -> bool {
         matches!(
             &self,
             Operation::Equal
@@ -84,7 +84,6 @@ pub enum Token {
     Function {
         name: String,
         num_of_args: Option<usize>,
-        arguments: Vec<Vec<Token>>,
     },
 }
 

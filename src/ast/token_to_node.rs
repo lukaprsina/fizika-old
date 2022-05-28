@@ -26,7 +26,7 @@ where
             Token::Number(_) | Token::Identifier { .. } => output.push(token),
             Token::Unary(_) => stack.push((token, pos)),
             Token::Binary(ref operation) => {
-                if operation.is_equal_sign() {
+                if operation.is_comparison_sign() {
                     equal_sign = Some(operation.clone());
                     break;
                 }
@@ -59,16 +59,11 @@ where
                             found = true;
                             break;
                         }
-                        Token::Function {
-                            name,
-                            num_of_args,
-                            arguments: _,
-                        } => {
+                        Token::Function { name, num_of_args } => {
                             found = true;
                             output.push(Token::Function {
-                                name: name,
+                                name,
                                 num_of_args: Some(num_of_args.unwrap_or(0) + 1),
-                                arguments: vec![],
                             });
                             break;
                         }
@@ -87,17 +82,12 @@ where
                         Token::LeftParenthesis => {
                             return Err(TokenParseError::UnexpectedComma(pos));
                         }
-                        Token::Function {
-                            name,
-                            num_of_args,
-                            arguments: _,
-                        } => {
+                        Token::Function { name, num_of_args } => {
                             found = true;
                             stack.push((
                                 Token::Function {
-                                    name: name,
+                                    name,
                                     num_of_args: Some(num_of_args.unwrap_or(0) + 1),
-                                    arguments: vec![],
                                 },
                                 i,
                             ));
@@ -134,7 +124,6 @@ where
             Token::Function {
                 name: _,
                 num_of_args: Some(n_args),
-                arguments: _,
             } => n_operands -= n_args as isize - 1,
             _ => panic!("Nothing else should be here"),
         }
@@ -272,11 +261,14 @@ fn rpn_to_ast(tokens: &Vec<Token>) -> Result<NodeOrExpression, AbstractSyntaxTre
                 };
                 stack.push(r);
             }
-            Token::Function {
-                name,
-                num_of_args,
-                arguments,
-            } => todo!(),
+            Token::Function { name, num_of_args } => {
+                let num_of_args = num_of_args.expect("Expected a number of arguments");
+
+                let arguments = stack.drain(0..num_of_args).collect::<Vec<_>>();
+                let function = NodeOrExpression::Node(Node::Function { name, arguments });
+
+                stack.push(function);
+            }
             _ => (),
         }
     }

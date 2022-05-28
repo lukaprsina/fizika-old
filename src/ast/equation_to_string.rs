@@ -127,11 +127,16 @@ impl Display for Product {
             result.push('1');
         }
 
-        let mut last: Option<&NodeOrExpression> = None;
+        let mut last: Option<&NodeOrExpression>;
 
         for side in [&self.numerator, &self.denominator] {
-            if side.len() > 1 {
-                result.push('(');
+            last = None;
+            let mut open = false;
+            if let Some(first) = side.first() {
+                if first.should_be_parenthesized() {
+                    result.push('(');
+                    open = true;
+                }
             }
 
             for node_or_expression in side {
@@ -144,7 +149,7 @@ impl Display for Product {
                 last = Some(node_or_expression);
             }
 
-            if side.len() > 1 {
+            if open {
                 result.push(')');
             }
 
