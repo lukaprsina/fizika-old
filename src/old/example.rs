@@ -4,12 +4,14 @@ Equation {
     expressions: [
         (
             Expression(
+                // 1 + 2a + 3
                 Expression {
                     products: [
                         Product {
                             sign: Positive,
                             numerator: [
                                 Expression(
+                                    // 1 + 2a
                                     Expression {
                                         products: [
                                             Product {
@@ -61,6 +63,7 @@ Equation {
                             ],
                             denominator: [],
                         },
+                        // + 3
                         Product {
                             sign: Positive,
                             numerator: [
