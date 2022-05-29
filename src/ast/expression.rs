@@ -72,6 +72,16 @@ impl IsTimesVisible for Product {
     }
 }
 
+impl ShouldBeParenthesized for Product {
+    fn should_be_parenthesized(&self) -> bool {
+        if self.numerator.len() == 1 {
+            self.numerator[0].should_be_parenthesized()
+        } else {
+            true
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Expression {
     pub products: Vec<Product>,
@@ -97,7 +107,11 @@ impl IsTimesVisible for Expression {
 
 impl ShouldBeParenthesized for Expression {
     fn should_be_parenthesized(&self) -> bool {
-        self.products.len() > 1
+        if self.products.len() == 1 {
+            self.products[0].should_be_parenthesized()
+        } else {
+            true
+        }
     }
 }
 

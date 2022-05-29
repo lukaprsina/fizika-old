@@ -122,40 +122,54 @@ impl Display for Product {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        let mut top_side = true;
         if self.numerator.is_empty() {
             result.push('1');
         }
 
+        // println!("\nNum:\n{:#?}", self);
+
         let mut last: Option<&NodeOrExpression>;
 
-        for side in [&self.numerator, &self.denominator] {
+        for (pos, side) in [&self.numerator, &self.denominator].iter().enumerate() {
             last = None;
-            let mut open = false;
+            /* let mut open = false;
             if let Some(first) = side.first() {
                 if first.should_be_parenthesized() {
-                    result.push('(');
                     open = true;
                 }
             }
+            if open {
+                result.push('(');
+            } */
 
-            for node_or_expression in side {
+            for node_or_expression in *side {
+                let product_open = node_or_expression.should_be_parenthesized();
+
                 if let Some(last) = last {
                     if node_or_expression.is_times_visible(last) {
                         result += " * ";
                     }
                 }
+
+                if product_open {
+                    result.push('(');
+                }
+
                 result += &node_or_expression.to_string();
+
+                if product_open {
+                    result.push(')');
+                }
+
                 last = Some(node_or_expression);
             }
 
-            if open {
+            /* if open {
                 result.push(')');
-            }
+            } */
 
-            if top_side && !self.denominator.is_empty() {
+            if pos == 0 && !self.denominator.is_empty() {
                 result += "/";
-                top_side = false;
             }
         }
 

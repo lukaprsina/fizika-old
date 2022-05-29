@@ -19,25 +19,24 @@ fn main() {
         "a/b",
         "(1)a",
         "a",
-        "1(\n b+c)", // ignores bracket
         "a*b",
         "674(374c-4)=40329464",
-        "a+c//b",
+        "a/*\tabc */+c//b",
         "1a",
         "a=b",
-        "a<=b=c",
-        "1/(2 + x)", */
+        "a<=b=c", */
     ];
 
     for case in cases {
         let tokens = TokenizedString::try_new(case);
-        println!("Case: {}\n", case);
+        println!("\nCase: {}\n", case);
 
         if let Ok(tokens) = tokens {
             // println!("{:#?}\n", &tokens);
             let ast = Equation::try_from(tokens);
             println!("{:#?}\n", &ast);
-            if let Ok(equation) = ast {
+            if let Ok(mut equation) = ast {
+                equation.flatten();
                 println!("Converted back:\n{}\n", &equation);
             }
         } else {
