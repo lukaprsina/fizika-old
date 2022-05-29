@@ -2,7 +2,10 @@ use math_eval::{ast::Equation, tokenizer::parser::TokenizedString};
 
 fn main() {
     let cases = vec![
-        "1(1+1)",
+        "1*2*3", "1+(2+3)", "1(2+3)",
+        "(1*2)*3",
+        // "1(2+3)",
+        // "1(2*3)",
         // "1^(1+1)",
         // "(1+1)^1",
         // "(1+1)^(1+1)^(1+1)",
@@ -31,7 +34,7 @@ fn main() {
         println!("Case: {}\n", case);
 
         if let Ok(tokens) = tokens {
-            println!("{:#?}\n", &tokens);
+            // println!("{:#?}\n", &tokens);
             let ast = Equation::try_from(tokens);
             println!("{:#?}\n", &ast);
             if let Ok(equation) = ast {
