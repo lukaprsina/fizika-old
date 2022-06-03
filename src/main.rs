@@ -2,8 +2,14 @@ use math_eval::{ast::Equation, tokenizer::parser::TokenizedString};
 
 fn main() {
     let cases = vec![
-        "1*2*3", "1+(2+3)", "1(2+3)",
-        "(1*2)*3",
+        "1+(2+3)+4",
+        "1*(2+3)+4",
+        "1+(2*3)+4",
+        "1*(2*3)+4",
+        "1+(2+3)*4",
+        "1*(2+3)*4",
+        "1+(2*3)*4",
+        "1*(2*3)*4",
         // "1(2+3)",
         // "1(2*3)",
         // "1^(1+1)",
@@ -36,7 +42,7 @@ fn main() {
             let ast = Equation::try_from(tokens);
             println!("{:#?}\n", &ast);
             if let Ok(mut equation) = ast {
-                equation.flatten();
+                // equation.flatten();
                 println!("Converted back:\n{}\n", &equation);
             }
         } else {
