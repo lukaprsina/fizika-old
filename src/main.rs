@@ -31,9 +31,10 @@ fn main() {
         if let Ok(tokens) = tokens {
             // println!("{:#?}\n", &tokens);
             let ast = Equation::try_from(tokens);
-            println!("{:#?}\n", &ast);
+            // println!("{:#?}\n", &ast);
             if let Ok(mut equation) = ast {
                 equation.flatten();
+                println!("{:#?}\n", &equation);
                 println!("Converted back:\n{}\n", &equation);
             }
         } else {

@@ -19,37 +19,45 @@ impl Equation {
     }
 }
 
-/* pub trait Flatten {
-    fn flatten(self: &mut Self) -> bool;
-} */
-
 impl Expression {
     fn flatten(self: &mut Self) -> bool {
         let mut result = Vec::new();
         for index in 0..self.products.len() - 1 {
-            result.push(self.products[index].clone());
-            result.append(&mut self.products[index].flatten());
+            /* result.push(self.products[index].clone());
+            let mut a = self.products[index].flatten();
+            result.append(&mut a);
+            println!("{:#?}", result); */
+            if self.products[index].flatten() {
+                for node in self.products[index].numerator.iter() {
+                    if let NodeOrExpression::Expression(expression) = node {
+                        result.append(&mut expression.products.clone());
+                    } else {
+                        result.push(self.products[index].clone());
+                    }
+                }
+            }
         }
 
         self.products = result;
 
         // return if it is necesarry to flatten
-        true
+        false
     }
 }
 
 impl Product {
-    fn flatten(self: &mut Self) -> Vec<Product> {
-        let mut result = Vec::new();
+    fn flatten(self: &mut Self) -> bool {
+        let mut result = true;
 
         if !self.denominator.is_empty() {
-            return vec![];
+            return false;
         }
 
         for node in self.numerator.iter_mut() {
             if let NodeOrExpression::Expression(expression) = node {
-                if expression.flatten() {
-                    result.append(&mut expression.products);
+                if !expression.flatten() {
+                    result = false;
+                    break;
                 }
             }
         }
