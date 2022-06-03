@@ -64,7 +64,7 @@ impl Product {
 
 impl IsTimesVisible for Product {
     fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
-        if self.numerator.len() >= 1 {
+        if !self.numerator.is_empty() {
             self.numerator[0].is_times_visible(last)
         } else {
             true
@@ -95,9 +95,15 @@ impl Expression {
     }
 }
 
+impl Default for Expression {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IsTimesVisible for Expression {
     fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
-        if self.products.len() >= 1 {
+        if !self.products.is_empty() {
             self.products[0].is_times_visible(last)
         } else {
             true

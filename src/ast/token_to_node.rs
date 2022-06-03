@@ -176,7 +176,7 @@ pub enum AbstractSyntaxTreeError {
     Binary,
 }
 
-fn rpn_to_ast(tokens: &Vec<Token>) -> Result<NodeOrExpression, AbstractSyntaxTreeError> {
+fn rpn_to_ast(tokens: &[Token]) -> Result<NodeOrExpression, AbstractSyntaxTreeError> {
     let mut stack: Vec<NodeOrExpression> = Vec::new();
 
     for token in tokens.iter() {

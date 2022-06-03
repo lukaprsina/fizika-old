@@ -95,7 +95,7 @@ pub enum Associativity {
 }
 
 impl Token {
-    pub fn get_precedence_and_associativity(self: &Self) -> (u32, Associativity) {
+    pub fn get_precedence_and_associativity(&self) -> (u32, Associativity) {
         match self {
             Token::Binary(operation) => match operation {
                 Operation::Add | Operation::Subtract => (1, Associativity::Left),

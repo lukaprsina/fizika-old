@@ -94,7 +94,7 @@ impl Display for Node {
             Node::Function { name, arguments } => {
                 result += &format!("{}(", name);
                 for (index, argument) in arguments.iter().enumerate() {
-                    result += &format!("{}", to_string_with_parenthesis(argument));
+                    result += &to_string_with_parenthesis(argument).to_string();
                     if index < arguments.len() - 1 {
                         result += ", ";
                     }
