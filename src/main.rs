@@ -1,16 +1,19 @@
-use math_eval::{ast::Equation, tokenizer::parser::TokenizedString};
+use math_eval::{
+    ast::{equation_to_string::DebugPrint, Equation},
+    tokenizer::parser::TokenizedString,
+};
 
 fn main() {
     let cases = vec![
-        "1+(2+3)+4",
-        "1*(2+3)+4",
-        "1+(2*3)+4",
-        "1*(2*3)+4",
-        "1+(2+3)*4",
-        "1*(2+3)*4",
-        "1+(2*3)*4",
+        "1-(2-3)-4",
+        "1*(2-3)-4",
+        "1-(2*3)-4",
+        "1*(2*3)-4",
+        "1-(2-3)*4",
+        "1*(2-3)*4",
+        "1-(2*3)*4",
         "1*(2*3)*4",
-        "1(2+3)",
+        /* "1(2+3)",
         "1(2*3)",
         "1^(1+1)",
         "(1+1)^1",
@@ -30,7 +33,7 @@ fn main() {
         "a/*\tabc */+c//b",
         "1a",
         "a=b",
-        "a<=b=c",
+        "a<=b=c", */
     ];
 
     for case in cases {
@@ -42,10 +45,11 @@ fn main() {
             let mut ast = Equation::try_from(tokens).unwrap();
             // println!("{:#?}\n", &ast);
 
-            ast.flatten();
+            // ast.flatten();
             // println!("{:#?}\n", &ast);
 
-            println!("{}\n\nConverted back:\n{}\n", case, &ast);
+            println!("Case:\n{}\n\nConverted back:\n{}\n", case, &ast);
+            println!("{}\n", &ast.debug_print());
         } else {
             println!("Error: {:?}", tokens);
         }
