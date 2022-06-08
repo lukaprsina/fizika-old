@@ -177,54 +177,19 @@ impl Display for Product {
     }
 }
 
-/* pub trait DebugPrint {
-    fn debug_print(&self) -> String;
+/* impl Debug for Equation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Equation")
+            .field("expressions", &self.expressions)
+            .finish()
+    }
 }
 
-impl DebugPrint for Equation {
-    fn debug_print(&self) -> String {
-        let mut result = String::new();
-
-        result += "Equation:\n";
-        for (node_or_expression, operation) in self.expressions.iter() {
-            if let Some(operation) = operation {
-                result += &format!("E {}:\n\t{} ", operation, node_or_expression.debug_print());
-            } else {
-                result += &format!("E:\n\t{} ", node_or_expression.debug_print());
-            }
+impl Debug for NodeOrExpression {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Node(arg0) => f.debug_tuple("Node").field(arg0).finish(),
+            Self::Expression(arg0) => f.debug_tuple("Expression").field(arg0).finish(),
         }
-
-        result
     }
-}
-
-impl DebugPrint for NodeOrExpression {
-    fn debug_print(&self) -> String {
-        let result = match self {
-            NodeOrExpression::Node(node) => format!("{}\n", node.to_string()),
-            NodeOrExpression::Expression(expression) => {
-                let mut test = String::new();
-                for product in expression.products.iter() {
-                    test += "P:\n\t";
-                    for (pos, &side) in [&product.numerator, &product.denominator]
-                        .iter()
-                        .enumerate()
-                    {
-                        if pos == 0 {
-                            test += "T:\n\t";
-                        } else {
-                            test += "B:\n\t";
-                        }
-
-                        for node_or_expression in side {
-                            test += &format!("{}", node_or_expression.debug_print());
-                        }
-                    }
-                }
-                test
-            }
-        };
-        result
-    }
-}
- */
+} */

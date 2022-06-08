@@ -1,21 +1,16 @@
-use math_eval::{
-    ast::{equation_to_string::DebugPrint, Equation},
-    tokenizer::parser::TokenizedString,
-};
+use math_eval::{ast::Equation, tokenizer::parser::TokenizedString};
 
 fn main() {
     let cases = vec![
-        "1-(2-3)-4",
+        // "1-(2-3)-4",
         "1*(2-3)-4",
-        "1-(2*3)-4",
+        /* "1-(2*3)-4",
         "1*(2*3)-4",
         "1-(2-3)*4",
         "1*(2-3)*4",
         "1-(2*3)*4",
-        "1*(2*3)*4",
-        /* "1(2+3)",
-        "1(2*3)",
-        "1^(1+1)",
+        "1*(2*3)*4", */
+        /* "1^(1+1)",
         "(1+1)^1",
         "(1+1)^(1+1)^(1+1)",
         "ceil(sin(60 + 1, 2) + 1)",
@@ -38,18 +33,19 @@ fn main() {
 
     for case in cases {
         let tokens = TokenizedString::try_new(case);
-        // println!("\nCase: {}\n", case);
+        println!("\nCase: {}\n", case);
 
         if let Ok(tokens) = tokens {
             // println!("{:#?}\n", &tokens);
             let mut ast = Equation::try_from(tokens).unwrap();
-            // println!("{:#?}\n", &ast);
+            println!("{:#?}\n", &ast);
+            println!("Not flattened:\n{}\n", ast);
 
-            // ast.flatten();
-            // println!("{:#?}\n", &ast);
+            ast.flatten();
+            println!("{:#?}\n", &ast);
+            // println!("Case:\n{}\n", case);
 
-            println!("Case:\n{}\n\nConverted back:\n{}\n", case, &ast);
-            println!("{}\n", &ast.debug_print());
+            println!("\nConverted back:\n{}\n", &ast);
         } else {
             println!("Error: {:?}", tokens);
         }
