@@ -68,7 +68,7 @@ impl Expression {
               return FlattenResult::NotPossible;
           } */
 
-        let mut can_flatten = FlattenResult::Polynomial;
+        let can_flatten = FlattenResult::Polynomial;
 
         /* for product in self.products.iter() {
             println!("Product:\n{:#?}", product);
