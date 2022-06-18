@@ -3,7 +3,7 @@ use crate::{
     tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token},
 };
 
-use super::{Equation, Expression, Node, NodeOrExpression, Product, Sign};
+use super::{equation::EquationSide, Equation, Node, NodeOrExpression, Sign};
 
 #[derive(Debug)]
 pub enum TokenParseError {
@@ -250,7 +250,7 @@ impl TryFrom<TokenizedString> for Equation {
     type Error = TokensToEquationError;
 
     fn try_from(tokenized_string: TokenizedString) -> Result<Equation, TokensToEquationError> {
-        let mut expressions: Vec<(Element, Option<Operation>)> = Vec::new();
+        let mut sides: Vec<EquationSide> = Vec::new();
         let mut token_iter = tokenized_string.iter();
         let mut should_continue = true;
         while should_continue {
@@ -261,10 +261,10 @@ impl TryFrom<TokenizedString> for Equation {
                     should_continue = false;
                 }
                 if let Ok(expression) = rpn_to_ast(&rpn.0) {
-                    expressions.push((expression, rpn.1));
+                    sides.push(EquationSide::new(expression, rpn.1));
                 }
             }
         }
-        Ok(Equation { expressions })
+        Ok(Equation { sides })
     }
 }

@@ -13,7 +13,7 @@ fn test(return_full: bool, node_or_expression: &NodeOrExpression) -> Vec<NodeOrE
     }
 }
 
-/* impl Expression {
+impl Expression {
     pub fn flatten(&mut self) -> FlattenResult {
         let mut new_products: Vec<Product> = Vec::new();
 
@@ -62,4 +62,4 @@ fn test(return_full: bool, node_or_expression: &NodeOrExpression) -> Vec<NodeOrE
             FlattenResult::Polynomial
         }
     }
-} */
+}

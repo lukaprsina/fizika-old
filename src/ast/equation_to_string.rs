@@ -11,15 +11,24 @@ impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        for (expression, operation) in self.expressions.iter() {
-            if let Some(operation) = operation {
-                result += &format!("{} {} ", expression, operation);
+        for side in self.sides.iter() {
+            if let Some(operation) = &side.operation {
+                result += &format!("{} {} ", side.element, operation);
             } else {
-                result += &format!("{}", expression);
+                result += &format!("{}", side.element);
             }
         }
 
         write!(f, "{}", result)
+    }
+}
+
+impl Display for Sign {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Sign::Positive => write!(f, "+"),
+            Sign::Negative => write!(f, "-"),
+        }
     }
 }
 
@@ -139,14 +148,14 @@ impl Display for Product {
 
         let mut last: Option<&Element>;
 
-        for (pos, side) in [&self.numerator, &self.denominator].iter().enumerate() {
+        for (pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             last = None;
 
-            for node_or_expression in *side {
-                let product_open = node_or_expression.should_be_parenthesized();
+            for element in side {
+                let product_open = element.should_be_parenthesized();
 
                 if let Some(last) = last {
-                    if node_or_expression.is_times_visible(last) {
+                    if element.is_times_visible(last) {
                         result += " * ";
                     }
                 }
@@ -155,13 +164,13 @@ impl Display for Product {
                     result.push('(');
                 }
 
-                result += &node_or_expression.to_string();
+                result += &element.to_string();
 
                 if product_open {
                     result.push(')');
                 }
 
-                last = Some(node_or_expression);
+                last = Some(element);
             }
 
             if pos == 0 && !self.denominator.is_empty() {

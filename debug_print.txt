@@ -1,0 +1,14 @@
+Equation =
+    Element +
+        Expression
+        Expression
+            Product
+                Node
+                    1
+            Product
+                Node
+                    1
+                Node
+                    2
+        Node
+            1

@@ -15,18 +15,19 @@ fn main() {
 
         match tokens {
             Ok(tokens) => {
-                println!("\nCase: {}\n", case);
+                println!("Case: {}\n", case);
                 // println!("{:#?}\n", &tokens);
                 let mut ast = Equation::try_from(tokens).unwrap();
-                println!("{:#?}\n", &ast);
-                println!("Not flattened:\n{}\n", ast);
+                println!("\n{:#?}\n", &ast);
+                // ptree::print_tree(&ast).expect("Unable to print tree");
+                println!("\nNot flattened:\n{}\n", ast);
 
                 ast.flatten();
                 // println!("{:#?}\n", &ast);
                 // println!("Case:\n{}\n", case);
 
                 println!("\nConverted back:\n{}\n", &ast);
-                println!("{}", "-".repeat(80));
+                println!("{}\n", "-".repeat(80));
             }
             Err(e) => match e {
                 ParseError::Empty => (),
