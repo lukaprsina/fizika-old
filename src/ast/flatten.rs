@@ -1,86 +1,65 @@
-use super::{Expression, NodeOrExpression, Sign};
+use super::{Expression, NodeOrExpression, Product, Sign};
 
 pub enum FlattenResult {
     Monomial,
     Polynomial,
-    NotPossible,
 }
 
-impl Expression {
+fn test(return_full: bool, node_or_expression: &NodeOrExpression) -> Vec<NodeOrExpression> {
+    if return_full {
+        vec![node_or_expression.clone()]
+    } else {
+        vec![]
+    }
+}
+
+/* impl Expression {
     pub fn flatten(&mut self) -> FlattenResult {
-        let mut new_products = Vec::new();
+        let mut new_products: Vec<Product> = Vec::new();
 
-        for product in self.products.iter().cloned() {
-            // let only_one = product.numerator.len() <= 1;
-            println!("Flatten:\n{}", &product);
-            // println!("{:#?}", &product);
-            println!();
-            let mut changed = false;
+        for product in self.products.iter_mut() {
+            for (side_pos, side) in [&mut product.numerator, &mut product.denominator]
+                .into_iter()
+                .enumerate()
+            {
+                for node_or_expression in side.iter_mut() {
+                    println!("NodeOrExpression:\n{:#?}\n\n", &node_or_expression);
 
-            for (pos, node_or_expression) in product.numerator.iter().cloned().enumerate() {
-                println!("NodeOrExpression:\n{}", &node_or_expression);
-                // println!("{:#?}", &node_or_expression);
-                println!();
-                if let NodeOrExpression::Expression(mut expression) = node_or_expression {
-                    match expression.flatten() {
-                        FlattenResult::Polynomial => {
-                            // println!("Polynomial");
-
-                            /* only_one && */
-                            if matches!(product.sign, Sign::Positive) {
-                                new_products.append(&mut expression.products);
-                                changed = true;
-                                // println!("If hit");
+                    // minus are expressions, plus are nodes
+                    match node_or_expression {
+                        NodeOrExpression::Expression(expression) => match expression.flatten() {
+                            FlattenResult::Polynomial => {
+                                if product.sign == Sign::Positive {
+                                    new_products
+                                        .append(&mut expression.products.iter().cloned().collect());
+                                } else {
+                                    new_products.push(Product::new(
+                                        product.sign,
+                                        test(side_pos == 0, &node_or_expression),
+                                        test(side_pos == 1, &node_or_expression),
+                                    ));
+                                }
                             }
-                        }
-                        FlattenResult::Monomial => {
-                            // println!("Monomial");
-                            let first_product = expression.products[0].clone();
-                            let mut new_product = product.clone();
-
-                            new_product.numerator.remove(pos);
-                            for (pos2, node_or_expression) in
-                                first_product.numerator.into_iter().enumerate()
-                            {
-                                new_product.numerator.insert(pos + pos2, node_or_expression);
-                            }
-
-                            new_products.push(new_product);
-                            changed = true;
-                        }
-                        FlattenResult::NotPossible => {
-                            // println!("NotPossible");
+                            FlattenResult::Monomial => if product.sign == Sign::Positive {},
+                        },
+                        NodeOrExpression::Node(..) => {
+                            new_products.push(Product::new(
+                                product.sign,
+                                test(side_pos == 0, &node_or_expression),
+                                test(side_pos == 1, &node_or_expression),
+                            ));
                         }
                     }
                 }
-            }
-
-            if !changed {
-                new_products.push(product);
             }
         }
 
         self.products = new_products;
 
         if self.products.len() <= 1 {
-            return FlattenResult::Monomial;
-        } /*  else {
-              return FlattenResult::NotPossible;
-          } */
-
-        let can_flatten = FlattenResult::Polynomial;
-
-        /* for product in self.products.iter() {
-            println!("Product:\n{:#?}", product);
-            for node_or_expression in product.numerator.iter() {
-                if matches!(node_or_expression, NodeOrExpression::Expression(_)) {
-                    println!("Will return NotPossible:\n{:#?}", node_or_expression);
-                    can_flatten = FlattenResult::NotPossible;
-                    break;
-                }
-            }
-        } */
-
-        can_flatten
+            FlattenResult::Monomial
+        } else {
+            FlattenResult::Polynomial
+        }
     }
-}
+} */

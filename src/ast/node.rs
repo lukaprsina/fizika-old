@@ -6,25 +6,27 @@ use crate::{
     tokenizer::Number,
 };
 
+use super::expression::Element;
+
 #[derive(Debug, Clone)]
 pub enum Node {
     Number(Number),
     Variable(String),
     Unit(String),
     Power {
-        base: Box<NodeOrExpression>,
-        power: Box<NodeOrExpression>,
+        base: Box<Element>,
+        power: Box<Element>,
     },
     Modulo {
-        lhs: Box<NodeOrExpression>,
-        rhs: Box<NodeOrExpression>,
+        lhs: Box<Element>,
+        rhs: Box<Element>,
     },
     Factorial {
-        child: Box<NodeOrExpression>,
+        child: Box<Element>,
     },
     Function {
         name: String,
-        arguments: Vec<NodeOrExpression>,
+        arguments: Vec<Element>,
     },
 }
 
@@ -35,14 +37,14 @@ impl ShouldBeParenthesized for Node {
 }
 
 impl IsTimesVisible for Node {
-    fn is_times_visible(&self, last: &NodeOrExpression) -> bool {
+    fn is_times_visible(&self, last: &Element) -> bool {
         match self {
             Node::Number(_)
             | Node::Power { .. }
             | Node::Function { .. }
             | Node::Modulo { .. }
             | Node::Factorial { .. } => true,
-            Node::Variable(_) | Node::Unit(_) => match last {
+            Node::Variable(_) | Node::Unit(_) => match &last.node_or_expression {
                 NodeOrExpression::Node(var_node) => !matches!(
                     var_node,
                     Node::Number(_) | Node::Variable(_) | Node::Unit(_)

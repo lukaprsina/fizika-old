@@ -5,6 +5,8 @@ use crate::ast::{
     Equation, Expression, Node, NodeOrExpression, Product, Sign,
 };
 
+use super::expression::Element;
+
 impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
@@ -27,7 +29,7 @@ impl Display for Expression {
 
         for (position, product) in self.products.iter().enumerate() {
             let mut open = false;
-            match product.sign {
+            match product.get_sign() {
                 Sign::Positive => {
                     if position != 0 {
                         result += "+ ";
@@ -107,6 +109,13 @@ impl Display for Node {
     }
 }
 
+impl Display for Element {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // ignores sign, because it is handled in the display of the expression
+        write!(f, "{}", self.node_or_expression)
+    }
+}
+
 impl Display for NodeOrExpression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let result = match self {
@@ -128,19 +137,10 @@ impl Display for Product {
 
         // println!("\nNum:\n{:#?}", self);
 
-        let mut last: Option<&NodeOrExpression>;
+        let mut last: Option<&Element>;
 
         for (pos, side) in [&self.numerator, &self.denominator].iter().enumerate() {
             last = None;
-            /* let mut open = false;
-            if let Some(first) = side.first() {
-                if first.should_be_parenthesized() {
-                    open = true;
-                }
-            }
-            if open {
-                result.push('(');
-            } */
 
             for node_or_expression in *side {
                 let product_open = node_or_expression.should_be_parenthesized();
@@ -164,10 +164,6 @@ impl Display for Product {
                 last = Some(node_or_expression);
             }
 
-            /* if open {
-                result.push(')');
-            } */
-
             if pos == 0 && !self.denominator.is_empty() {
                 result += "/";
             }
@@ -176,20 +172,3 @@ impl Display for Product {
         write!(f, "{}", result)
     }
 }
-
-/* impl Debug for Equation {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Equation")
-            .field("expressions", &self.expressions)
-            .finish()
-    }
-}
-
-impl Debug for NodeOrExpression {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Node(arg0) => f.debug_tuple("Node").field(arg0).finish(),
-            Self::Expression(arg0) => f.debug_tuple("Expression").field(arg0).finish(),
-        }
-    }
-} */

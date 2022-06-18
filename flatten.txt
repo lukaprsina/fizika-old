@@ -1,0 +1,53 @@
+(-1-2)-3    -> -1-2-3
+    (-1-2)
+        -1
+        -2
+    -3
+
+-(-1-2)-3
+    -(-1-2)
+        -1
+        -2
+    -3
+
+(-1*(-2))-3 -> -1*(-2)-3
+-(-1*(-2))-3
+
+(-1-2)*3
+-(-1-2)*3
+
+(-1*(-2))*3   -> -1*(-2)*3
+-(-1*(-2))*3
+
+fn Expression.flatten() -> FlattenResult {
+    let new_products = Product[]
+
+    for product in self.products:
+        let new_numerator = NodeOrExpression[]
+        let new_denominator = NodeOrExpression[]
+        
+        for side in &[product.numerator, product.denominator]:
+            for node_or_expression in side:
+                match node_or_expression {
+                    expression => {
+                        match expression.flatten() {
+                            Polynomial => {
+                                if product.sign is positive:
+                                    new_products.push(expression.products)
+                            },
+                            Monomial => {
+                                if product.sign is positive:
+
+                            }
+                        }
+                    },
+                    node => {
+                        new_products.push(node in product)
+                    }
+
+}
+
+enum FlattenResult {
+    Polynomial,
+    Monomial
+}

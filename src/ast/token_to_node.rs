@@ -1,4 +1,7 @@
-use crate::tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token};
+use crate::{
+    ast::expression::Element,
+    tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token},
+};
 
 use super::{Equation, Expression, Node, NodeOrExpression, Product, Sign};
 
@@ -141,115 +144,70 @@ where
     Ok((output, equal_sign))
 }
 
-pub(crate) fn match_binary(
-    lhs: NodeOrExpression,
-    rhs: NodeOrExpression,
-    mut func: impl FnMut(NodeOrExpression, NodeOrExpression) -> NodeOrExpression,
-) -> NodeOrExpression {
-    match lhs {
-        NodeOrExpression::Node(node_lhs) => match rhs {
-            NodeOrExpression::Node(node_rhs) => func(
-                NodeOrExpression::Node(node_lhs),
-                NodeOrExpression::Node(node_rhs),
-            ),
-            NodeOrExpression::Expression(exp_rhs) => func(
-                NodeOrExpression::Node(node_lhs),
-                NodeOrExpression::Expression(exp_rhs),
-            ),
-        },
-        NodeOrExpression::Expression(exp_lhs) => match rhs {
-            NodeOrExpression::Node(node_rhs) => func(
-                NodeOrExpression::Expression(exp_lhs),
-                NodeOrExpression::Node(node_rhs),
-            ),
-            NodeOrExpression::Expression(exp_rhs) => func(
-                NodeOrExpression::Expression(exp_lhs),
-                NodeOrExpression::Expression(exp_rhs),
-            ),
-        },
-    }
-}
-
 #[derive(Debug)]
 pub enum AbstractSyntaxTreeError {
     Unary,
     Binary,
 }
 
-fn rpn_to_ast(tokens: &[Token]) -> Result<NodeOrExpression, AbstractSyntaxTreeError> {
-    let mut stack: Vec<NodeOrExpression> = Vec::new();
+fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
+    let mut stack: Vec<Element> = Vec::new();
 
     for token in tokens.iter() {
         let token = token.clone();
 
         match token {
-            Token::Number(number) => stack.push(NodeOrExpression::Node(Node::Number(number))),
+            Token::Number(number) => stack.push(Element::new(
+                Sign::Positive,
+                NodeOrExpression::Node(Node::Number(number)),
+            )),
             Token::Identifier {
                 name,
                 could_be_unit,
             } => {
+                // TODO: need context to determine if this is a unit
                 let node = if could_be_unit {
                     Node::Unit(name)
                 } else {
                     Node::Variable(name)
                 };
 
-                stack.push(NodeOrExpression::Node(node));
+                stack.push(Element::new(Sign::Positive, NodeOrExpression::Node(node)));
             }
             Token::Unary(operation) => {
-                let child = stack.pop().expect("Expected a token in the stack");
-                let r = match operation {
+                let mut child = stack.pop().expect("Expected a token in the stack");
+                let result = match operation {
                     Operation::Add => child,
                     Operation::Subtract => {
-                        let mut result = Expression::new();
-                        result
-                            .products
-                            .push(Product::new(Sign::Negative, vec![child], vec![]));
-                        NodeOrExpression::Expression(result)
+                        child.invert_sign();
+                        child
                     }
                     _ => return Err(AbstractSyntaxTreeError::Unary),
                 };
-                stack.push(r);
+                stack.push(result);
             }
             Token::Binary(operation) => {
                 let right = stack.pop().expect("Expected a token in the stack");
                 let left = stack.pop().expect("Expected a token in the stack");
-                let r = match operation {
+
+                let result = match operation {
                     Operation::Add => left + right,
                     Operation::Subtract => left - right,
                     Operation::Multiply => left * right,
                     Operation::Divide => left / right,
-                    Operation::Mod => match_binary(
-                        left,
-                        right,
-                        |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
-                            let mut result = Expression::new();
-                            result.products.push(Product::new(
-                                Sign::Positive,
-                                vec![NodeOrExpression::Node(Node::Modulo {
-                                    lhs: Box::new(lhs),
-                                    rhs: Box::new(rhs),
-                                })],
-                                vec![],
-                            ));
-                            NodeOrExpression::Expression(result)
-                        },
+                    Operation::Mod => Element::new(
+                        Sign::Positive,
+                        NodeOrExpression::Node(Node::Modulo {
+                            lhs: Box::new(left),
+                            rhs: Box::new(right),
+                        }),
                     ),
-                    Operation::Power => match_binary(
-                        left,
-                        right,
-                        |lhs: NodeOrExpression, rhs: NodeOrExpression| -> NodeOrExpression {
-                            let mut result = Expression::new();
-                            result.products.push(Product::new(
-                                Sign::Positive,
-                                vec![NodeOrExpression::Node(Node::Power {
-                                    base: Box::new(lhs),
-                                    power: Box::new(rhs),
-                                })],
-                                vec![],
-                            ));
-                            NodeOrExpression::Expression(result)
-                        },
+                    Operation::Power => Element::new(
+                        Sign::Positive,
+                        NodeOrExpression::Node(Node::Power {
+                            base: Box::new(left),
+                            power: Box::new(right),
+                        }),
                     ),
                     Operation::Equal
                     | Operation::NotEqual
@@ -259,13 +217,16 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<NodeOrExpression, AbstractSyntaxTreeEr
                     | Operation::GreaterThan => unreachable!(),
                     _ => unreachable!(),
                 };
-                stack.push(r);
+                stack.push(result);
             }
             Token::Function { name, num_of_args } => {
                 let num_of_args = num_of_args.expect("Expected a number of arguments");
 
                 let arguments = stack.drain(0..num_of_args).collect::<Vec<_>>();
-                let function = NodeOrExpression::Node(Node::Function { name, arguments });
+                let function = Element::new(
+                    Sign::Positive,
+                    NodeOrExpression::Node(Node::Function { name, arguments }),
+                );
 
                 stack.push(function);
             }
@@ -289,7 +250,7 @@ impl TryFrom<TokenizedString> for Equation {
     type Error = TokensToEquationError;
 
     fn try_from(tokenized_string: TokenizedString) -> Result<Equation, TokensToEquationError> {
-        let mut expressions: Vec<(NodeOrExpression, Option<Operation>)> = Vec::new();
+        let mut expressions: Vec<(Element, Option<Operation>)> = Vec::new();
         let mut token_iter = tokenized_string.iter();
         let mut should_continue = true;
         while should_continue {

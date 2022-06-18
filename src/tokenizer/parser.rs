@@ -16,6 +16,7 @@ pub enum ParseError {
     UnexpectedToken(usize),
     MissingRightParenthesis(usize),
     MissingArgument,
+    Empty,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -151,6 +152,10 @@ impl TokenizedString {
                 }
                 Err(error) => panic!("{}", error),
             }
+        }
+
+        if result.is_empty() {
+            return Err(ParseError::Empty);
         }
 
         match state {

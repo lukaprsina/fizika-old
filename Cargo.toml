@@ -2,13 +2,14 @@
 name = "math-eval"
 version = "0.1.0"
 edition = "2021"
-default-run = "math-eval"
+default-run = "debug"
+authors = ["Luka Pršina"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 lazy_static = "1.4.0"
 nom = "7.1.1"
-ryu = "1.0.9"
+ryu = "1.0.10"
 smallvec = "1.8.0"
 smartstring = "1.0.1"
