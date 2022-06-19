@@ -1,13 +1,13 @@
-use super::{Expression, NodeOrExpression, Product, Sign};
+use super::{expression::Element, Expression, NodeOrExpression, Product, Sign};
 
 pub enum FlattenResult {
     Monomial,
     Polynomial,
 }
 
-fn test(return_full: bool, node_or_expression: &NodeOrExpression) -> Vec<NodeOrExpression> {
+fn conditional_fill(return_full: bool, element: &Element) -> Vec<Element> {
     if return_full {
-        vec![node_or_expression.clone()]
+        vec![element.clone()]
     } else {
         vec![]
     }
@@ -22,38 +22,66 @@ impl Expression {
                 .into_iter()
                 .enumerate()
             {
-                for node_or_expression in side.iter_mut() {
-                    println!("NodeOrExpression:\n{:#?}\n\n", &node_or_expression);
+                let mut new_product = Product::new(vec![], vec![]);
 
-                    // minus are expressions, plus are nodes
-                    match node_or_expression {
-                        NodeOrExpression::Expression(expression) => match expression.flatten() {
-                            FlattenResult::Polynomial => {
-                                if product.sign == Sign::Positive {
-                                    new_products
-                                        .append(&mut expression.products.iter().cloned().collect());
-                                } else {
-                                    new_products.push(Product::new(
-                                        product.sign,
-                                        test(side_pos == 0, &node_or_expression),
-                                        test(side_pos == 1, &node_or_expression),
-                                    ));
+                let side_len = side.len();
+                for (element_pos, element) in side.iter_mut().enumerate() {
+                    // println!("Element:\n{:#?}\n\n", &element);
+
+                    match &mut element.node_or_expression {
+                        NodeOrExpression::Expression(expression) => match &mut expression.flatten()
+                        {
+                            FlattenResult::Polynomial => match element.sign {
+                                Sign::Positive => {
+                                    if side_len == 1 {
+                                        new_products.append(
+                                            &mut expression.products.iter().cloned().collect(),
+                                        );
+                                    } else {
+                                        match side_pos {
+                                            0 => new_product.numerator.push(element.clone()),
+                                            1 => new_product.denominator.push(element.clone()),
+                                            _ => unreachable!(),
+                                        }
+                                    }
                                 }
-                            }
-                            FlattenResult::Monomial => if product.sign == Sign::Positive {},
+                                Sign::Negative => match side_pos {
+                                    0 => new_product.numerator.push(element.clone()),
+                                    1 => new_product.denominator.push(element.clone()),
+                                    _ => unreachable!(),
+                                },
+                            },
+                            FlattenResult::Monomial => match element.sign {
+                                Sign::Positive => match side_pos {
+                                    0 => new_product.numerator.push(element.clone()),
+                                    1 => new_product.denominator.push(element.clone()),
+                                    _ => unreachable!(),
+                                },
+                                Sign::Negative => match side_pos {
+                                    0 => new_product.numerator.push(element.clone()),
+                                    1 => new_product.denominator.push(element.clone()),
+                                    _ => unreachable!(),
+                                },
+                            },
                         },
-                        NodeOrExpression::Node(..) => {
-                            new_products.push(Product::new(
-                                product.sign,
-                                test(side_pos == 0, &node_or_expression),
-                                test(side_pos == 1, &node_or_expression),
-                            ));
-                        }
+                        NodeOrExpression::Node(..) => match side_pos {
+                            0 => new_product.numerator.push(element.clone()),
+                            1 => new_product.denominator.push(element.clone()),
+                            _ => unreachable!(),
+                        },
                     }
+
+                    // println!("New product:\n{:#?}\n\n", &new_product);
+                }
+
+                if !new_product.numerator.is_empty() || !new_product.denominator.is_empty() {
+                    new_products.push(new_product);
+                    // println!("New products:\n{:#?}\n\n", &new_products);
                 }
             }
         }
 
+        // println!("New products:\n{:#?}\n\n", &new_products);
         self.products = new_products;
 
         if self.products.len() <= 1 {

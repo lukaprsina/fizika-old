@@ -18,15 +18,17 @@ fn main() {
                 println!("Case: {}\n", case);
                 // println!("{:#?}\n", &tokens);
                 let mut ast = Equation::try_from(tokens).unwrap();
-                println!("\n{:#?}\n", &ast);
-                // ptree::print_tree(&ast).expect("Unable to print tree");
-                println!("\nNot flattened:\n{}\n", ast);
+                // println!("\n{:#?}\n", &ast);
+                ptree::print_tree(&ast).expect("Unable to print tree");
+                // println!("\nNot flattened:\n{}\n", ast);
 
                 ast.flatten();
+                println!();
+                ptree::print_tree(&ast).expect("Unable to print tree");
                 // println!("{:#?}\n", &ast);
                 // println!("Case:\n{}\n", case);
 
-                println!("\nConverted back:\n{}\n", &ast);
+                // println!("\nFlattened:\n{}\n", &ast);
                 println!("{}\n", "-".repeat(80));
             }
             Err(e) => match e {

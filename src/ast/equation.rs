@@ -22,8 +22,8 @@ impl EquationSide {
 impl Equation {
     pub fn flatten(&mut self) {
         for side in self.sides.iter_mut() {
-            if let NodeOrExpression::Expression(_expression) = &side.element.node_or_expression {
-                // expression.flatten();
+            if let NodeOrExpression::Expression(expression) = &mut side.element.node_or_expression {
+                expression.flatten();
             }
         }
     }
