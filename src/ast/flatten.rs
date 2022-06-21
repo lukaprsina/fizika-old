@@ -34,16 +34,14 @@ impl Expression {
                             match element.sign {
                                 Sign::Positive => match side_len {
                                     1 => {
-                                        new_products.append(
-                                            &mut expression.products.iter().cloned().collect(),
-                                        );
+                                        new_products.append(&mut expression.products.to_vec());
                                     }
                                     0 => unreachable!(),
 
                                     // > 1
                                     _ => match result {
                                         FlattenResult::Monomial(mut nested_product) => {
-                                            for (nested_side_pos, mut nested_side) in [
+                                            for (nested_side_pos, nested_side) in [
                                                 &mut nested_product.numerator,
                                                 &mut nested_product.denominator,
                                             ]
@@ -51,13 +49,11 @@ impl Expression {
                                             .enumerate()
                                             {
                                                 match nested_side_pos {
-                                                    0 => new_product
-                                                        .numerator
-                                                        .append(&mut nested_side),
+                                                    0 => new_product.numerator.append(nested_side),
 
-                                                    1 => new_product
-                                                        .denominator
-                                                        .append(&mut nested_side),
+                                                    1 => {
+                                                        new_product.denominator.append(nested_side)
+                                                    }
                                                     _ => unreachable!(),
                                                 }
                                             }

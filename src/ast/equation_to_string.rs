@@ -32,53 +32,6 @@ impl Display for Sign {
     }
 }
 
-impl Display for Product {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut result = String::new();
-
-        if self.numerator.is_empty() {
-            result.push('1');
-        }
-
-        // println!("\nNum:\n{:#?}", self);
-
-        let mut last: Option<&Element>;
-
-        for (pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
-            last = None;
-
-            for (pos, element) in side.iter().enumerate() {
-                let product_open = element.should_be_parenthesized()
-                    || (pos > 1 && element.sign == Sign::Negative);
-
-                if let Some(last) = last {
-                    if element.is_times_visible(last) {
-                        result += " * ";
-                    }
-                }
-
-                if product_open {
-                    result.push('(');
-                }
-
-                result += &element.to_string();
-
-                if product_open {
-                    result.push(')');
-                }
-
-                last = Some(element);
-            }
-
-            if pos == 0 && !self.denominator.is_empty() {
-                result += "/";
-            }
-        }
-
-        write!(f, "{}", result)
-    }
-}
-
 impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
@@ -169,6 +122,53 @@ impl Display for Expression {
 
             if pos != self.products.len() - 1 {
                 result.push(' ');
+            }
+        }
+
+        write!(f, "{}", result)
+    }
+}
+
+impl Display for Product {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut result = String::new();
+
+        if self.numerator.is_empty() {
+            result.push('1');
+        }
+
+        // println!("\nNum:\n{:#?}", self);
+
+        let mut last: Option<&Element>;
+
+        for (pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
+            last = None;
+
+            for (pos, element) in side.iter().enumerate() {
+                let product_open = element.should_be_parenthesized()
+                    || (pos > 1 && element.sign == Sign::Negative);
+
+                if let Some(last) = last {
+                    if element.is_times_visible(last) {
+                        result += " * ";
+                    }
+                }
+
+                if product_open {
+                    result.push('(');
+                }
+
+                result += &element.to_string();
+
+                if product_open {
+                    result.push(')');
+                }
+
+                last = Some(element);
+            }
+
+            if pos == 0 && !self.denominator.is_empty() {
+                result += "/";
             }
         }
 

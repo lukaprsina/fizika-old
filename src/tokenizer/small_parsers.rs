@@ -391,7 +391,8 @@ mod tests {
     #[test]
     fn test_trim() {
         let input = " \t\n 1 + 2 \r\t\t      \n";
-        let expected: Result<(&str, &str), nom::Err<nom::error::Error<&str>>> = Ok(("", "1 + 2"));
+        let expected: Result<(&str, &str), nom::Err<nom::error::Error<&str>>> =
+            Ok((" \r\t\t      \n", "1 + 2"));
         assert_eq!(expected, trim(tag("1 + 2"))(input));
     }
 

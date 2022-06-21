@@ -1,0 +1,428 @@
+Case: 1+2
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: + 1
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + 2
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: + 1
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + 2
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: 1+(-2+3)
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: + 1
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: +
+      │     ├─ Product
+      │     │  ├─ Numerator
+      │     │  │  └─ Element: - 2
+      │     │  └─ Denominator
+      │     └─ Product
+      │        ├─ Numerator
+      │        │  └─ Element: + 3
+      │        └─ Denominator
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: + 1
+   │  └─ Denominator
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: - 2
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: -1+(-2-3(-4))
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: - 1
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: +
+      │     ├─ Product
+      │     │  ├─ Numerator
+      │     │  │  └─ Element: - 2
+      │     │  └─ Denominator
+      │     └─ Product
+      │        ├─ Numerator
+      │        │  └─ Element: -
+      │        │     └─ Product
+      │        │        ├─ Numerator
+      │        │        │  ├─ Element: + 3
+      │        │        │  └─ Element: - 4
+      │        │        └─ Denominator
+      │        └─ Denominator
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: - 1
+   │  └─ Denominator
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: - 2
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: -
+      │     └─ Product
+      │        ├─ Numerator
+      │        │  ├─ Element: + 3
+      │        │  └─ Element: - 4
+      │        └─ Denominator
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: f(1+2)
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + f((+ + 1 + 2))
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + f((+ + 1 + 2))
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: f((1+2)/3)
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + f((+ (+ + 1 + 2)/+ 3))
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + f((+ (+ + 1 + 2)/+ 3))
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: f(1/(2+3))
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + f(+ + 1/(+ + 2 + 3))
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: + f(+ + 1/(+ + 2 + 3))
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: (-1-2)-3
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: +
+   │  │     ├─ Product
+   │  │     │  ├─ Numerator
+   │  │     │  │  └─ Element: - 1
+   │  │     │  └─ Denominator
+   │  │     └─ Product
+   │  │        ├─ Numerator
+   │  │        │  └─ Element: - 2
+   │  │        └─ Denominator
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: - 1
+   │  └─ Denominator
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: - 2
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: -(-1-2)-3
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: -
+   │  │     ├─ Product
+   │  │     │  ├─ Numerator
+   │  │     │  │  └─ Element: - 1
+   │  │     │  └─ Denominator
+   │  │     └─ Product
+   │  │        ├─ Numerator
+   │  │        │  └─ Element: - 2
+   │  │        └─ Denominator
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: -
+   │  │     ├─ Product
+   │  │     │  ├─ Numerator
+   │  │     │  │  └─ Element: - 1
+   │  │     │  └─ Denominator
+   │  │     └─ Product
+   │  │        ├─ Numerator
+   │  │        │  └─ Element: - 2
+   │  │        └─ Denominator
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: (-1*(-2))-3
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: +
+   │  │     └─ Product
+   │  │        ├─ Numerator
+   │  │        │  ├─ Element: - 1
+   │  │        │  └─ Element: - 2
+   │  │        └─ Denominator
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  ├─ Element: - 1
+   │  │  └─ Element: - 2
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: -(-1*(-2))-3
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: -
+   │  │     └─ Product
+   │  │        ├─ Numerator
+   │  │        │  ├─ Element: - 1
+   │  │        │  └─ Element: - 2
+   │  │        └─ Denominator
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+
+Equation
+└─ Side
+   ├─ Product
+   │  ├─ Numerator
+   │  │  └─ Element: -
+   │  │     └─ Product
+   │  │        ├─ Numerator
+   │  │        │  ├─ Element: - 1
+   │  │        │  └─ Element: - 2
+   │  │        └─ Denominator
+   │  └─ Denominator
+   └─ Product
+      ├─ Numerator
+      │  └─ Element: - 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: (-1-2)*3
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: +
+      │  │  ├─ Product
+      │  │  │  ├─ Numerator
+      │  │  │  │  └─ Element: - 1
+      │  │  │  └─ Denominator
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: +
+      │  │  ├─ Product
+      │  │  │  ├─ Numerator
+      │  │  │  │  └─ Element: - 1
+      │  │  │  └─ Denominator
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: -(-1-2)*3
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: -
+      │  │  ├─ Product
+      │  │  │  ├─ Numerator
+      │  │  │  │  └─ Element: - 1
+      │  │  │  └─ Denominator
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: -
+      │  │  ├─ Product
+      │  │  │  ├─ Numerator
+      │  │  │  │  └─ Element: - 1
+      │  │  │  └─ Denominator
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: (-1*(-2))*3
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: +
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  ├─ Element: - 1
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: - 1
+      │  ├─ Element: - 2
+      │  └─ Element: + 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
+Case: -(-1*(-2))*3
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: -
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  ├─ Element: - 1
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+
+Equation
+└─ Side
+   └─ Product
+      ├─ Numerator
+      │  ├─ Element: -
+      │  │  └─ Product
+      │  │     ├─ Numerator
+      │  │     │  ├─ Element: - 1
+      │  │     │  └─ Element: - 2
+      │  │     └─ Denominator
+      │  └─ Element: + 3
+      └─ Denominator
+--------------------------------------------------------------------------------
+
