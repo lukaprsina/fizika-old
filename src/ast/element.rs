@@ -9,19 +9,19 @@ pub(crate) trait IsTimesVisible {
     fn is_times_visible(&self, last: &Element) -> bool;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Sign {
     Positive,
     Negative,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum NodeOrExpression {
     Node(Node),
     Expression(Expression),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Element {
     pub sign: Sign,
     pub node_or_expression: NodeOrExpression,

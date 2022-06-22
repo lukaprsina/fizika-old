@@ -4,7 +4,7 @@ use super::{
     Element,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Expression {
     pub products: Vec<Product>,
 }

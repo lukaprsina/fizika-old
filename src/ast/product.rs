@@ -3,7 +3,7 @@ use super::{
     Element, Sign,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Product {
     pub numerator: Vec<Element>,
     pub denominator: Vec<Element>,
