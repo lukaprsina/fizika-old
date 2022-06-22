@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use ptree::{Style, TreeItem};
 
-use super::{equation::EquationSide, product::Product, Element, Equation, NodeOrExpression};
+use crate::ast::{equation::EquationSide, product::Product, Element, Equation, NodeOrExpression};
 
 impl TreeItem for Equation {
     type Child = EquationSide;

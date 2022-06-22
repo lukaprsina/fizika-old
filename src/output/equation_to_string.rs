@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::ast::{Equation, Expression, Node, Sign};
 
-use super::{
+use crate::ast::{
     element::IsTimesVisible, element::ShouldBeParenthesized, product::Product, Element,
     NodeOrExpression,
 };
