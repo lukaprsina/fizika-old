@@ -1,9 +1,9 @@
 use crate::{
-    ast::expression::Element,
+    ast::{Element, NodeOrExpression},
     tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token},
 };
 
-use super::{equation::EquationSide, Equation, Node, NodeOrExpression, Sign};
+use super::{equation::EquationSide, Equation, Node, Sign};
 
 #[derive(Debug)]
 pub enum TokenParseError {

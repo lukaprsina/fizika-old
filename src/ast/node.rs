@@ -1,12 +1,9 @@
-use crate::{
-    ast::{
-        expression::{IsTimesVisible, ShouldBeParenthesized},
-        NodeOrExpression,
-    },
-    tokenizer::Number,
-};
+use crate::tokenizer::Number;
 
-use super::expression::Element;
+use super::{
+    element::{IsTimesVisible, NodeOrExpression, ShouldBeParenthesized},
+    Element,
+};
 
 #[derive(Debug, Clone)]
 pub enum Node {

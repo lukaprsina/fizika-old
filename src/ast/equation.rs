@@ -1,6 +1,6 @@
-use crate::{ast::NodeOrExpression, tokenizer::Operation};
+use crate::tokenizer::Operation;
 
-use super::expression::Element;
+use super::{Element, NodeOrExpression};
 
 #[derive(Debug, Clone)]
 pub struct Equation {

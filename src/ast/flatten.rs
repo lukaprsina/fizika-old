@@ -1,4 +1,4 @@
-use super::{expression::Element, Expression, NodeOrExpression, Product, Sign};
+use super::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
 pub enum FlattenResult {
     Monomial(Product),

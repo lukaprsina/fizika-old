@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
-use crate::ast::{
-    expression::{IsTimesVisible, ShouldBeParenthesized},
-    Equation, Expression, Node, NodeOrExpression, Product, Sign,
-};
+use crate::ast::{Equation, Expression, Node, Sign};
 
-use super::expression::Element;
+use super::{
+    element::IsTimesVisible, element::ShouldBeParenthesized, product::Product, Element,
+    NodeOrExpression,
+};
 
 impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -29,26 +29,6 @@ impl Display for Sign {
             Sign::Positive => write!(f, "+"),
             Sign::Negative => write!(f, "-"),
         }
-    }
-}
-
-impl Display for Element {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut result = String::new();
-
-        let open = self.sign == Sign::Negative;
-
-        if open {
-            result.push('(');
-        }
-
-        result += &format!("{} {}", self.sign, self.node_or_expression);
-
-        if open {
-            result.push(')');
-        }
-
-        write!(f, "{}", result)
     }
 }
 
@@ -100,7 +80,7 @@ impl Display for Node {
             Node::Function { name, arguments } => {
                 result += &format!("{}(", name);
                 for (index, argument) in arguments.iter().enumerate() {
-                    result += &to_string_with_parenthesis(argument).to_string();
+                    result += &argument.to_string();
                     if index < arguments.len() - 1 {
                         result += ", ";
                     }
@@ -118,6 +98,19 @@ impl Display for Expression {
         let mut result = String::new();
 
         for (pos, product) in self.products.iter().enumerate() {
+            match product.numerator.first() {
+                Some(element) => {
+                    if pos == 0 {
+                        if element.sign == Sign::Negative {
+                            result += &format!("{} ", element.sign)
+                        }
+                    } else {
+                        result += &format!("{} ", element.sign)
+                    }
+                }
+                None => result += "+ 1",
+            }
+
             result += &product.to_string();
 
             if pos != self.products.len() - 1 {
@@ -133,10 +126,6 @@ impl Display for Product {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        if self.numerator.is_empty() {
-            result.push('1');
-        }
-
         // println!("\nNum:\n{:#?}", self);
 
         let mut last: Option<&Element>;
@@ -145,8 +134,8 @@ impl Display for Product {
             last = None;
 
             for (pos, element) in side.iter().enumerate() {
-                let product_open = element.should_be_parenthesized()
-                    || (pos > 1 && element.sign == Sign::Negative);
+                let explicit_minus = pos > 0 && element.sign == Sign::Negative;
+                let product_open = element.should_be_parenthesized() || explicit_minus;
 
                 if let Some(last) = last {
                     if element.is_times_visible(last) {
@@ -156,6 +145,10 @@ impl Display for Product {
 
                 if product_open {
                     result.push('(');
+                }
+
+                if explicit_minus {
+                    result += &format!("{} ", element.sign);
                 }
 
                 result += &element.to_string();
@@ -170,6 +163,26 @@ impl Display for Product {
             if pos == 0 && !self.denominator.is_empty() {
                 result += "/";
             }
+        }
+
+        write!(f, "{}", result)
+    }
+}
+
+impl Display for Element {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut result = String::new();
+
+        let open = false; // self.sign == Sign::Negative; // self.should_be_parenthesized();
+
+        if open {
+            result += &format!("({}", self.sign);
+        }
+
+        result += &self.node_or_expression.to_string();
+
+        if open {
+            result.push(')');
         }
 
         write!(f, "{}", result)
