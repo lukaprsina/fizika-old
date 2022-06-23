@@ -1,5 +1,7 @@
+use itertools::Itertools;
+
 use crate::{
-    ast::{Element, Node, NodeOrExpression, Sign},
+    ast::{Element, Node, NodeOrExpression},
     tokenizer::Number,
 };
 
@@ -10,31 +12,38 @@ pub trait Bind {
 pub enum BindResult {
     Multiply(Element),
     Ok,
-    NotOk,
 }
 
 impl Bind for Element {
-    fn bind(&self, other: &Element) -> BindResult {
+    fn bind(&self, instructions: &Element) -> BindResult {
+        let sign = self.sign * instructions.sign;
+
         match &self.node_or_expression {
-            NodeOrExpression::Node(node) => match &self.node_or_expression {
+            NodeOrExpression::Node(instructions_sign) => match &self.node_or_expression {
                 NodeOrExpression::Node(self_node) => {
-                    // TODO:
-                    if node == self_node {
-                        if self.sign == other.sign {
+                    if instructions_sign == self_node {
+                        if self.sign == instructions.sign {
                             BindResult::Ok
                         } else {
                             BindResult::Multiply(Element::new(
-                                Sign::Negative,
+                                sign,
                                 NodeOrExpression::Node(Node::Number(Number::Int(1))),
                             ))
                         }
                     } else {
-                        BindResult::NotOk
+                        BindResult::Multiply(instructions.clone() / self.clone())
                     }
                 }
-                NodeOrExpression::Expression(self_expr) => todo!(),
+                NodeOrExpression::Expression(..) => {
+                    BindResult::Multiply(instructions.clone() / self.clone())
+                }
             },
-            NodeOrExpression::Expression(expression) => todo!(),
+            NodeOrExpression::Expression(i_expr) => {
+                for products in i_expr.products.iter().permutations(i_expr.products.len()) {
+                    println!("New iteration:\n{:#?}\n\n", products);
+                }
+                BindResult::Ok
+            }
         }
     }
 }

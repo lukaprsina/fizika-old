@@ -367,6 +367,7 @@ name = "math-eval"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "itertools",
  "lazy_static 1.4.0",
  "nom 7.1.1",
  "ptree",

@@ -15,6 +15,18 @@ pub enum Sign {
     Negative,
 }
 
+impl Mul for Sign {
+    type Output = Sign;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        if self == rhs {
+            Sign::Positive
+        } else {
+            Sign::Negative
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum NodeOrExpression {
     Node(Node),
@@ -132,6 +144,15 @@ impl Neg for Element {
     type Output = Element;
     fn neg(mut self) -> Self::Output {
         self.invert_sign();
+        self
+    }
+}
+
+impl Mul<Sign> for Element {
+    type Output = Element;
+
+    fn mul(mut self, rhs: Sign) -> Self::Output {
+        self.sign = self.sign * rhs;
         self
     }
 }

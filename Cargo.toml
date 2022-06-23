@@ -2,11 +2,12 @@
 name = "math-eval"
 version = "0.1.0"
 edition = "2021"
-default-run = "math-eval"
+default-run = "bind_bin"
 authors = ["Luka Pršina"]
 
 [dependencies]
 criterion = "0.3.5"
+itertools = "0.10.3"
 lazy_static = "1.4.0"
 nom = "7.1.1"
 ptree = "0.4.0"
