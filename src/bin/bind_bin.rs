@@ -1,13 +1,14 @@
-use math_eval::{actions::bind::Bind, ast::context::Context};
+use math_eval::ast::context::{Context, EquationReference};
 
 fn main() {
     let mut context = Context::new();
 
-    let test = context.add_equation("1 + 2").unwrap();
+    let test: EquationReference = context.try_add_equation("4 + 4x + x^2 + 5").unwrap();
 
-    let instructions = context.add_equation("3 + 1").unwrap();
+    let instructions = context.try_add_equation("a^2 + 2ab + b^2").unwrap();
 
-    test.get_equation(&context).sides[0]
-        .element
-        .bind(&instructions.get_equation(&context).sides[0].element);
+    context.solve();
+    /* test.get_equation(&context).sides[0]
+    .element
+    .bind(&instructions.get_equation(&context).sides[0].element); */
 }

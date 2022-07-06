@@ -1,8 +1,9 @@
-use itertools::Itertools;
-
 use crate::{
-    ast::{product::Product, Element, Node, NodeOrExpression},
-    tokenizer::Number,
+    ast::{
+        context::Context, equation::EquationSide, product::Product, Element, Equation, Expression,
+        Node, NodeOrExpression, Sign,
+    },
+    tokenizer::{Number, Operation},
 };
 
 pub trait Bind {
@@ -10,6 +11,7 @@ pub trait Bind {
     fn bind(&self, other: &Self::Instructions) -> BindResult;
 }
 
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum BindResult {
     Multiply(Element),
     Ok,
@@ -43,22 +45,17 @@ impl Bind for Element {
                 }
             },
             NodeOrExpression::Expression(i_expr) => {
-                for products in i_expr.products.iter().permutations(i_expr.products.len()) {
-                    println!("New iteration:\n{:#?}\n\n", products);
-
-                    let result = match &self.node_or_expression {
-                        NodeOrExpression::Node(self_node) => {
-                            BindResult::Multiply(instructions.clone() / self.clone())
-                        }
-                        NodeOrExpression::Expression(self_expr) => {
-                            for (self_product, i_product) in self_expr.products.iter().zip(products)
-                            {
-                                self_product.bind(&i_product);
+                match &self.node_or_expression {
+                    NodeOrExpression::Node(self_node) => todo!(),
+                    NodeOrExpression::Expression(self_expr) => {
+                        for i_product in i_expr.products.iter() {
+                            for self_product in self_expr.products.iter() {
+                                self_product.bind(i_product);
                             }
-                            BindResult::Ok
                         }
-                    };
-                }
+                    }
+                };
+
                 BindResult::Ok
             }
         }
@@ -69,27 +66,46 @@ impl Bind for Product {
     type Instructions = Product;
 
     fn bind(&self, instr: &Product) -> BindResult {
-        // TODO: each side should be compared, not by enumerate
-        println!("Bind product (self, instr): {} {}", self, instr);
+        println!("self: {}\ninstr: {}\n", self, instr);
 
-        for (self_side, instr_side) in [&self.numerator, &self.denominator]
-            .into_iter()
-            .zip([&instr.numerator, &instr.denominator])
-        {
-            for zipped_side in self_side
-                .iter()
-                .zip(instr_side)
-                .permutations(self_side.len().max(instr_side.len()))
-            {
-                println!("Zipped [self, instructions]:\n{:#?}\n\n", zipped_side);
+        let mut context = Context::new();
 
-                for (self_perm, instr_perm) in zipped_side {
-                    //
-                    self_perm.bind(instr_perm);
-                }
-            }
-        }
+        let equation = Equation::new(vec![
+            EquationSide::new(
+                Element::new(
+                    Sign::Positive,
+                    NodeOrExpression::Expression(Expression::new(vec![self.clone()])),
+                ),
+                Some(Operation::Equal),
+            ),
+            EquationSide::new(
+                Element::new(
+                    Sign::Positive,
+                    NodeOrExpression::Expression(Expression::new(vec![instr.clone()])),
+                ),
+                Some(Operation::Equal),
+            ),
+        ]);
+
+        let reference = context.add_equation(equation);
 
         BindResult::Ok
     }
 }
+
+/* for products in i_expr.products.iter().permutations(i_expr.products.len()) {
+    println!("New iteration:\n{:#?}\n\n", products);
+
+    let result = match &self.node_or_expression {
+        NodeOrExpression::Node(self_node) => {
+            BindResult::Multiply(instructions.clone() / self.clone())
+        }
+        NodeOrExpression::Expression(self_expr) => {
+            for (self_product, i_product) in self_expr.products.iter().zip(products)
+            {
+                self_product.bind(&i_product);
+            }
+            BindResult::Ok
+        }
+    };
+} */

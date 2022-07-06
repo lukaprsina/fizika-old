@@ -76,16 +76,16 @@ impl ShouldBeParenthesized for Element {
 impl Add for Element {
     type Output = Element;
     fn add(self, other: Element) -> Self::Output {
-        let mut result = Expression::new();
-
-        result.products.push(Product {
-            numerator: vec![self],
-            denominator: vec![],
-        });
-        result.products.push(Product {
-            numerator: vec![other],
-            denominator: vec![],
-        });
+        let result = Expression::new(vec![
+            Product {
+                numerator: vec![self],
+                denominator: vec![],
+            },
+            Product {
+                numerator: vec![other],
+                denominator: vec![],
+            },
+        ]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
@@ -94,19 +94,17 @@ impl Add for Element {
 impl Sub for Element {
     type Output = Element;
     fn sub(self, mut other: Element) -> Self::Output {
-        let mut result = Expression::new();
-
-        result.products.push(Product {
-            numerator: vec![self],
-            denominator: vec![],
-        });
-
         other.invert_sign();
-
-        result.products.push(Product {
-            numerator: vec![other],
-            denominator: vec![],
-        });
+        let result = Expression::new(vec![
+            Product {
+                numerator: vec![self],
+                denominator: vec![],
+            },
+            Product {
+                numerator: vec![other],
+                denominator: vec![],
+            },
+        ]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
@@ -115,12 +113,10 @@ impl Sub for Element {
 impl Mul for Element {
     type Output = Element;
     fn mul(self, other: Element) -> Self::Output {
-        let mut result = Expression::new();
-
-        result.products.push(Product {
+        let result = Expression::new(vec![Product {
             numerator: vec![self, other],
             denominator: vec![],
-        });
+        }]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
@@ -129,12 +125,10 @@ impl Mul for Element {
 impl Div for Element {
     type Output = Element;
     fn div(self, other: Element) -> Self::Output {
-        let mut result = Expression::new();
-
-        result.products.push(Product {
+        let result = Expression::new(vec![Product {
             numerator: vec![self],
             denominator: vec![other],
-        });
+        }]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }

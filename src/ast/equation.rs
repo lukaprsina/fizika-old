@@ -1,10 +1,18 @@
-use crate::tokenizer::Operation;
+use std::collections::HashMap;
 
-use super::{Element, NodeOrExpression};
+use crate::tokenizer::{parser::TokenizedString, Operation};
+
+use super::{context::CreateEquationError, Element, NodeOrExpression};
 
 #[derive(Debug, Clone)]
 pub struct Equation {
     pub sides: Vec<EquationSide>,
+}
+
+impl Equation {
+    pub fn new(sides: Vec<EquationSide>) -> Self {
+        Equation { sides }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -26,5 +34,21 @@ impl Equation {
                 expression.flatten();
             }
         }
+    }
+}
+
+impl TryFrom<&str> for Equation {
+    type Error = CreateEquationError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let tokens =
+            TokenizedString::try_new(&value).map_err(|err| CreateEquationError::ParseError(err))?;
+
+        let mut ast = Equation::try_from(tokens)
+            .map_err(|err| CreateEquationError::TokensToEquationError(err))?;
+
+        ast.flatten();
+
+        Ok(ast)
     }
 }

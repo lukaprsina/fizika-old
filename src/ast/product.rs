@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use super::{
     element::{IsTimesVisible, ShouldBeParenthesized},
-    Element, Sign,
+    Element, Node, NodeOrExpression, Sign,
 };
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
@@ -26,6 +28,21 @@ impl Product {
                 None => unreachable!("Empty products are not allowed"),
             },
         }
+    }
+
+    pub fn get_components(&self) -> [HashMap<Node, usize>; 2] {
+        let results: [HashMap<Node, usize>; 2] = Default::default();
+
+        for side in [&self.numerator, &self.denominator] {
+            for element in side {
+                match &element.node_or_expression {
+                    NodeOrExpression::Node(node) => todo!(),
+                    NodeOrExpression::Expression(expression) => todo!(),
+                }
+            }
+        }
+
+        results
     }
 }
 

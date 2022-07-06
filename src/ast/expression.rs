@@ -10,16 +10,14 @@ pub struct Expression {
 }
 
 impl Expression {
-    pub fn new() -> Self {
-        Expression {
-            products: Vec::new(),
-        }
+    pub fn new(products: Vec<Product>) -> Self {
+        Expression { products }
     }
 }
 
 impl Default for Expression {
     fn default() -> Self {
-        Self::new()
+        Self::new(Vec::new())
     }
 }
 
