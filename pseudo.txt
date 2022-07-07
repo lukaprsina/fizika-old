@@ -1,0 +1,202 @@
+ko hočeš dodati nov instruction v db instructionov:
+    - analiziraj osnovne podatke
+        - število spremenljivk
+        - število pa baza log, power, ...
+        - ?...
+    - shrani enačbo s podatki zraven v db
+
+npr. 4 + (2^2 + 4x + x^2) - 3^(2x)
+ko hočeš nek izraz matchat z instructioni:    
+    rekurzivno poklici to funkcijo na vse podizraze:
+        - najprej rešuješ notranje oklepaje
+            1. base case,
+            2. rekurzivni klic,
+            3. dejanska funkcija
+
+        - vsak node (številka, variable, power) probaš, če se lahko poenostavi v številko
+            - npr. 2^2 => 4, log(2, 2) => 1
+            - če je v drugi enačbi v kontekstu x = 1, vstavi namesto x enko
+
+        - vse številke, tudi če so iracionalne [sqrt(2)], zmnožiš, sešteješ, poenostaviš
+            - 2*x/4 => x/2
+            - 2 + 3 => 5        
+
+        - zdaj uporabljaš ta nov poenostavljen izraz:
+        - 4 + (2^2 + 4x + x^2) - 3^(2x)   =>   8 + 4x + x^2 - 3^(2x)
+
+        - analiziraj izraz -> število neznank, log, ...
+
+        - na njega probaj matchat samo instructione,
+        ki se ujemajo v analizi
+        - npr. to izključi enačbe logaritmov, če jih ni not,
+        ne bo vsote kvadratov če ni vsaj en člen x^2
+
+        ---------------------------------------------------
+
+        - zdej pa najbolj pomemben del:
+        privzemimo da gledamo za sum of squares
+
+        8 + 4x + x^2 - 3^(2x)
+        se ne matcha s katerokoli stranjo enačbe vsote kvadratov
+        (a+b)^2 = a^2 + 2ab + b^2
+
+        če gremo preobračat enačbo pa sortirat vsak člen, je prbližno tako zaporedje
+        - 3^(2x) + x^2 + 4x + 8
+        prvi člen ima kompleksen eksponent, ne vem kako scorat to
+        
+        ---------------------------------------------------
+        8 + 4x + x^2 - 3^(2x)
+        si predstavljaš kot
+
+        -> k1 + k2*x + (k3*x)^k4 - k5^(k6*x)
+            + k1        -> + 8
+            + k2*x      -> + 4x
+            + (k3*x)^k4 -> + x^2
+            - k5^(k6*x) -> - 3^(2X)
+
+
+        leva stran (a+b)^2
+            (a+b)^2
+                + k1        da
+                    a + b = sqrt(k1)
+
+                + k2*x      ne
+                + (k3*x)^k4 ne, število členov
+                - k5^(k6*x) ne, ker x ni 2
+        
+        desna stran a^2 + 2ab + b^2 
+            + a^2
+                + k1        da, saj je "a" lahko številka
+                    a = sqrt(k1)
+
+                + k2*x      ne
+                + (k3*x)^k4 da, ker se število členov ujema
+                    a = k3*x
+                    2 = k4
+
+                - k5^(k6*x) ne, ker je v eksponentu spremenljivka x, kjer je samo lahko samo številka
+
+            + 2ab
+                + k1        da
+                    ab = k1/2
+
+                + k2*x      da, ali "a" ali "b" je številka
+                    ab = k2*x/2
+
+                + (k3*x)^k4 ne
+                - k5^(k6*x) ne
+
+            + b^2
+                + k1        da
+                    b = sqrt(k1)
+                + k2*x      ne
+                + (k3*x)^k4 da
+                    b = k3*x
+                    2 = k4
+                - k5^(k6*x) ne
+            
+
+        + k1        -> + 8
+        + k2*x      -> + 4x
+        + (k3*x)^k4 -> + x^2
+        - k5^(k6*x) -> - 3^(2X)
+        8 + 4x + x^2 - 3^(2x)
+
+        Možnosti:
+            Leva:
+            1.
+                a + b = sqrt(k1), ne mormo rešit
+
+            Desna:
+            1.
+                a = sqrt(k1.0) + k1.1
+                ab = k1/2
+                b = sqrt(k1.0) + k1.1
+
+            2.
+                a = k3*x, 2 = k4
+                ab = k1/2
+                b = sqrt(k1)
+
+            3.
+                a = sqrt(k1)
+                ab = k2*x/2
+                b = sqrt(k1)
+
+            4. ----------
+                a = k3*x, 2 = k4    ->  a = x, 2 = 2
+                ab = k2*x/2         ->  ab = 4*x/2 -> b = 2
+                b = sqrt(k1)        ->  b = sqrt(4)
+
+            5.
+                a = sqrt(k1)
+                ab = k1/2
+                b = k3*x, 2 = k4                    
+
+            6.
+                a = k3*x, 2 = k4
+                ab = k1/2
+                b = k3*x, 2 = k4
+
+            7. -----------
+                a = sqrt(k1)
+                ab = k2*x/2
+                b = k3*x, 2 = k4
+
+            8.
+                a = k3*x, 2 = k4
+                ab = k2*x/2
+                b = k3*x, 2 = k4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        leva stran (a+b)^2
+            (a+b)^2
+                + k1        ne
+                + k2*x      ne
+                + (k3*x)^k4 da, recimo "a" = 0, "b" = x
+                - k5^(k6*x) ne, ker x ni 2
+        
+        desna stran a^2 + 2ab + b^2 
+            + a^2
+                + k1        da, ker, je lahko "a" številka, npr. 2^2 = 4
+                + k2*x      da, saj je npr. a^2 = (2*sqrt(x))^2 -> a = 2*sqrt(x)
+                + (k3*x)^k4 da, ker se število členov ujema
+                - k5^(k6*x) ne, ker je spremenljivka x, kjer je samo lahko samo številka
+            + 2ab
+                + k1        da, saj sta a in b lahko obe številki, npr. 2 * 3 * 6
+                + k2*x      da, ali a ali b je številka
+                + (k3*x)^k4 ne
+                - k5^(k6*x) ne
+            + b^2
+                + k1        da
+                + k2*x      ne
+                + (k3*x)^k4 da
+                - k5^(k6*x) ne
+
+
+ab = xx/2
+ab = 3^(2x)/2
