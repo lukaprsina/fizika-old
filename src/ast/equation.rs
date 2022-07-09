@@ -1,17 +1,20 @@
-use std::collections::HashMap;
+use uuid::Uuid;
 
 use crate::tokenizer::{parser::TokenizedString, Operation};
 
-use super::{context::CreateEquationError, Element, NodeOrExpression};
+use super::{
+    context::{Context, CreateEquationError},
+    Element, NodeOrExpression,
+};
 
 #[derive(Debug, Clone)]
 pub struct Equation {
-    pub sides: Vec<EquationSide>,
+    pub uuids: Vec<Uuid>,
 }
 
 impl Equation {
-    pub fn new(sides: Vec<EquationSide>) -> Self {
-        Equation { sides }
+    pub fn new(uuids: Vec<Uuid>) -> Self {
+        Equation { uuids }
     }
 }
 
@@ -28,9 +31,11 @@ impl EquationSide {
 }
 
 impl Equation {
-    pub fn flatten(&mut self) {
-        for side in self.sides.iter_mut() {
-            if let NodeOrExpression::Expression(expression) = &mut side.element.node_or_expression {
+    pub fn flatten(&mut self, context: &Context) {
+        for uuid in self.uuids {
+            if let NodeOrExpression::Expression(expression) =
+                context.get_expression_mut(uuid).node_or_expression
+            {
                 expression.flatten();
             }
         }
