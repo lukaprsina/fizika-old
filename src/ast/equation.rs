@@ -3,19 +3,19 @@ use uuid::Uuid;
 use crate::tokenizer::{parser::TokenizedString, Operation};
 
 use super::{
+    analyzed_equation::AnalyzedElement,
     context::{Context, CreateEquationError},
     Element, NodeOrExpression,
 };
 
 #[derive(Debug, Clone)]
-pub struct Equation {
+pub struct Equation<'a> {
     pub uuids: Vec<Uuid>,
+    context: &'a mut Context,
 }
 
-impl Equation {
-    pub fn new(uuids: Vec<Uuid>) -> Self {
-        Equation { uuids }
-    }
+pub struct NoContextEquation {
+    pub sides: Vec<EquationSide>,
 }
 
 #[derive(Debug, Clone)]
@@ -24,17 +24,44 @@ pub struct EquationSide {
     pub operation: Option<Operation>,
 }
 
+impl<'a> Equation<'a> {
+    pub fn new(uuids: Vec<Uuid>, context: &'a mut Context) -> Self {
+        Equation { uuids, context }
+    }
+
+    pub fn sides(&'a self) -> Vec<&'a AnalyzedElement> {
+        self.uuids
+            .iter()
+            .map_while(|&uuid| self.context.get_expression(uuid))
+            .collect()
+    }
+
+    pub fn sides_mut(&'a mut self) -> Vec<&'a mut AnalyzedElement> {
+        self.uuids
+            .iter_mut()
+            .map_while(|&mut uuid| self.context.get_expression_mut(uuid))
+            .collect()
+    }
+}
+
 impl EquationSide {
     pub fn new(element: Element, operation: Option<Operation>) -> Self {
         Self { element, operation }
     }
 }
 
-impl Equation {
-    pub fn flatten(&mut self, context: &Context) {
-        for uuid in self.uuids {
+impl NoContextEquation {
+    pub fn new(sides: Vec<EquationSide>) -> Self {
+        NoContextEquation { sides }
+    }
+}
+
+impl<'a> Equation<'a> {
+    pub fn flatten(&mut self, context: &mut Context) {
+        for &mut uuid in self.uuids.iter_mut() {
+            let expression = context.get_expression_mut(uuid).unwrap();
             if let NodeOrExpression::Expression(expression) =
-                context.get_expression_mut(uuid).node_or_expression
+                &mut expression.element.node_or_expression
             {
                 expression.flatten();
             }
@@ -42,17 +69,15 @@ impl Equation {
     }
 }
 
-impl TryFrom<&str> for Equation {
+impl TryFrom<&str> for NoContextEquation {
     type Error = CreateEquationError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let tokens =
             TokenizedString::try_new(&value).map_err(|err| CreateEquationError::ParseError(err))?;
 
-        let mut ast = Equation::try_from(tokens)
+        let ast = NoContextEquation::try_from(tokens)
             .map_err(|err| CreateEquationError::TokensToEquationError(err))?;
-
-        ast.flatten();
 
         Ok(ast)
     }

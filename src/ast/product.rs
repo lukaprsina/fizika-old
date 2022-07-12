@@ -12,7 +12,6 @@ pub struct Product {
 }
 
 impl Product {
-    // TODO: don't accept empty products
     pub fn new(numerator: Vec<Element>, denominator: Vec<Element>) -> Product {
         Product {
             numerator,
@@ -30,14 +29,15 @@ impl Product {
         }
     }
 
+    // TODO
     pub fn get_components(&self) -> [HashMap<Node, usize>; 2] {
         let results: [HashMap<Node, usize>; 2] = Default::default();
 
         for side in [&self.numerator, &self.denominator] {
             for element in side {
                 match &element.node_or_expression {
-                    NodeOrExpression::Node(node) => todo!(),
-                    NodeOrExpression::Expression(expression) => todo!(),
+                    NodeOrExpression::Node(_) => todo!(),
+                    NodeOrExpression::Expression(_) => todo!(),
                 }
             }
         }

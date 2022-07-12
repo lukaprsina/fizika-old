@@ -3,7 +3,10 @@ use crate::{
     tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token},
 };
 
-use super::{equation::EquationSide, Equation, Node, Sign};
+use super::{
+    equation::{EquationSide, NoContextEquation},
+    Node, Sign,
+};
 
 #[derive(Debug)]
 pub enum TokenParseError {
@@ -246,16 +249,18 @@ pub enum TokensToEquationError {
     AbstractSyntaxTreeError(AbstractSyntaxTreeError),
 }
 
-impl TryFrom<TokenizedString> for Equation {
+impl TryFrom<TokenizedString> for NoContextEquation {
     type Error = TokensToEquationError;
 
-    fn try_from(tokenized_string: TokenizedString) -> Result<Equation, TokensToEquationError> {
+    fn try_from(
+        tokenized_string: TokenizedString,
+    ) -> Result<NoContextEquation, TokensToEquationError> {
         let mut sides: Vec<EquationSide> = Vec::new();
         let mut token_iter = tokenized_string.iter();
         let mut should_continue = true;
         while should_continue {
             let result = tokens_to_rpn(&mut token_iter);
-            // println!("{:?}", result);
+
             if let Ok(rpn) = result {
                 if rpn.1.is_none() {
                     should_continue = false;
@@ -265,6 +270,6 @@ impl TryFrom<TokenizedString> for Equation {
                 }
             }
         }
-        Ok(Equation { sides })
+        Ok(NoContextEquation { sides })
     }
 }

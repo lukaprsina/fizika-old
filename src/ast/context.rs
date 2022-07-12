@@ -1,17 +1,14 @@
 use std::collections::HashMap;
 
-use uuid::{uuid, Uuid};
+use uuid::Uuid;
 
-use crate::{
-    ast::{analyzed_equation::AnalyzedExpression, Equation},
-    tokenizer::parser::ParseError,
-};
+use crate::{ast::analyzed_equation::AnalyzedElement, tokenizer::parser::ParseError};
 
-use super::token_to_element::TokensToEquationError;
+use super::{equation::NoContextEquation, token_to_element::TokensToEquationError};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Context {
-    pub expressions: HashMap<Uuid, AnalyzedExpression>,
+    pub expressions: HashMap<Uuid, AnalyzedElement>,
 }
 
 #[derive(Debug)]
@@ -27,38 +24,35 @@ impl Context {
         }
     }
 
-    pub fn get_expression(&self, uuid: Uuid) -> &AnalyzedExpression {
-        self.expressions.get(&uuid).expect("Invalid equation UUID")
+    pub fn get_expression(&self, uuid: Uuid) -> Option<&AnalyzedElement> {
+        self.expressions.get(&uuid)
     }
 
-    pub fn get_expression_mut(&self, uuid: Uuid) -> &mut AnalyzedExpression {
-        self.expressions
-            .get_mut(&uuid)
-            .expect("Invalid equation UUID")
+    pub fn get_expression_mut(&mut self, uuid: Uuid) -> Option<&mut AnalyzedElement> {
+        self.expressions.get_mut(&uuid)
     }
 
     pub fn try_add_equation<T>(&mut self, input: T) -> Result<Uuid, CreateEquationError>
     where
-        T: TryInto<Equation, Error = CreateEquationError>,
+        T: TryInto<NoContextEquation, Error = CreateEquationError>,
     {
-        let equation: Equation = input.try_into()?;
+        let equation: NoContextEquation = input.try_into()?;
         Ok(self.add_equation(equation))
     }
 
     pub fn add_equation<T>(&mut self, input: T) -> Uuid
     where
-        T: Into<Equation>,
+        T: Into<NoContextEquation>,
     {
-        let equation: Equation = input.into();
+        let equation: NoContextEquation = input.into();
 
-        /* Don't accept equations */
-        for a in  equation.uuids {
+        let uuid = Uuid::new_v4();
 
+        for side in equation.sides {
+            self.expressions.insert(uuid, side.analyze(&self));
         }
 
-        self.expressions.insert(k, v)
-
-        uuid!("a")
+        uuid
     }
 
     pub fn solve(&self) {}

@@ -7,16 +7,19 @@ use crate::ast::{
     NodeOrExpression,
 };
 
-impl Display for Equation {
+impl<'a> Display for Equation<'a> {
+    /* TODO: equation has a reference to context */
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        for side in self.sides.iter() {
-            if let Some(operation) = &side.operation {
-                result += &format!("{} {} ", side.element, operation);
-            } else {
-                result += &format!("{}", side.element);
-            }
+        let sides = self.sides();
+
+        for &side in sides[0..sides.len() - 2].into_iter() {
+            result += &format!("{} = ", side.element);
+        }
+
+        if let Some(last_side) = sides.last() {
+            result += &format!("{}", last_side.element);
         }
 
         write!(f, "{}", result)
