@@ -16,7 +16,3 @@ ryu = "1.0.10"
 smallvec = "1.8.0"
 smartstring = "1.0.1"
 uuid = { version = "1.1.2", features = ["v4", "fast-rng", "macro-diagnostics"] }
-
-[[bench]]
-name = "general"
-harness = false

@@ -48,8 +48,12 @@ impl TokenizedString {
     pub fn new_from_tokens(tokens: Vec<Token>) -> Self {
         Self { tokens }
     }
+}
 
-    pub fn try_new(input: &str) -> Result<TokenizedString, ParseError> {
+impl TryFrom<&str> for TokenizedString {
+    type Error = ParseError;
+
+    fn try_from(input: &str) -> Result<TokenizedString, ParseError> {
         let mut result: Vec<Token> = vec![];
         let mut parenthesis_stack: Vec<ParenthesisState> = vec![];
         let mut state = TokenizerState::LeftExpression;

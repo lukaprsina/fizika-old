@@ -14,12 +14,13 @@ impl<'a> Display for Equation<'a> {
 
         let sides = self.sides();
 
-        for &side in sides[0..sides.len() - 2].into_iter() {
-            result += &format!("{} = ", side.element);
-        }
-
-        if let Some(last_side) = sides.last() {
-            result += &format!("{}", last_side.element);
+        let mut chunks = sides.peekable();
+        while let Some(side) = chunks.next() {
+            if chunks.peek().is_some() {
+                result += &format!("{} = ", side.element)
+            } else {
+                result += &format!("{}", side.element)
+            }
         }
 
         write!(f, "{}", result)

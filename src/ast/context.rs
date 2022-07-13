@@ -40,10 +40,7 @@ impl Context {
         Ok(self.add_equation(equation))
     }
 
-    pub fn add_equation<T>(&mut self, input: T) -> Uuid
-    where
-        T: Into<NoContextEquation>,
-    {
+    pub fn add_equation<T: Into<NoContextEquation>>(&mut self, input: T) -> Uuid {
         let equation: NoContextEquation = input.into();
 
         let uuid = Uuid::new_v4();

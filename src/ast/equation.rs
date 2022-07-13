@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use uuid::Uuid;
 
 use crate::tokenizer::{parser::TokenizedString, Operation};
@@ -11,7 +13,7 @@ use super::{
 #[derive(Debug, Clone)]
 pub struct Equation<'a> {
     pub uuids: Vec<Uuid>,
-    context: &'a mut Context,
+    context: Arc<&'a mut Context>,
 }
 
 pub struct NoContextEquation {
@@ -25,23 +27,24 @@ pub struct EquationSide {
 }
 
 impl<'a> Equation<'a> {
-    pub fn new(uuids: Vec<Uuid>, context: &'a mut Context) -> Self {
-        Equation { uuids, context }
+    pub fn new(uuids: Vec<Uuid>, context: Arc<&'a mut Context>) -> Self {
+        Equation {
+            uuids,
+            context: Arc::clone(&context),
+        }
     }
 
-    pub fn sides(&'a self) -> Vec<&'a AnalyzedElement> {
+    pub fn sides(&'a self) -> impl Iterator<Item = &AnalyzedElement> {
         self.uuids
             .iter()
             .map_while(|&uuid| self.context.get_expression(uuid))
-            .collect()
     }
 
-    pub fn sides_mut(&'a mut self) -> Vec<&'a mut AnalyzedElement> {
+    /* pub fn sides_mut<'b>(&'a mut self) -> impl Iterator<Item = &mut AnalyzedElement> {
         self.uuids
             .iter_mut()
             .map_while(|&mut uuid| self.context.get_expression_mut(uuid))
-            .collect()
-    }
+    } */
 }
 
 impl EquationSide {
@@ -74,7 +77,7 @@ impl TryFrom<&str> for NoContextEquation {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let tokens =
-            TokenizedString::try_new(&value).map_err(|err| CreateEquationError::ParseError(err))?;
+            TokenizedString::try_from(value).map_err(|err| CreateEquationError::ParseError(err))?;
 
         let ast = NoContextEquation::try_from(tokens)
             .map_err(|err| CreateEquationError::TokensToEquationError(err))?;
