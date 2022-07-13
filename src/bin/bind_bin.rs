@@ -5,7 +5,7 @@ fn main() {
 
     let _test = context.try_add_equation("4 + 4x + x^2 + 5").unwrap();
 
-    let _instructions = context.try_add_equation("a^2 + 2ab + b^2").unwrap();
+    let _instructions = context.try_add_equation("a^2 + 2a*b + b^2").unwrap();
 
     context.solve();
 

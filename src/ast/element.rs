@@ -37,6 +37,7 @@ pub enum NodeOrExpression {
 pub struct Element {
     pub sign: Sign,
     pub node_or_expression: NodeOrExpression,
+    pub is_number: bool,
 }
 
 impl Element {
@@ -44,6 +45,7 @@ impl Element {
         Self {
             sign,
             node_or_expression,
+            is_number: false,
         }
     }
 

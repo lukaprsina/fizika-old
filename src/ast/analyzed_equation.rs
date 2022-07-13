@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash, ops::AddAssign};
+use std::collections::HashSet;
 
 use super::{
     context::Context, equation::EquationSide, product::Product, Element, Expression, Node,
@@ -13,9 +13,14 @@ pub struct AnalyzedElement {
 
 impl EquationSide {
     // TODO: ignores operations
-    pub fn analyze(self, context: &Context) -> AnalyzedElement {
+    pub fn analyze(mut self, context: &Context) -> AnalyzedElement {
         let mut info = ExpressionInfo::default();
-        self.element.node_or_expression.analyze(context, &mut info);
+        let mut is_number = false;
+
+        self.element
+            .node_or_expression
+            .analyze(context, &mut info, &mut is_number);
+
         println!("{:#?}", info);
 
         AnalyzedElement {
@@ -27,70 +32,77 @@ impl EquationSide {
 
 #[derive(Debug, Default, Clone)]
 pub struct ExpressionInfo {
-    variables: HashMap<String, usize>,
-    functions: HashMap<String, usize>,
+    variables: HashSet<String>,
+    functions: HashSet<String>,
 }
 
 pub trait Analyze {
-    fn analyze(&self, context: &Context, info: &mut ExpressionInfo);
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool);
 }
 
 impl Analyze for NodeOrExpression {
-    fn analyze(&self, context: &Context, info: &mut ExpressionInfo) {
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
         match self {
-            NodeOrExpression::Node(node) => node.analyze(context, info),
-            NodeOrExpression::Expression(expression) => expression.analyze(context, info),
+            NodeOrExpression::Node(node) => node.analyze(context, info, is_number),
+            NodeOrExpression::Expression(expression) => {
+                expression.analyze(context, info, is_number)
+            }
         }
     }
 }
 
 impl Analyze for Node {
-    fn analyze(&self, _: &Context, info: &mut ExpressionInfo) {
-        // Analyze everything
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
         match self {
-            Node::Variable(name) => match info.variables.get_mut(name) {
-                Some(size) => *size += 1,
-                None => {
-                    info.variables.insert(name.to_string(), 1);
-                }
-            },
-            Node::Unit(name) => match info.variables.get_mut(name) {
-                Some(size) => *size += 1,
-                None => {
-                    info.variables.insert(name.to_string(), 1);
-                }
-            },
-            Node::Function { name, arguments } => match info.functions.get_mut(name) {
-                Some(size) => *size += 1,
-                None => {
-                    info.functions.insert(name.to_string(), 1);
-                }
-            },
+            Node::Number(_) => *is_number = true,
+            Node::Variable(variable) => {
+                info.variables.insert(variable.to_string());
+            }
+            Node::Power { base, power } => {
+                base.analyze(context, info, is_number);
+                power.analyze(context, info, is_number);
+            }
+            Node::Modulo { lhs, rhs } => {
+                lhs.analyze(context, info, is_number);
+                rhs.analyze(context, info, is_number);
+            }
+            Node::Factorial { child } => {
+                child.analyze(context, info, is_number);
+            }
+            Node::Function { name, arguments } => {
+                info.functions.insert(name.to_string());
+                arguments
+                    .iter_mut()
+                    .for_each(|arg| arg.analyze(context, info, is_number))
+            }
             _ => (),
         }
     }
 }
 
 impl Analyze for Expression {
-    fn analyze(&self, context: &Context, info: &mut ExpressionInfo) {
-        for product in self.products.iter() {
-            product.analyze(context, info);
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
+        for product in self.products.iter_mut() {
+            product.analyze(context, info, is_number);
         }
     }
 }
 
 impl Analyze for Product {
-    fn analyze(&self, context: &Context, info: &mut ExpressionInfo) {
-        for side in [&self.numerator, &self.denominator].into_iter() {
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
+        for side in [&mut self.numerator, &mut self.denominator].into_iter() {
             for element in side {
-                element.analyze(context, info);
+                element.analyze(context, info, is_number);
             }
         }
     }
 }
 
 impl Analyze for Element {
-    fn analyze(&self, context: &Context, info: &mut ExpressionInfo) {
-        self.node_or_expression.analyze(context, info);
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
+        let mut is_number = false;
+        self.node_or_expression
+            .analyze(context, info, &mut is_number);
+        self.is_number = is_number;
     }
 }

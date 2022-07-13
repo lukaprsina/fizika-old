@@ -166,14 +166,15 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
             )),
             Token::Identifier {
                 name,
-                could_be_unit,
+                could_be_unit: _,
             } => {
                 // TODO: need context to determine if this is a unit
-                let node = if could_be_unit {
+                /* let node = if could_be_unit {
                     Node::Unit(name)
                 } else {
                     Node::Variable(name)
-                };
+                }; */
+                let node = Node::Variable(name);
 
                 stack.push(Element::new(Sign::Positive, NodeOrExpression::Node(node)));
             }
