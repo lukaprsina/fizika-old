@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use uuid::Uuid;
 
-use crate::{ast::analyzed_equation::AnalyzedElement, tokenizer::parser::ParseError};
+use crate::{ast::analyzed_expression::AnalyzedElement, tokenizer::parser::ParseError};
 
-use super::{equation::NoContextEquation, token_to_element::TokensToEquationError};
+use super::{equation::NoContextEquation, token_to_element::TokensToEquationError, Equation};
 
 #[derive(Debug, Clone)]
 pub struct Context {
@@ -32,7 +32,7 @@ impl Context {
         self.expressions.get_mut(&uuid)
     }
 
-    pub fn try_add_equation<T>(&mut self, input: T) -> Result<Uuid, CreateEquationError>
+    pub fn try_add_equation<T>(&mut self, input: T) -> Result<Equation, CreateEquationError>
     where
         T: TryInto<NoContextEquation, Error = CreateEquationError>,
     {
@@ -40,17 +40,27 @@ impl Context {
         Ok(self.add_equation(equation))
     }
 
-    pub fn add_equation<T: Into<NoContextEquation>>(&mut self, input: T) -> Uuid {
+    pub fn add_equation<T: Into<NoContextEquation>>(&mut self, input: T) -> Equation {
         let equation: NoContextEquation = input.into();
 
-        let uuid = Uuid::new_v4();
+        let mut uuids: Vec<Uuid> = Vec::new();
 
         for side in equation.sides {
+            let uuid = Uuid::new_v4();
             self.expressions.insert(uuid, side.analyze(&self));
+            uuids.push(uuid);
         }
 
-        uuid
+        let arc = Arc::new(self);
+        Equation::new(uuids, arc)
     }
 
-    pub fn solve(&self) {}
+    pub fn solve(&self) {
+        for (uuid, analyzed_element) in self.expressions.iter() {
+            println!(
+                "{}: {}\nIs number?:{}\n{:#?}\n\n",
+                uuid, analyzed_element.element, analyzed_element.is_number, analyzed_element.info
+            );
+        }
+    }
 }

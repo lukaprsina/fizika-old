@@ -9,6 +9,7 @@ use super::{
 pub struct AnalyzedElement {
     pub element: Element,
     pub info: ExpressionInfo,
+    pub is_number: bool,
 }
 
 impl EquationSide {
@@ -21,11 +22,10 @@ impl EquationSide {
             .node_or_expression
             .analyze(context, &mut info, &mut is_number);
 
-        println!("{:#?}", info);
-
         AnalyzedElement {
             element: self.element,
             info,
+            is_number,
         }
     }
 }
@@ -82,27 +82,36 @@ impl Analyze for Node {
 
 impl Analyze for Expression {
     fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
+        let mut test = true;
+
         for product in self.products.iter_mut() {
             product.analyze(context, info, is_number);
+            test &= *is_number;
         }
+
+        *is_number = test;
     }
 }
 
 impl Analyze for Product {
     fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
+        let mut test = true;
+
         for side in [&mut self.numerator, &mut self.denominator].into_iter() {
             for element in side {
                 element.analyze(context, info, is_number);
+                test &= *is_number;
             }
         }
+
+        *is_number = test;
     }
 }
 
 impl Analyze for Element {
-    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, is_number: &mut bool) {
-        let mut is_number = false;
-        self.node_or_expression
-            .analyze(context, info, &mut is_number);
-        self.is_number = is_number;
+    fn analyze(&mut self, context: &Context, info: &mut ExpressionInfo, _: &mut bool) {
+        let mut test = false;
+        self.node_or_expression.analyze(context, info, &mut test);
+        self.is_number = test;
     }
 }

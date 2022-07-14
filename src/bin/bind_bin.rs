@@ -9,7 +9,7 @@ fn main() {
 
     context.solve();
 
-    println!("{:#?}", context);
+    // println!("{:#?}", context);
     /* test.get_equation(&context).sides[0]
     .element
     .bind(&instructions.get_equation(&context).sides[0].element); */

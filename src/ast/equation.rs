@@ -1,11 +1,11 @@
-use std::sync::Arc;
+use std::{borrow::BorrowMut, sync::Arc};
 
 use uuid::Uuid;
 
 use crate::tokenizer::{parser::TokenizedString, Operation};
 
 use super::{
-    analyzed_equation::AnalyzedElement,
+    analyzed_expression::AnalyzedElement,
     context::{Context, CreateEquationError},
     Element, NodeOrExpression,
 };
@@ -27,11 +27,15 @@ pub struct EquationSide {
 }
 
 impl<'a> Equation<'a> {
-    pub fn new(uuids: Vec<Uuid>, context: Arc<&'a mut Context>) -> Self {
-        Equation {
+    pub fn new(uuids: Vec<Uuid>, mut context: Arc<&'a mut Context>) -> Self {
+        let mut equation = Equation {
             uuids,
             context: Arc::clone(&context),
-        }
+        };
+
+        equation.flatten(context.borrow_mut());
+
+        equation
     }
 
     pub fn sides(&'a self) -> impl Iterator<Item = &AnalyzedElement> {

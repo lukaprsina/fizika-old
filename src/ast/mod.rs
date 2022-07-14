@@ -1,4 +1,4 @@
-pub mod analyzed_equation;
+pub mod analyzed_expression;
 pub mod context;
 pub mod element;
 pub mod equation;
