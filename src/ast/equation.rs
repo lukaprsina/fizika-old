@@ -1,19 +1,18 @@
-use std::{borrow::BorrowMut, sync::Arc};
+use std::{cell::RefCell, rc::Rc};
 
 use uuid::Uuid;
 
 use crate::tokenizer::{parser::TokenizedString, Operation};
 
 use super::{
-    analyzed_expression::AnalyzedElement,
     context::{Context, CreateEquationError},
     Element, NodeOrExpression,
 };
 
 #[derive(Debug, Clone)]
-pub struct Equation<'a> {
+pub struct Equation {
     pub uuids: Vec<Uuid>,
-    context: Arc<&'a mut Context>,
+    pub context: Rc<RefCell<Context>>,
 }
 
 pub struct NoContextEquation {
@@ -26,29 +25,17 @@ pub struct EquationSide {
     pub operation: Option<Operation>,
 }
 
-impl<'a> Equation<'a> {
-    pub fn new(uuids: Vec<Uuid>, mut context: Arc<&'a mut Context>) -> Self {
+impl Equation {
+    pub fn new(uuids: Vec<Uuid>, context: Rc<RefCell<Context>>) -> Self {
         let mut equation = Equation {
             uuids,
-            context: Arc::clone(&context),
+            context: Rc::clone(&context),
         };
 
-        equation.flatten(context.borrow_mut());
+        equation.flatten(&mut context.borrow_mut());
 
         equation
     }
-
-    pub fn sides(&'a self) -> impl Iterator<Item = &AnalyzedElement> {
-        self.uuids
-            .iter()
-            .map_while(|&uuid| self.context.get_expression(uuid))
-    }
-
-    /* pub fn sides_mut<'b>(&'a mut self) -> impl Iterator<Item = &mut AnalyzedElement> {
-        self.uuids
-            .iter_mut()
-            .map_while(|&mut uuid| self.context.get_expression_mut(uuid))
-    } */
 }
 
 impl EquationSide {
@@ -63,7 +50,7 @@ impl NoContextEquation {
     }
 }
 
-impl<'a> Equation<'a> {
+impl Equation {
     pub fn flatten(&mut self, context: &mut Context) {
         for &mut uuid in self.uuids.iter_mut() {
             let expression = context.get_expression_mut(uuid).unwrap();

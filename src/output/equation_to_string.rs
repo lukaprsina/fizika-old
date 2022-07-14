@@ -7,12 +7,12 @@ use crate::ast::{
     NodeOrExpression,
 };
 
-impl<'a> Display for Equation<'a> {
+impl Display for Equation {
     /* TODO: equation has a reference to context */
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        let sides = self.sides();
+        /* let sides = self.sides();
 
         let mut chunks = sides.peekable();
         while let Some(side) = chunks.next() {
@@ -20,6 +20,18 @@ impl<'a> Display for Equation<'a> {
                 result += &format!("{} = ", side.element)
             } else {
                 result += &format!("{}", side.element)
+            }
+        } */
+
+        let context = self.context.borrow();
+
+        for (pos, uuid) in self.uuids.iter().enumerate() {
+            let analyzed_element = context.elements.get(uuid).expect("The UUID must be valid");
+
+            if pos < self.uuids.len() - 1 {
+                result += &format!("{} = ", analyzed_element.element)
+            } else {
+                result += &format!("{}", analyzed_element.element)
             }
         }
 
