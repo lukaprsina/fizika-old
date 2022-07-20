@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 use uuid::Uuid;
 
@@ -32,7 +32,7 @@ impl Context {
         self.elements.get_mut(&uuid)
     }
 
-    pub fn try_add_equation<T: TryInto<NoContextEquation, Error = CreateEquationError>>(
+    pub fn try_add_equation<T: Debug + TryInto<NoContextEquation, Error = CreateEquationError>>(
         context: Rc<RefCell<Context>>,
         input: T,
     ) -> Result<Equation, CreateEquationError> {

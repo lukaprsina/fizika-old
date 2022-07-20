@@ -1,44 +1,26 @@
-use yew::prelude::*;
+use std::rc::Rc;
 
-enum Msg {
-    AddOne,
-}
+use color_eyre::eyre::Result;
+use math_eval::ast::context::Context;
+use tracing::{info, Level};
+use tracing_subscriber::FmtSubscriber;
 
-struct Model {
-    value: i64,
-}
+fn main() -> Result<()> {
+    color_eyre::install()?;
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::TRACE)
+        .finish();
 
-impl Component for Model {
-    type Message = Msg;
-    type Properties = ();
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self { value: 0 }
-    }
+    info!("Started the logger crate");
 
-    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
-        match msg {
-            Msg::AddOne => {
-                self.value += 1;
-                // the value has changed so we need to
-                // re-render for it to appear on the page
-                true
-            }
-        }
-    }
+    let context = Context::new();
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        // This gives us a component's "`Scope`" which allows us to send messages, etc to the component.
-        let link = ctx.link();
-        html! {
-            <div>
-                <button onclick={link.callback(|_| Msg::AddOne)}>{ "+1" }</button>
-                <p>{ self.value }</p>
-            </div>
-        }
-    }
-}
+    Context::try_add_equation(Rc::clone(&context), "4 + 4x + x^2 + 5").unwrap();
 
-fn main() {
-    yew::start_app::<Model>();
+    Context::try_add_equation(Rc::clone(&context), "a^2 + 2a*b + b^2").unwrap();
+
+    context.borrow().solve();
+    Ok(())
 }
