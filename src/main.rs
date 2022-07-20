@@ -1,16 +1,44 @@
-use math_eval::ast::context::Context;
+use yew::prelude::*;
 
-fn main() {
-    let cases_string = include_str!("../examples.txt");
-    let cases = cases_string
-        .split('\n')
-        .filter(|&case| !case.is_empty())
-        .collect::<Vec<&str>>();
+enum Msg {
+    AddOne,
+}
 
-    let mut context = Context::new();
-    for case in cases {
-        context.try_add_equation(case).unwrap();
+struct Model {
+    value: i64,
+}
+
+impl Component for Model {
+    type Message = Msg;
+    type Properties = ();
+
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self { value: 0 }
     }
 
-    println!("{:#?}", context);
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::AddOne => {
+                self.value += 1;
+                // the value has changed so we need to
+                // re-render for it to appear on the page
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        // This gives us a component's "`Scope`" which allows us to send messages, etc to the component.
+        let link = ctx.link();
+        html! {
+            <div>
+                <button onclick={link.callback(|_| Msg::AddOne)}>{ "+1" }</button>
+                <p>{ self.value }</p>
+            </div>
+        }
+    }
+}
+
+fn main() {
+    yew::start_app::<Model>();
 }

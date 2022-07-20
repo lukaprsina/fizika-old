@@ -9,7 +9,7 @@ pub(crate) trait IsTimesVisible {
     fn is_times_visible(&self, last: &Element) -> bool;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Sign {
     Positive,
     Negative,

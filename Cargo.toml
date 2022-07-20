@@ -2,17 +2,22 @@
 name = "math-eval"
 version = "0.1.0"
 edition = "2021"
-default-run = "bind_bin"
+default-run = "math-eval"
 authors = ["Luka Pršina"]
 
+[lib]
+crate-type = ["rlib", "cdylib"]
+
 [dependencies]
-criterion = "0.3.5"
+criterion = "0.3.6"
+getrandom = { version = "0.2.7", features = ["js"] }
 itertools = "0.10.3"
 lazy_static = "1.4.0"
 nom = "7.1.1"
 num-bigint = "0.4.3"
 ptree = "0.4.0"
 ryu = "1.0.10"
-smallvec = "1.8.0"
+smallvec = "1.9.0"
 smartstring = "1.0.1"
 uuid = { version = "1.1.2", features = ["v4", "fast-rng", "macro-diagnostics"] }
+yew = "0.19.3"

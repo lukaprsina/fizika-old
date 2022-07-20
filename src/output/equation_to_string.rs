@@ -1,6 +1,5 @@
-use std::fmt::Display;
-
 use crate::ast::{Equation, Expression, Node, Sign};
+use std::fmt::{Display, Write};
 
 use crate::ast::{
     element::IsTimesVisible, element::ShouldBeParenthesized, product::Product, Element,
@@ -29,9 +28,9 @@ impl Display for Equation {
             let analyzed_element = context.elements.get(uuid).expect("The UUID must be valid");
 
             if pos < self.uuids.len() - 1 {
-                result += &format!("{} = ", analyzed_element.element)
+                write!(result, "{} = ", analyzed_element.element).unwrap()
             } else {
-                result += &format!("{}", analyzed_element.element)
+                write!(result, "{}", analyzed_element.element).unwrap()
             }
         }
 
@@ -77,24 +76,28 @@ impl Display for Node {
             Node::Variable(variable) => result += variable,
             Node::Unit(unit) => result += unit,
             Node::Power { base, power } => {
-                result += &format!(
+                write!(
+                    result,
                     "{}^{}",
                     to_string_with_parenthesis(base.as_ref()),
                     to_string_with_parenthesis(power.as_ref()),
-                );
+                )
+                .unwrap();
             }
             Node::Modulo { lhs, rhs } => {
-                result += &format!(
+                write!(
+                    result,
                     "{}%{}",
                     to_string_with_parenthesis(lhs.as_ref()),
                     to_string_with_parenthesis(rhs.as_ref())
-                );
+                )
+                .unwrap();
             }
             Node::Factorial { child } => {
-                result += &format!("{}!", to_string_with_parenthesis(child.as_ref()));
+                write!(result, "{}!", to_string_with_parenthesis(child.as_ref())).unwrap();
             }
             Node::Function { name, arguments } => {
-                result += &format!("{}(", name);
+                write!(result, "{}(", name).unwrap();
                 for (index, argument) in arguments.iter().enumerate() {
                     result += &argument.to_string();
                     if index < arguments.len() - 1 {
@@ -118,10 +121,10 @@ impl Display for Expression {
                 Some(element) => {
                     if pos == 0 {
                         if element.sign == Sign::Negative {
-                            result += &format!("{} ", element.sign)
+                            write!(result, "{} ", element.sign).unwrap()
                         }
                     } else {
-                        result += &format!("{} ", element.sign)
+                        write!(result, "{} ", element.sign).unwrap()
                     }
                 }
                 None => result += "+ 1",
@@ -164,7 +167,7 @@ impl Display for Product {
                 }
 
                 if explicit_minus {
-                    result += &format!("{} ", element.sign);
+                    write!(result, "{} ", element.sign).unwrap();
                 }
 
                 result += &element.to_string();
@@ -189,10 +192,10 @@ impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        let open = false; // self.sign == Sign::Negative; // self.should_be_parenthesized();
+        let open = false; // TODO self.sign == Sign::Negative; // self.should_be_parenthesized();
 
         if open {
-            result += &format!("({}", self.sign);
+            write!(result, "({}", self.sign).unwrap();
         }
 
         result += &self.node_or_expression.to_string();
