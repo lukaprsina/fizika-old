@@ -1,7 +1,5 @@
-use std::rc::Rc;
-
 use color_eyre::eyre::Result;
-use math_eval::ast::context::Context;
+use math_eval::ast::{app::App};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -15,12 +13,7 @@ fn main() -> Result<()> {
 
     info!("Started the logger crate");
 
-    let context = Context::new();
-
-    Context::try_add_equation(Rc::clone(&context), "4 + 4x + x^2 + 5").unwrap();
-
-    Context::try_add_equation(Rc::clone(&context), "a^2 + 2a*b + b^2").unwrap();
-
-    context.borrow().solve();
+    let app = App::new()?;
+    app
     Ok(())
 }

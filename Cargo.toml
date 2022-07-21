@@ -5,8 +5,8 @@ edition = "2021"
 default-run = "math-eval"
 authors = ["Luka Pršina"]
 
-[lib]
-crate-type = ["rlib", "cdylib"]
+# [lib]
+# crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 color-eyre = { version = "0.6.2", default-features = false }
