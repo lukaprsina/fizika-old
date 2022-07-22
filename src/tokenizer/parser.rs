@@ -1,5 +1,6 @@
 use nom::IResult;
 use std::ops::Deref;
+use thiserror::Error;
 
 use crate::tokenizer::{
     small_parsers::{
@@ -11,11 +12,15 @@ use crate::tokenizer::{
 
 use super::small_parsers::trim_with_comments;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ParseError {
+    #[error("Unexpected token at {0}")]
     UnexpectedToken(usize),
+    #[error("Missing right parenthesis at {0}")]
     MissingRightParenthesis(usize),
+    #[error("An function argument is missing")]
     MissingArgument,
+    #[error("The expression is empty")]
     Empty,
 }
 

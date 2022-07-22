@@ -22,10 +22,14 @@ impl Display for Equation {
             }
         } */
 
-        let context = self.context.borrow();
+        let app = self.app.borrow();
 
-        for (pos, uuid) in self.uuids.iter().enumerate() {
-            let analyzed_element = context.elements.get(uuid).expect("The UUID must be valid");
+        for (pos, &uuid) in self.uuids.iter().enumerate() {
+            let analyzed_element = app
+                .get_context(self.context)
+                .unwrap()
+                .get_expression(uuid)
+                .expect("The UUID must be valid");
 
             if pos < self.uuids.len() - 1 {
                 write!(result, "{} = ", analyzed_element.element).unwrap()

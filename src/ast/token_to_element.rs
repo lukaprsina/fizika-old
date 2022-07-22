@@ -1,3 +1,5 @@
+use thiserror::Error;
+
 use crate::{
     ast::{Element, NodeOrExpression},
     tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token},
@@ -8,11 +10,15 @@ use super::{
     Node, Sign,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum TokenParseError {
+    #[error("Mismatched parenthesis at location {0}")]
     MismatchedParenthesis(usize),
+    #[error("Unexpected comma at location ")]
     UnexpectedComma(usize),
+    #[error("Not enough operands at location {0}")]
     NotEnoughOperands(usize),
+    #[error("Too many operands")]
     TooManyOperands,
 }
 
@@ -147,9 +153,11 @@ where
     Ok((output, equal_sign))
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum AbstractSyntaxTreeError {
+    #[error("Unary AST error")]
     Unary,
+    #[error("Binary AST error")]
     Binary,
 }
 
@@ -244,9 +252,11 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
     Ok(stack.pop().unwrap())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum TokensToEquationError {
+    #[error("Token parse error: {0}")]
     TokenParseError(TokenParseError),
+    #[error("AST error: {0}")]
     AbstractSyntaxTreeError(AbstractSyntaxTreeError),
 }
 

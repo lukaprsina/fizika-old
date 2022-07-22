@@ -1,27 +1,36 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
+use thiserror::Error;
 use uuid::Uuid;
 
 use crate::{ast::analyzed_expression::AnalyzedElement, tokenizer::parser::ParseError};
 
-use super::{equation::NoContextEquation, token_to_element::TokensToEquationError, Equation};
+use super::{
+    app::App, equation::NoContextEquation, token_to_element::TokensToEquationError, Equation,
+};
 
 #[derive(Debug, Clone)]
 pub struct Context {
+    pub app: Rc<RefCell<App>>,
     pub elements: HashMap<Uuid, AnalyzedElement>,
+    pub uuid: Uuid,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum CreateEquationError {
+    #[error("{0}")]
     ParseError(ParseError),
+    #[error("{0}")]
     TokensToEquationError(TokensToEquationError),
 }
 
 impl Context {
-    pub fn new() -> Rc<RefCell<Context>> {
-        Rc::new(RefCell::new(Context {
+    pub fn new(app: Rc<RefCell<App>>) -> Context {
+        Context {
             elements: HashMap::new(),
-        }))
+            app,
+            uuid: Uuid::nil(),
+        }
     }
 
     pub fn get_expression(&self, uuid: Uuid) -> Option<&AnalyzedElement> {
@@ -33,34 +42,31 @@ impl Context {
     }
 
     pub fn try_add_equation<T: Debug + TryInto<NoContextEquation, Error = CreateEquationError>>(
-        context: Rc<RefCell<Context>>,
+        &mut self,
         input: T,
     ) -> Result<Equation, CreateEquationError> {
         let equation: NoContextEquation = input.try_into()?;
-        Ok(Context::add_equation(context, equation))
+        Ok(Context::add_equation(self, equation))
     }
 
-    pub fn add_equation<T: Into<NoContextEquation>>(
-        context: Rc<RefCell<Context>>,
-        input: T,
-    ) -> Equation {
+    pub fn add_equation<T: Into<NoContextEquation>>(&mut self, input: T) -> Equation {
         let equation: NoContextEquation = input.into();
 
         let mut uuids: Vec<Uuid> = Vec::new();
 
         for side in equation.sides {
             let uuid = Uuid::new_v4();
-            let element = side.analyze(&context.borrow());
+            let element = side.analyze(&self);
 
-            context.borrow_mut().elements.insert(uuid, element);
+            self.elements.insert(uuid, element);
 
             uuids.push(uuid);
         }
 
-        Equation::new(uuids, Rc::clone(&context))
+        Equation::new(uuids, Rc::clone(&self.app), self.uuid)
     }
 
-    pub fn solve(&self) {
+    pub fn solve(&mut self) {
         println!("Context:");
         for (uuid, analyzed_element) in self.elements.iter() {
             println!(

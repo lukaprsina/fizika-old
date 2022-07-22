@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::tokenizer::{parser::TokenizedString, Operation};
 
 use super::{
+    app::{self, App},
     context::{Context, CreateEquationError},
     Element, NodeOrExpression,
 };
@@ -12,7 +13,8 @@ use super::{
 #[derive(Debug, Clone)]
 pub struct Equation {
     pub uuids: Vec<Uuid>,
-    pub context: Rc<RefCell<Context>>,
+    pub app: Rc<RefCell<App>>,
+    pub context: Uuid,
 }
 
 pub struct NoContextEquation {
@@ -26,13 +28,17 @@ pub struct EquationSide {
 }
 
 impl Equation {
-    pub fn new(uuids: Vec<Uuid>, context: Rc<RefCell<Context>>) -> Self {
+    pub fn new(uuids: Vec<Uuid>, app: Rc<RefCell<App>>, context: Uuid) -> Self {
         let mut equation = Equation {
             uuids,
-            context: Rc::clone(&context),
+            app: Rc::clone(&app),
+            context,
         };
 
-        equation.flatten(&mut context.borrow_mut());
+        // TODO: unwrap
+        let mut app = app.borrow_mut();
+        let context = app.get_context_mut(context).unwrap();
+        equation.flatten(context);
 
         equation
     }

@@ -578,6 +578,7 @@ dependencies = [
  "ryu",
  "smallvec",
  "smartstring",
+ "thiserror",
  "tracing",
  "tracing-subscriber",
  "uuid",
