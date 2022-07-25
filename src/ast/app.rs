@@ -22,15 +22,13 @@ impl App {
             contexts: HashMap::new(),
         }));
 
-        debug!("> app.borrow_mut(): {}", Rc::strong_count(&app));
-        let mut borrowed_app = app.borrow_mut();
+        let ctx_uuid = {
+            let mut borrowed_app = app.borrow_mut();
 
-        let context = Context::new(Rc::clone(&app));
-        let ctx_uuid = borrowed_app.add_context(context);
-
-        borrowed_app.formulas = ctx_uuid;
-        std::mem::drop(borrowed_app);
-        debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
+            let context = Context::new(Rc::clone(&app));
+            borrowed_app.formulas = borrowed_app.add_context(context);
+            borrowed_app.formulas
+        };
 
         for line in include_str!("../../formulas.txt").lines() {
             App::try_add_equation(Rc::clone(&app), ctx_uuid, line)?;
@@ -72,23 +70,21 @@ impl App {
 
         let mut uuids: Vec<Uuid> = Vec::new();
 
-        debug!("> app.borrow_mut(): {}", Rc::strong_count(&app));
-        let mut borrowed_app = app.borrow_mut();
-        for side in equation.sides {
-            let uuid = Uuid::new_v4();
+        {
+            let mut borrowed_app = app.borrow_mut();
+            for side in equation.sides {
+                let uuid = Uuid::new_v4();
 
-            let element = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
-            borrowed_app
-                .get_context_mut(ctx_uuid)
-                .unwrap()
-                .elements
-                .insert(uuid, element);
+                let element = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
+                borrowed_app
+                    .get_context_mut(ctx_uuid)
+                    .unwrap()
+                    .elements
+                    .insert(uuid, element);
 
-            uuids.push(uuid);
+                uuids.push(uuid);
+            }
         }
-
-        std::mem::forget(borrowed_app);
-        debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
 
         Equation::new(uuids, Rc::clone(&app), ctx_uuid)
     }

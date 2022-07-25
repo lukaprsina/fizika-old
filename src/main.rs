@@ -19,18 +19,14 @@ fn main() -> Result<()> {
 
     let context = Context::new(Rc::clone(&app));
 
-    debug!("> app.borrow_mut(): {}", Rc::strong_count(&app));
     let ctx_uuid = app.borrow_mut().add_context(context);
-    debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
 
     App::try_add_equation(Rc::clone(&app), ctx_uuid, "4 + 4x + x^2 + 5")?;
 
-    debug!("> app.borrow_mut(): {}", Rc::strong_count(&app));
     let mut borrowed_app = app.borrow_mut();
     let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
     context.solve();
-    debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
 
     Ok(())
 }

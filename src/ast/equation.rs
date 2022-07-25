@@ -36,11 +36,10 @@ impl Equation {
             context: ctx_uuid,
         };
 
-        debug!("> app.borrow_mut() crashes: {}", Rc::strong_count(&app));
         let mut borrowed_app = app.borrow_mut();
         let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+
         equation.flatten(context);
-        debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
 
         equation
     }
