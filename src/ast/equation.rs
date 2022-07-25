@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use tracing::debug;
 use uuid::Uuid;
 
 use crate::tokenizer::{parser::TokenizedString, Operation};
@@ -28,17 +29,18 @@ pub struct EquationSide {
 }
 
 impl Equation {
-    pub fn new(uuids: Vec<Uuid>, app: Rc<RefCell<App>>, context: Uuid) -> Self {
+    pub fn new(uuids: Vec<Uuid>, app: Rc<RefCell<App>>, ctx_uuid: Uuid) -> Self {
         let mut equation = Equation {
             uuids,
             app: Rc::clone(&app),
-            context,
+            context: ctx_uuid,
         };
 
-        // TODO: unwrap
-        let mut app = app.borrow_mut();
-        let context = app.get_context_mut(context).unwrap();
+        debug!("> app.borrow_mut() crashes: {}", Rc::strong_count(&app));
+        let mut borrowed_app = app.borrow_mut();
+        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
         equation.flatten(context);
+        debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
 
         equation
     }

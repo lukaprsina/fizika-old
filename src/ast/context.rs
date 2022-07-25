@@ -41,31 +41,6 @@ impl Context {
         self.elements.get_mut(&uuid)
     }
 
-    pub fn try_add_equation<T: Debug + TryInto<NoContextEquation, Error = CreateEquationError>>(
-        &mut self,
-        input: T,
-    ) -> Result<Equation, CreateEquationError> {
-        let equation: NoContextEquation = input.try_into()?;
-        Ok(Context::add_equation(self, equation))
-    }
-
-    pub fn add_equation<T: Into<NoContextEquation>>(&mut self, input: T) -> Equation {
-        let equation: NoContextEquation = input.into();
-
-        let mut uuids: Vec<Uuid> = Vec::new();
-
-        for side in equation.sides {
-            let uuid = Uuid::new_v4();
-            let element = side.analyze(&self);
-
-            self.elements.insert(uuid, element);
-
-            uuids.push(uuid);
-        }
-
-        Equation::new(uuids, Rc::clone(&self.app), self.uuid)
-    }
-
     pub fn solve(&mut self) {
         println!("Context:");
         for (uuid, analyzed_element) in self.elements.iter() {

@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use color_eyre::eyre::Result;
 use math_eval::ast::{app::App, context::Context};
-use tracing::{info, Level};
+use tracing::{debug, info, Level};
 use tracing_subscriber::FmtSubscriber;
 
 fn main() -> Result<()> {
@@ -18,13 +18,19 @@ fn main() -> Result<()> {
     let app = App::new()?;
 
     let context = Context::new(Rc::clone(&app));
-    let uuid = app.borrow_mut().add_context(context);
 
+    debug!("> app.borrow_mut(): {}", Rc::strong_count(&app));
+    let ctx_uuid = app.borrow_mut().add_context(context);
+    debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
+
+    App::try_add_equation(Rc::clone(&app), ctx_uuid, "4 + 4x + x^2 + 5")?;
+
+    debug!("> app.borrow_mut(): {}", Rc::strong_count(&app));
     let mut borrowed_app = app.borrow_mut();
-    let context = borrowed_app.get_context_mut(uuid).unwrap();
-    context.try_add_equation("4 + 4x + x^2 + 5")?;
+    let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
     context.solve();
+    debug!("< app.borrow_mut(): {}", Rc::strong_count(&app));
 
     Ok(())
 }
