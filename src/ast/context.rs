@@ -5,11 +5,9 @@ use uuid::Uuid;
 
 use crate::{ast::analyzed_expression::AnalyzedElement, tokenizer::parser::ParseError};
 
-use super::{
-    app::App, equation::NoContextEquation, token_to_element::TokensToEquationError, Equation,
-};
+use super::{app::App, token_to_element::TokensToEquationError};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Context {
     pub app: Rc<RefCell<App>>,
     pub elements: HashMap<Uuid, AnalyzedElement>,

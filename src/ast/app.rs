@@ -1,7 +1,8 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
-use tracing::debug;
 use uuid::Uuid;
+
+use crate::actions::is_same::IsSame;
 
 use super::{
     context::{Context, CreateEquationError},
@@ -9,7 +10,7 @@ use super::{
     Equation,
 };
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct App {
     pub formulas: Uuid,
     pub contexts: HashMap<Uuid, Context>,
@@ -86,6 +87,10 @@ impl App {
             }
         }
 
-        Equation::new(uuids, Rc::clone(&app), ctx_uuid)
+        let equation = Equation::new(uuids, Rc::clone(&app), ctx_uuid);
+
+        println!("{}", Equation::is_same(&equation, &equation));
+
+        equation
     }
 }

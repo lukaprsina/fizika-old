@@ -1,17 +1,21 @@
 use std::{cell::RefCell, rc::Rc};
 
-use tracing::debug;
+use math_eval_derive::IsSame;
+
 use uuid::Uuid;
 
-use crate::tokenizer::{parser::TokenizedString, Operation};
+use crate::{
+    actions::is_same::IsSame,
+    tokenizer::{parser::TokenizedString, Operation},
+};
 
 use super::{
-    app::{self, App},
+    app::App,
     context::{Context, CreateEquationError},
     Element, NodeOrExpression,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, IsSame)]
 pub struct Equation {
     pub uuids: Vec<Uuid>,
     pub app: Rc<RefCell<App>>,

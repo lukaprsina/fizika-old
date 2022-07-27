@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use color_eyre::eyre::Result;
 use math_eval::ast::{app::App, context::Context};
-use tracing::{debug, info, Level};
+use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
 fn main() -> Result<()> {
