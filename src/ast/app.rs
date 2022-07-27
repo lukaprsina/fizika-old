@@ -89,8 +89,6 @@ impl App {
 
         let equation = Equation::new(uuids, Rc::clone(&app), ctx_uuid);
 
-        println!("{}", Equation::is_same(&equation, &equation));
-
         equation
     }
 }

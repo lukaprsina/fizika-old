@@ -15,11 +15,17 @@ use super::{
     Element, NodeOrExpression,
 };
 
-#[derive(Debug, Clone, IsSame)]
+#[derive(Debug, Clone /* IsSame */)]
 pub struct Equation {
     pub uuids: Vec<Uuid>,
     pub app: Rc<RefCell<App>>,
     pub context: Uuid,
+}
+
+impl IsSame for Equation {
+    fn is_same(lhs: &Self, rhs: &Self) -> bool {
+        Vec::is_same(&lhs.uuids, &rhs.uuids)
+    }
 }
 
 pub struct NoContextEquation {
