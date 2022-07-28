@@ -1,5 +1,3 @@
-use std::fmt::{Debug, Display};
-
 use crate::ast::{
     analyzed_expression::AnalyzedElement, product::Product, Element, Equation, Expression, Node,
     NodeOrExpression,
