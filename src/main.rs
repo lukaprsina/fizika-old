@@ -24,10 +24,9 @@ fn main() -> Result<()> {
 
     let ctx_uuid = app.borrow_mut().add_context(context);
 
-    // let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, "4 + 4x + x^2 + 5")?;
-    // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, "4 + 4x + x^2 + 5")?;
-    let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, "1 + 2")?;
-    let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, " 1 + 2")?;
+    let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, "4 + 4x + x^2 + 5")?;
+    let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, "4x + 4 + x^2 + 5")?;
+
     {
         let mut borrowed_app = app.borrow_mut();
         let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();

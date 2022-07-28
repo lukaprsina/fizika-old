@@ -15,14 +15,21 @@ impl<T: PartialOrd + Clone + IsSame> IsSame for Vec<T> {
             return false;
         }
 
+        if lhs.is_empty() || rhs.is_empty() {
+            return true;
+        }
+
         let mut result = false;
         for left in lhs {
             for right in rhs {
                 let are_same = T::is_same(left, right);
                 result |= are_same;
+                if result {
+                    break;
+                }
             }
         }
-        println!("Match");
+
         result
     }
 }
@@ -58,7 +65,6 @@ impl IsSame for AnalyzedElement {
 
 impl IsSame for Element {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        test(lhs, rhs);
         lhs.sign == rhs.sign
             && NodeOrExpression::is_same(&lhs.node_or_expression, &rhs.node_or_expression)
     }
@@ -66,7 +72,6 @@ impl IsSame for Element {
 
 impl IsSame for NodeOrExpression {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        test(lhs, rhs);
         match lhs {
             NodeOrExpression::Node(l_node) => match rhs {
                 NodeOrExpression::Node(r_node) => Node::is_same(l_node, r_node),
@@ -82,7 +87,6 @@ impl IsSame for NodeOrExpression {
 
 impl IsSame for Node {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        test(lhs, rhs);
         match lhs {
             Node::Number(left_number) => {
                 if let Node::Number(right_number) = rhs {
@@ -161,19 +165,15 @@ impl IsSame for Node {
 
 impl IsSame for Expression {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        test(lhs, rhs);
-        Vec::is_same(&lhs.products, &rhs.products)
+        let result = Vec::is_same(&lhs.products, &rhs.products);
+        result
     }
 }
 
 impl IsSame for Product {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        test(lhs, rhs);
-        Vec::is_same(&lhs.numerator, &rhs.numerator)
-            && Vec::is_same(&lhs.denominator, &rhs.denominator)
+        let mut result = Vec::is_same(&lhs.numerator, &rhs.numerator);
+        result &= Vec::is_same(&lhs.denominator, &rhs.denominator);
+        result
     }
-}
-
-fn test<T: Display + Debug>(lhs: T, rhs: T) {
-    println!("{:?}\n{:?}\n\n", lhs, rhs);
 }

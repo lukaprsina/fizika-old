@@ -10,7 +10,7 @@ use super::{
     Element, NodeOrExpression,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Equation {
     pub uuids: Vec<Uuid>,
     pub app: Rc<RefCell<App>>,
