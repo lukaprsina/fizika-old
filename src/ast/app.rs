@@ -2,6 +2,8 @@ use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 use uuid::Uuid;
 
+use crate::actions::strategies::strategy::Strategy;
+
 use super::{
     context::{Context, CreateEquationError},
     equation::NoContextEquation,
@@ -12,6 +14,7 @@ use super::{
 pub struct App {
     pub formulas: Uuid,
     pub contexts: HashMap<Uuid, Context>,
+    pub strategies: Vec<Strategy>,
 }
 
 impl App {
@@ -19,6 +22,7 @@ impl App {
         let app = Rc::new(RefCell::new(App {
             formulas: Uuid::nil(),
             contexts: HashMap::new(),
+            strategies: vec![],
         }));
 
         let ctx_uuid = {

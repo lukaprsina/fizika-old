@@ -29,6 +29,7 @@ fn main() -> Result<()> {
 
     {
         let mut borrowed_app = app.borrow_mut();
+        borrowed_app.add_strategies();
         let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
         context.solve();
     }
