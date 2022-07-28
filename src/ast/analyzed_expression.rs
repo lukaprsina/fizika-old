@@ -1,14 +1,11 @@
 use std::collections::HashSet;
 
-use crate::actions::is_same::IsSame;
-use math_eval_derive::IsSame;
-
 use super::{
     context::Context, equation::EquationSide, product::Product, Element, Expression, Node,
     NodeOrExpression,
 };
 
-#[derive(Debug, Clone, PartialEq, IsSame)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AnalyzedElement {
     pub element: Element,
     pub info: ExpressionInfo,

@@ -1,13 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
-use math_eval_derive::IsSame;
-
 use uuid::Uuid;
 
-use crate::{
-    actions::is_same::IsSame,
-    tokenizer::{parser::TokenizedString, Operation},
-};
+use crate::tokenizer::{parser::TokenizedString, Operation};
 
 use super::{
     app::App,
@@ -15,17 +10,11 @@ use super::{
     Element, NodeOrExpression,
 };
 
-#[derive(Debug, Clone /* IsSame */)]
+#[derive(Debug, Clone)]
 pub struct Equation {
     pub uuids: Vec<Uuid>,
     pub app: Rc<RefCell<App>>,
     pub context: Uuid,
-}
-
-impl IsSame for Equation {
-    fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        Vec::is_same(&lhs.uuids, &rhs.uuids)
-    }
 }
 
 pub struct NoContextEquation {

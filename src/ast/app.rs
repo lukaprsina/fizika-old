@@ -2,8 +2,6 @@ use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 use uuid::Uuid;
 
-use crate::actions::is_same::IsSame;
-
 use super::{
     context::{Context, CreateEquationError},
     equation::NoContextEquation,

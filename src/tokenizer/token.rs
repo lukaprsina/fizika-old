@@ -51,7 +51,7 @@ impl Display for Operation {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum Number {
     Int(i64),
     Float(f64),
