@@ -1,9 +1,12 @@
-use crate::ast::{Element, NodeOrExpression};
+use super::is_same::IsSame;
+use crate::ast::{Element, Node, NodeOrExpression};
+use crate::tokenizer::Number;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum BindResult {
-    Multiply(Element),
     Ok,
+    Inverse,
+    NotOk,
 }
 
 pub trait Match {
@@ -19,12 +22,26 @@ impl Match for Element {
 
         match &instructions.node_or_expression {
             NodeOrExpression::Node(node_instr) => match &self.node_or_expression {
-                NodeOrExpression::Node(node_self) => todo!(),
-                NodeOrExpression::Expression(expr_self) => todo!(),
+                NodeOrExpression::Node(node_self) => {
+                    if Node::is_same(node_instr, node_self) {
+                        if self.sign == instructions.sign {
+                            BindResult::Ok
+                        } else {
+                            BindResult::Inverse
+                        }
+                    } else {
+                        BindResult::NotOk
+                    }
+                }
+                NodeOrExpression::Expression(expr_self) => {
+                    // a
+                    BindResult::Ok
+                }
             },
-            NodeOrExpression::Expression(expr_instr) => todo!(),
+            NodeOrExpression::Expression(expr_instr) => {
+                // a
+                BindResult::Ok
+            }
         }
-
-        BindResult::Ok
     }
 }

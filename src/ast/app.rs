@@ -10,7 +10,7 @@ use super::{
     Equation,
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct App {
     pub formulas: Uuid,
     pub contexts: HashMap<Uuid, Context>,

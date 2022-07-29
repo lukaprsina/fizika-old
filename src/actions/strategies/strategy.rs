@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{
     actions::strategies,
     ast::{
@@ -6,7 +8,6 @@ use crate::{
     },
 };
 
-#[derive(Debug)]
 pub struct Strategy {
     pub equation: Box<dyn FnMut(&mut Equation) -> ()>,
     pub analyzed_element: Box<dyn FnMut(&mut AnalyzedElement) -> ()>,
@@ -15,6 +16,12 @@ pub struct Strategy {
     pub node: Box<dyn FnMut(&mut Node) -> ()>,
     pub expression: Box<dyn FnMut(&mut Expression) -> ()>,
     pub product: Box<dyn FnMut(&mut Product) -> ()>,
+}
+
+impl Debug for Strategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Strategy").finish()
+    }
 }
 
 impl App {

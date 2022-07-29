@@ -7,7 +7,7 @@ use crate::{ast::analyzed_expression::AnalyzedElement, tokenizer::parser::ParseE
 
 use super::{app::App, token_to_element::TokensToEquationError, Equation};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Context {
     pub app: Rc<RefCell<App>>,
     pub elements: HashMap<Uuid, AnalyzedElement>,
