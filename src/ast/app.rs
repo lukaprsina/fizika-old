@@ -79,11 +79,11 @@ impl App {
                 let uuid = Uuid::new_v4();
 
                 let element = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
-                borrowed_app
-                    .get_context_mut(ctx_uuid)
-                    .unwrap()
-                    .elements
-                    .insert(uuid, element);
+                println!("{}", element);
+                let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+                ctx.elements.insert(uuid, element);
+                let new = ctx.elements.get(&uuid).unwrap();
+                println!("{}", new);
 
                 uuids.push(uuid);
             }

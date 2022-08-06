@@ -1,335 +1,235 @@
-PS D:\dev\rust\math-eval> cargo r > wrong.txt
-   Compiling math-eval v0.1.0 (D:\dev\rust\math-eval)
-error[E0412]: cannot find type `AnalyzedElement` in this scope
- --> src\actions\strategies\simplify.rs:7:53
-  |
-7 | fn simplify_analyzed_element(analyzed_element: &mut AnalyzedElement) {}
-  |                                                     ^^^^^^^^^^^^^^^ not found in this scope
-  |
-help: consider importing this struct
-  |
-1 | use crate::ast::analyzed_expression::AnalyzedElement;
-  |
+Context:
+e8c559ac-7cd6-4584-a43e-959a2935b6d9: x + 1/cos(1 + a)
+Is number?: false
+ExpressionInfo {
+    variables: {
+        "x",
+        "a",
+    },
+    functions: {
+        "cos",
+    },
+}
 
-error[E0412]: cannot find type `Element` in this scope
- --> src\actions\strategies\simplify.rs:9:35
-  |
-9 | fn simplify_element(element: &mut Element) {}
-  |                                   ^^^^^^^ not found in this scope
-  |
-help: consider importing this struct
-  |
-1 | use crate::ast::Element;
-  |
 
-error[E0412]: cannot find type `NodeOrExpression` in this scope
-  --> src\actions\strategies\simplify.rs:11:57
-   |
-11 | fn simplify_node_or_expression(node_or_expression: &mut NodeOrExpression) {}
-   |                                                         ^^^^^^^^^^^^^^^^ not found in this scope 
-   |
-help: consider importing this enum
-   |
-1  | use crate::ast::NodeOrExpression;
-   |
+80be383e-de67-45c8-bca4-1aab7879975c: a + x + 1/cos(x/cos(1))
+Is number?: false
+ExpressionInfo {
+    variables: {
+        "x",
+        "a",
+    },
+    functions: {
+        "cos",
+    },
+}
 
-error[E0412]: cannot find type `Node` in this scope
-  --> src\actions\strategies\simplify.rs:13:29
-   |
-13 | fn simplify_node(node: &mut Node) {}
-   |                             ^^^^ not found in this scope
-   |
-help: consider importing this enum
-   |
-1  | use crate::ast::Node;
-   |
 
-error[E0412]: cannot find type `Expression` in this scope
-  --> src\actions\strategies\simplify.rs:15:41
-   |
-15 | fn simplify_expression(expression: &mut Expression) {}
-   |                                         ^^^^^^^^^^ not found in this scope
-   |
-help: consider importing this struct
-   |
-1  | use crate::ast::Expression;
-   |
+EXPR1:
+AnalyzedElement {
+    element: Element {
+        sign: Positive,
+        node_or_expression: Expression(
+            Expression {
+                products: [
+                    Product {
+                        numerator: [
+                            Element {
+                                sign: Positive,
+                                node_or_expression: Node(
+                                    Variable(
+                                        "x",
+                                    ),
+                                ),
+                                is_number: false,
+                            },
+                        ],
+                        denominator: [],
+                    },
+                    Product {
+                        numerator: [],
+                        denominator: [
+                            Element {
+                                sign: Positive,
+                                node_or_expression: Node(
+                                    Function {
+                                        name: "cos",
+                                        arguments: [
+                                            Element {
+                                                sign: Positive,
+                                                node_or_expression: Expression(
+                                                    Expression {
+                                                        products: [
+                                                            Product {
+                                                                numerator: [
+                                                                    Element {
+                                                                        sign: Positive,
+                                                                        node_or_expression: Node(
+                                                                            Number(
+                                                                                Int(
+                                                                                    1,
+                                                                                ),
+                                                                            ),
+                                                                        ),
+                                                                        is_number: true,
+                                                                    },
+                                                                ],
+                                                                denominator: [],
+                                                            },
+                                                            Product {
+                                                                numerator: [
+                                                                    Element {
+                                                                        sign: Positive,
+                                                                        node_or_expression: Node(
+                                                                            Variable(
+                                                                                "a",
+                                                                            ),
+                                                                        ),
+                                                                        is_number: false,
+                                                                    },
+                                                                ],
+                                                                denominator: [],
+                                                            },
+                                                        ],
+                                                    },
+                                                ),
+                                                is_number: false,
+                                            },
+                                        ],
+                                    },
+                                ),
+                                is_number: false,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ),
+        is_number: false,
+    },
+    info: ExpressionInfo {
+        variables: {
+            "x",
+            "a",
+        },
+        functions: {
+            "cos",
+        },
+    },
+    is_number: false,
+}
 
-error[E0412]: cannot find type `Product` in this scope
-  --> src\actions\strategies\simplify.rs:17:35
-   |
-17 | fn simplify_product(product: &mut Product) {}
-   |                                   ^^^^^^^ not found in this scope
-   |
-help: consider importing one of these items
-   |
-1  | use core::iter::Product;
-   |
-1  | use crate::ast::product::Product;
-   |
-1  | use itertools::Product;
-   |
-1  | use itertools::__std_iter::Product;
-   |
-     and 2 other candidates
-
-warning: unreachable expression
-  --> src\actions\match_expression.rs:28:9
-   |
-20 | /         match &instructions.node_or_expression {
-21 | |             NodeOrExpression::Node(node_instr) => match &self.node_or_expression {
-22 | |                 NodeOrExpression::Node(node_self) => todo!(),
-23 | |                 NodeOrExpression::Expression(expr_self) => todo!(),
-24 | |             },
-25 | |             NodeOrExpression::Expression(expr_instr) => todo!(),
-26 | |         }
-   | |_________- any code following this `match` expression is unreachable, as all arms diverge
-27 |
-28 |           BindResult::Ok
-   |           ^^^^^^^^^^^^^^ unreachable expression
-   |
-   = note: `#[warn(unreachable_code)]` on by default
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:21:19
-   |
-21 |         equation: simplify_equation,
-   |                   ^^^^^^^^^^^^^^^^^ expected struct `Box`, found fn item
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut Equation) + 'static)>`
-             found fn item `for<'r> fn(&'r mut Equation) {simplify_equation}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-21 |         equation: Box::new(simplify_equation),
-   |                   +++++++++                 +
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:22:27
-   |
-22 |         analyzed_element: simplify_analyzed_element,
-   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^ expected struct `Box`, found fn item
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut AnalyzedElement) + 'static)>`
-             found fn item `for<'r> fn(&'r mut [type error]) {simplify_analyzed_element}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-22 |         analyzed_element: Box::new(simplify_analyzed_element),
-   |                           +++++++++                         +
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:23:18
-   |
-23 |         element: simplify_element,
-   |                  ^^^^^^^^^^^^^^^^ expected struct `Box`, found fn item
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut Element) + 'static)>`
-             found fn item `for<'r> fn(&'r mut [type error]) {simplify_element}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-23 |         element: Box::new(simplify_element),
-   |                  +++++++++                +
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:24:29
-   |
-24 |         node_or_expression: simplify_node_or_expression,
-   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected struct `Box`, found fn item     
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut NodeOrExpression) + 'static)>`
-             found fn item `for<'r> fn(&'r mut [type error]) {simplify_node_or_expression}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-24 |         node_or_expression: Box::new(simplify_node_or_expression),
-   |                             +++++++++                           +
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:25:15
-   |
-25 |         node: simplify_node,
-   |               ^^^^^^^^^^^^^ expected struct `Box`, found fn item
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut Node) + 'static)>`
-             found fn item `for<'r> fn(&'r mut [type error]) {simplify_node}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-25 |         node: Box::new(simplify_node),
-   |               +++++++++             +
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:26:21
-   |
-26 |         expression: simplify_expression,
-   |                     ^^^^^^^^^^^^^^^^^^^ expected struct `Box`, found fn item
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut Expression) + 'static)>`
-             found fn item `for<'r> fn(&'r mut [type error]) {simplify_expression}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-26 |         expression: Box::new(simplify_expression),
-   |                     +++++++++                   +
-
-error[E0308]: mismatched types
-  --> src\actions\strategies\simplify.rs:27:18
-   |
-27 |         product: simplify_product,
-   |                  ^^^^^^^^^^^^^^^^ expected struct `Box`, found fn item
-   |
-   = note: expected struct `Box<(dyn for<'r> FnMut(&'r mut product::Product) + 'static)>`
-             found fn item `for<'r> fn(&'r mut [type error]) {simplify_product}`
-   = note: for more on the distinction between the stack and the heap, read https://doc.rust-lang.org/book/ch15-01-box.html, https://doc.rust-lang.org/rust-by-example/std/box.html, and https://doc.rust-lang.org/std/boxed/index.html
-help: store this in the heap by calling `Box::new`
-   |
-27 |         product: Box::new(simplify_product),
-   |                  +++++++++                +
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut Equation) + 'static)` doesn't implement `Debug`
-  --> src\actions\strategies\strategy.rs:11:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-10 | pub struct Strategy {
-11 |     pub equation: Box<dyn FnMut(&mut Equation) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut Equation) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut Equation) + 'static)` 
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut AnalyzedElement) + 'static)` doesn't implement `Debug`      
-  --> src\actions\strategies\strategy.rs:12:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-...
-12 |     pub analyzed_element: Box<dyn FnMut(&mut AnalyzedElement) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut AnalyzedElement) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`    
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut AnalyzedElement) + 'static)`
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut Element) + 'static)` doesn't implement `Debug`
-  --> src\actions\strategies\strategy.rs:13:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-...
-13 |     pub element: Box<dyn FnMut(&mut Element) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut Element) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut Element) + 'static)`  
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut NodeOrExpression) + 'static)` doesn't implement `Debug`     
-  --> src\actions\strategies\strategy.rs:14:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-...
-14 |     pub node_or_expression: Box<dyn FnMut(&mut NodeOrExpression) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut NodeOrExpression) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut NodeOrExpression) + 'static)`
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut Node) + 'static)` doesn't implement `Debug`
-  --> src\actions\strategies\strategy.rs:15:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-...
-15 |     pub node: Box<dyn FnMut(&mut Node) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut Node) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut Node) + 'static)`     
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut Expression) + 'static)` doesn't implement `Debug`
-  --> src\actions\strategies\strategy.rs:16:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-...
-16 |     pub expression: Box<dyn FnMut(&mut Expression) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut Expression) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut Expression) + 'static)`
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: `(dyn for<'r> FnMut(&'r mut product::Product) + 'static)` doesn't implement `Debug`
-  --> src\actions\strategies\strategy.rs:17:5
-   |
-9  | #[derive(Debug)]
-   |          ----- in this derive macro expansion
-...
-17 |     pub product: Box<dyn FnMut(&mut Product) -> ()>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn for<'r> FnMut(&'r mut product::Product) + 'static)` cannot be formatted using `{:?}` because it doesn't implement `Debug`
-   |
-   = help: the trait `Debug` is not implemented for `(dyn for<'r> FnMut(&'r mut product::Product) + 'static)`
-   = help: the following other types implement trait `Debug`:
-             (dyn Any + 'static)
-             (dyn Any + Send + 'static)
-             (dyn Any + Send + Sync + 'static)
-             (dyn tracing::Value + 'static)
-   = note: this error originates in the derive macro `Debug` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0369]: binary operation `==` cannot be applied to type `Vec<Strategy>`
-  --> src\ast\app.rs:17:5
-   |
-13 | #[derive(Debug, PartialEq)]
-   |                 --------- in this derive macro expansion
-...
-17 |     pub strategies: Vec<Strategy>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the derive macro `PartialEq` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0369]: binary operation `!=` cannot be applied to type `Vec<Strategy>`
-  --> src\ast\app.rs:17:5
-   |
-13 | #[derive(Debug, PartialEq)]
-   |                 --------- in this derive macro expansion
-...
-17 |     pub strategies: Vec<Strategy>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the derive macro `PartialEq` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-Some errors have detailed explanations: E0277, E0308, E0369, E0412.
-For more information about an error, try `rustc --explain E0277`.
-warning: `math-eval` (lib) generated 1 warning
-error: could not compile `math-eval` due to 22 previous errors; 1 warning emitted
+EXPR2:
+AnalyzedElement {
+    element: Element {
+        sign: Positive,
+        node_or_expression: Expression(
+            Expression {
+                products: [
+                    Product {
+                        numerator: [
+                            Element {
+                                sign: Positive,
+                                node_or_expression: Node(
+                                    Variable(
+                                        "a",
+                                    ),
+                                ),
+                                is_number: false,
+                            },
+                        ],
+                        denominator: [],
+                    },
+                    Product {
+                        numerator: [
+                            Element {
+                                sign: Positive,
+                                node_or_expression: Node(
+                                    Variable(
+                                        "x",
+                                    ),
+                                ),
+                                is_number: false,
+                            },
+                        ],
+                        denominator: [],
+                    },
+                    Product {
+                        numerator: [],
+                        denominator: [
+                            Element {
+                                sign: Positive,
+                                node_or_expression: Node(
+                                    Function {
+                                        name: "cos",
+                                        arguments: [
+                                            Element {
+                                                sign: Positive,
+                                                node_or_expression: Expression(
+                                                    Expression {
+                                                        products: [
+                                                            Product {
+                                                                numerator: [
+                                                                    Element {
+                                                                        sign: Positive,
+                                                                        node_or_expression: Node(
+                                                                            Variable(
+                                                                                "x",
+                                                                            ),
+                                                                        ),
+                                                                        is_number: false,
+                                                                    },
+                                                                ],
+                                                                denominator: [
+                                                                    Element {
+                                                                        sign: Positive,
+                                                                        node_or_expression: Node(
+                                                                            Function {
+                                                                                name: "cos",
+                                                                                arguments: [
+                                                                                    Element {
+                                                                                        sign: Positive,
+                                                                                        node_or_expression: Node(
+                                                                                            Number(
+                                                                                                Int(
+                                                                                                    1,
+                                                                                                ),
+                                                                                            ),
+                                                                                        ),
+                                                                                        is_number: true,
+                                                                                    },
+                                                                                ],
+                                                                            },
+                                                                        ),
+                                                                        is_number: false,
+                                                                    },
+                                                                ],
+                                                            },
+                                                        ],
+                                                    },
+                                                ),
+                                                is_number: false,
+                                            },
+                                        ],
+                                    },
+                                ),
+                                is_number: false,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ),
+        is_number: false,
+    },
+    info: ExpressionInfo {
+        variables: {
+            "x",
+            "a",
+        },
+        functions: {
+            "cos",
+        },
+    },
+    is_number: false,
+}

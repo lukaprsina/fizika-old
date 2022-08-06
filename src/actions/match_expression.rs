@@ -1,6 +1,5 @@
 use super::is_same::IsSame;
-use crate::ast::{Element, Node, NodeOrExpression};
-use crate::tokenizer::Number;
+use crate::ast::{product::Product, Element, Node, NodeOrExpression};
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum BindResult {
@@ -33,15 +32,32 @@ impl Match for Element {
                         BindResult::NotOk
                     }
                 }
+                NodeOrExpression::Expression(expr_self) => BindResult::NotOk,
+            },
+            NodeOrExpression::Expression(expr_instr) => match &self.node_or_expression {
+                NodeOrExpression::Node(node_self) => BindResult::NotOk,
                 NodeOrExpression::Expression(expr_self) => {
-                    // a
+                    for product_instr in expr_instr.products.iter() {
+                        for product_self in expr_self.products.iter() {
+                            let result = product_self.bind(product_instr);
+                        }
+                    }
                     BindResult::Ok
                 }
             },
-            NodeOrExpression::Expression(expr_instr) => {
-                // a
-                BindResult::Ok
-            }
         }
+    }
+}
+
+impl Match for Product {
+    type Instructions = Product;
+
+    fn bind(&self, instructions: &Self::Instructions) -> BindResult {
+        fn side(side_self: &Vec<Element>, side_instr: &Vec<Element>) {}
+
+        side(&self.numerator, &instructions.numerator);
+        side(&self.denominator, &instructions.denominator);
+
+        BindResult::Ok
     }
 }

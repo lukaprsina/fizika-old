@@ -1,4 +1,4 @@
-use crate::ast::{Equation, Expression, Node, Sign};
+use crate::ast::{analyzed_expression::AnalyzedElement, Equation, Expression, Node, Sign};
 use std::fmt::{Display, Write};
 
 use crate::ast::{
@@ -142,6 +142,12 @@ impl Display for Expression {
         }
 
         write!(f, "{}", result)
+    }
+}
+
+impl Display for AnalyzedElement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.element)
     }
 }
 

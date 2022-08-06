@@ -14,7 +14,6 @@ criterion = "0.3.6"
 getrandom = { version = "0.2.7", features = ["js"], optional = true }
 itertools = "0.10.3"
 lazy_static = "1.4.0"
-# math-eval_derive = { version = "0.1.0", path = "../math-eval_derive" }
 nom = "7.1.1"
 num-bigint = "0.4.3"
 ptree = "0.4.0"

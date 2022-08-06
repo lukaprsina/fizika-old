@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use thiserror::Error;
 
 use crate::{
@@ -234,7 +235,8 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
             Token::Function { name, num_of_args } => {
                 let num_of_args = num_of_args.expect("Expected a number of arguments");
 
-                let arguments = stack.drain(0..num_of_args).collect::<Vec<_>>();
+                let arguments = stack.drain(stack.len() - num_of_args..).collect_vec();
+
                 let function = Element::new(
                     Sign::Positive,
                     NodeOrExpression::Node(Node::Function { name, arguments }),
@@ -246,9 +248,8 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
         }
     }
 
-    // println!("{:?}", stack);
-
     assert!(stack.len() == 1);
+    // println!("{:#?}", stack.first().unwrap());
     Ok(stack.pop().unwrap())
 }
 
@@ -266,6 +267,8 @@ impl TryFrom<TokenizedString> for NoContextEquation {
     fn try_from(
         tokenized_string: TokenizedString,
     ) -> Result<NoContextEquation, TokensToEquationError> {
+        // println!("{tokenized_string:#?}");
+
         let mut sides: Vec<EquationSide> = Vec::new();
         let mut token_iter = tokenized_string.iter();
         let mut should_continue = true;
