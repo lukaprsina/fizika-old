@@ -15,6 +15,8 @@ fn copy_element_to_product(element: &Element, new_product: &mut Product, side_po
 
 impl Expression {
     pub fn flatten(&mut self) -> FlattenResult {
+        println!("{:#?}", self);
+
         let mut new_products: Vec<Product> = Vec::new();
 
         for product in self.products.iter_mut() {

@@ -60,8 +60,10 @@ impl App {
         ctx_uuid: Uuid,
         input: T,
     ) -> Result<Equation, CreateEquationError> {
-        let equation: NoContextEquation = input.try_into()?;
-        Ok(App::add_equation(Rc::clone(&app), ctx_uuid, equation))
+        let no_ctx_equation: NoContextEquation = input.try_into()?;
+        let equation = App::add_equation(Rc::clone(&app), ctx_uuid, no_ctx_equation);
+
+        Ok(equation)
     }
 
     pub fn add_equation<T: Into<NoContextEquation>>(
@@ -79,11 +81,8 @@ impl App {
                 let uuid = Uuid::new_v4();
 
                 let element = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
-                println!("{}", element);
                 let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
                 ctx.elements.insert(uuid, element);
-                let new = ctx.elements.get(&uuid).unwrap();
-                println!("{}", new);
 
                 uuids.push(uuid);
             }
