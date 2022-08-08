@@ -1,10 +1,7 @@
 use std::rc::Rc;
 
 use color_eyre::eyre::Result;
-use math_eval::{
-    actions::{is_same::IsSame, match_expression::Match},
-    ast::{app::App, context::Context, Equation},
-};
+use math_eval::ast::{app::App, context::Context};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -12,6 +9,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::TRACE)
+        .without_time()
         .finish();
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
@@ -26,18 +24,18 @@ fn main() -> Result<()> {
 
     // 4x + 4 + x^2 + 5
 
-    // let a = "(1 + a)/cos(x)";
-    let a = "2/a + b";
+    let a = "(2 + a)/cos(x)";
+    // let a = "2/a";
     // let b = "(1/cos(x) + a/cos(x))";
 
     let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
 
-    for (_, ctx) in app.borrow().contexts.iter() {
+    /* for (_, ctx) in app.borrow().contexts.iter() {
         for (_, elem) in ctx.elements.iter() {
             println!("\n{}\n{}", elem, "-".repeat(80));
         }
-    }
+    } */
 
     /* {
         let mut borrowed_app = app.borrow_mut();
@@ -57,7 +55,6 @@ fn main() -> Result<()> {
     // let expr2 = ctx.get_expression(*uuid2).unwrap();
     println!("EXPR1:\n{expr1}\n");
     // println!("EXPR2:\n{expr2}\n");
-    // println!("EXPR1:\n{expr1:#?}{expr1}\n\nEXPR2:\n{expr2:#?}{expr2}");
 
     // expr1.element.bind(&expr2.element);
 

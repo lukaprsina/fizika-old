@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use tracing::info;
 use uuid::Uuid;
 
 use crate::tokenizer::{parser::TokenizedString, Operation};
@@ -57,13 +58,16 @@ impl NoContextEquation {
 }
 
 impl Equation {
-    pub fn flatten(&mut self, context: &mut Context) {
-        for &mut uuid in self.uuids.iter_mut() {
-            let expression = context.get_expression_mut(uuid).unwrap();
-            if let NodeOrExpression::Expression(expression) =
-                &mut expression.element.node_or_expression
+    #[tracing::instrument(skip_all)]
+    pub fn flatten(self, context: &mut Context) {
+        for uuid in self.uuids.into_iter() {
+            let mut expression = context.elements.remove(&uuid).unwrap();
+
+            if let NodeOrExpression::Expression(expression) = expression.element.node_or_expression
             {
+                info!("Before flatten {:#?}", expression);
                 expression.flatten();
+                // info!("After flatten: {}", expression);
             }
         }
     }
