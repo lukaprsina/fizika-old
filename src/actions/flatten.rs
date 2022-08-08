@@ -3,12 +3,14 @@ use tracing::info;
 use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
 pub enum FlattenResult {
-    Monomial(Product),
+    Monomial,
     Polynomial,
 }
 
 impl Expression {
-    pub fn flatten(self) -> FlattenResult {
+    pub fn flatten(self) -> (Expression, FlattenResult) {
+        let new_expression = Expression { products: vec![] };
+
         for product in self.products.into_iter() {
             for (side_pos, side) in [product.numerator, product.denominator]
                 .into_iter()
@@ -25,7 +27,8 @@ impl Expression {
                 }
             }
         }
-        FlattenResult::Polynomial
+
+        (new_expression, FlattenResult::Polynomial)
     }
 }
 

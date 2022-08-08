@@ -3,12 +3,15 @@ use std::{cell::RefCell, rc::Rc};
 use tracing::info;
 use uuid::Uuid;
 
-use crate::tokenizer::{parser::TokenizedString, Operation};
+use crate::{
+    ast::analyzed_expression::{Analyze, AnalyzedElement, ExpressionInfo},
+    tokenizer::{parser::TokenizedString, Operation},
+};
 
 use super::{
     app::App,
     context::{Context, CreateEquationError},
-    Element, NodeOrExpression,
+    Element, NodeOrExpression, Sign,
 };
 
 #[derive(Debug, Clone)]
@@ -30,7 +33,7 @@ pub struct EquationSide {
 
 impl Equation {
     pub fn new(uuids: Vec<Uuid>, app: Rc<RefCell<App>>, ctx_uuid: Uuid) -> Self {
-        let mut equation = Equation {
+        let equation = Equation {
             uuids,
             app: Rc::clone(&app),
             context: ctx_uuid,
@@ -58,15 +61,34 @@ impl NoContextEquation {
 }
 
 impl Equation {
-    #[tracing::instrument(skip_all)]
-    pub fn flatten(self, context: &mut Context) {
-        for uuid in self.uuids.into_iter() {
-            let mut expression = context.elements.remove(&uuid).unwrap();
+    // #[tracing::instrument(skip_all)]
+    pub fn flatten(&self, context: &mut Context) {
+        for &uuid in self.uuids.iter() {
+            let analyzed_element = context.elements.remove(&uuid).unwrap();
 
-            if let NodeOrExpression::Expression(expression) = expression.element.node_or_expression
+            if let NodeOrExpression::Expression(expression) =
+                analyzed_element.element.node_or_expression
             {
                 info!("Before flatten {:#?}", expression);
-                expression.flatten();
+                let (mut a, _) = expression.flatten();
+
+                let mut info = ExpressionInfo::default();
+                let mut is_number = false;
+
+                a.analyze(context, &mut info, &mut is_number);
+
+                context.elements.insert(
+                    uuid,
+                    AnalyzedElement {
+                        element: Element {
+                            sign: Sign::Positive,
+                            node_or_expression: NodeOrExpression::Expression(a),
+                            is_number,
+                        },
+                        info,
+                        is_number,
+                    },
+                );
                 // info!("After flatten: {}", expression);
             }
         }
