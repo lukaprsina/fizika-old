@@ -69,27 +69,27 @@ impl Equation {
             if let NodeOrExpression::Expression(expression) =
                 analyzed_element.element.node_or_expression
             {
-                info!("Before flatten {:#?}", expression);
-                let (mut a, _) = expression.flatten();
+                info!("Before flatten {}", expression);
+                let (mut new_expr, _) = expression.flatten();
+                info!("After flatten: {}", new_expr);
 
                 let mut info = ExpressionInfo::default();
                 let mut is_number = false;
 
-                a.analyze(context, &mut info, &mut is_number);
+                new_expr.analyze(context, &mut info, &mut is_number);
 
                 context.elements.insert(
                     uuid,
                     AnalyzedElement {
                         element: Element {
                             sign: Sign::Positive,
-                            node_or_expression: NodeOrExpression::Expression(a),
+                            node_or_expression: NodeOrExpression::Expression(new_expr),
                             is_number,
                         },
                         info,
                         is_number,
                     },
                 );
-                // info!("After flatten: {}", expression);
             }
         }
     }

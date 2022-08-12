@@ -4,7 +4,6 @@ pub mod context;
 pub mod element;
 pub mod equation;
 pub mod expression;
-pub mod latex;
 pub mod node;
 pub mod product;
 pub mod token_to_element;

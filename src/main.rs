@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     // let a = "2/a";
     // let b = "(1/cos(x) + a/cos(x))";
 
-    let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
+    let _e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
 
     /* for (_, ctx) in app.borrow().contexts.iter() {
@@ -45,15 +45,15 @@ fn main() -> Result<()> {
     } */
 
     // println!("{}", Equation::is_same(&e1, &e2));
-    let uuid1 = e1.uuids.first().unwrap();
+    // let uuid1 = e1.uuids.first().unwrap();
     // let uuid2 = e2.uuids.first().unwrap();
 
-    let borrowed_app = app.borrow_mut();
-    let ctx = borrowed_app.get_context(ctx_uuid).unwrap();
+    // let borrowed_app = app.borrow_mut();
+    // let ctx = borrowed_app.get_context(ctx_uuid).unwrap();
 
-    let expr1 = ctx.get_expression(*uuid1).unwrap();
+    // let expr1 = ctx.get_expression(*uuid1).unwrap();
     // let expr2 = ctx.get_expression(*uuid2).unwrap();
-    println!("EXPR1:\n{expr1}\n");
+    // println!("EXPR1:\n{expr1}\n");
     // println!("EXPR2:\n{expr2}\n");
 
     // expr1.element.bind(&expr2.element);
