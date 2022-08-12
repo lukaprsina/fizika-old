@@ -5,19 +5,19 @@ use crate::ast::{
 
 use super::strategy::Strategy;
 
-fn simplify_equation(equation: &mut Equation) {}
+fn simplify_equation(_equation: &mut Equation) {}
 
-fn simplify_analyzed_element(analyzed_element: &mut AnalyzedElement) {}
+fn simplify_analyzed_element(_analyzed_element: &mut AnalyzedElement) {}
 
-fn simplify_element(element: &mut Element) {}
+fn simplify_element(_element: &mut Element) {}
 
-fn simplify_node_or_expression(node_or_expression: &mut NodeOrExpression) {}
+fn simplify_node_or_expression(_node_or_expression: &mut NodeOrExpression) {}
 
-fn simplify_node(node: &mut Node) {}
+fn simplify_node(_node: &mut Node) {}
 
-fn simplify_expression(expression: &mut Expression) {}
+fn simplify_expression(_expression: &mut Expression) {}
 
-fn simplify_product(product: &mut Product) {}
+fn simplify_product(_product: &mut Product) {}
 
 pub fn get_simplify() -> Strategy {
     Strategy {

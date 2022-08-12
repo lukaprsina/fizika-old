@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 use super::is_same::IsSame;
 use crate::ast::{product::Product, Element, Node, NodeOrExpression};
 

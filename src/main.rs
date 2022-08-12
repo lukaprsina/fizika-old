@@ -22,9 +22,9 @@ fn main() -> Result<()> {
 
     let ctx_uuid = app.borrow_mut().add_context(context);
 
-    // 4x + 4 + x^2 + 5
+    let a = "4x + 4 + x^2 + 5";
 
-    let a = "(2 + a)/cos(x)";
+    // let a = "(2 + a)/cos(x)";
     // let a = "2/a";
     // let b = "(1/cos(x) + a/cos(x))";
 
