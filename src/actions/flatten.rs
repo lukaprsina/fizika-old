@@ -29,22 +29,23 @@ impl Expression {
                 .into_iter()
                 .enumerate()
             {
-                let side_len = side.len();
+                let num_products_in_side = side.len();
 
                 for element in side.into_iter() {
                     match element.node_or_expression {
-                        NodeOrExpression::Expression(mut expression) => {
-                            // let new_expr = match_expression(expression, element.sign, side_len);
+                        NodeOrExpression::Expression(expression) => {
+                            let (mut new_expr, flatten_result) = expression.flatten();
+                            info!("Flatten result: {:?} -> {}", flatten_result, new_expr);
+
                             let create_new_element = match element.sign {
                                 Sign::Positive => {
-                                    // call recursively
-                                    if expression.products.len() == 1 {
-                                        let new = expression.products.remove(0);
+                                    if new_expr.products.len() == 1 {
+                                        let new = new_expr.products.remove(0);
                                         new_product.numerator.extend(new.numerator.into_iter());
                                         new_product.denominator.extend(new.denominator.into_iter());
-                                        true
-                                    } else {
                                         false
+                                    } else {
+                                        true
                                     }
                                 }
                                 Sign::Negative => true,
@@ -53,7 +54,7 @@ impl Expression {
                             if create_new_element {
                                 let new_elem = Element::new(
                                     element.sign,
-                                    NodeOrExpression::Expression(expression),
+                                    NodeOrExpression::Expression(new_expr),
                                 );
 
                                 move_element_to_product(new_elem, &mut new_product, side_pos)

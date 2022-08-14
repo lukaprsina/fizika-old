@@ -1,7 +1,5 @@
-use std::rc::Rc;
-
 use color_eyre::eyre::Result;
-use math_eval::ast::{app::App, context::Context};
+use math_eval::ast::app::App;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -16,19 +14,19 @@ fn main() -> Result<()> {
 
     info!("Started the logger crate");
 
-    let app = App::new()?;
+    let _app = App::new()?;
 
-    let context = Context::new(Rc::clone(&app));
+    // let context = Context::new(Rc::clone(&app));
 
-    let ctx_uuid = app.borrow_mut().add_context(context);
+    // let ctx_uuid = app.borrow_mut().add_context(context);
 
-    let a = "4x + 4 + x^2 + 5";
+    // let a = "4x + 4 + x^2 + 5";
 
     // let a = "(2 + a)/cos(x)";
     // let a = "2/a";
     // let b = "(1/cos(x) + a/cos(x))";
 
-    let _e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
+    // let _e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
 
     /* for (_, ctx) in app.borrow().contexts.iter() {

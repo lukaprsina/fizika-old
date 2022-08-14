@@ -1,8 +1,9 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
+use tracing::info;
 use uuid::Uuid;
 
-use crate::actions::strategies::strategy::Strategy;
+use crate::{actions::strategies::strategy::Strategy, tokenizer::parser::ParseError};
 
 use super::{
     context::{Context, CreateEquationError},
@@ -33,8 +34,32 @@ impl App {
             borrowed_app.formulas
         };
 
-        for line in include_str!("../../formulas.txt").lines() {
-            App::try_add_equation(Rc::clone(&app), ctx_uuid, line)?;
+        for line in include_str!("../../formulas.txt")
+            .lines()
+            .filter_map(|line| {
+                let new_line = line.trim();
+                if new_line.is_empty() {
+                    None
+                } else {
+                    Some(new_line)
+                }
+            })
+        {
+            info!("\n\nNew formula: {}", line);
+
+            if let Some(eq_err) = App::try_add_equation(Rc::clone(&app), ctx_uuid, line).err() {
+                let mut throw = true;
+
+                if let CreateEquationError::ParseError(parse_err) = &eq_err {
+                    if let ParseError::Empty = parse_err {
+                        throw = false;
+                    }
+                }
+
+                if throw {
+                    return Err(eq_err);
+                }
+            }
         }
 
         Ok(app)
