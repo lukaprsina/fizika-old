@@ -1,13 +1,13 @@
-(-1-2)-3    -> -1-2-3
+(-1-2)-3    -> -1-2-3       polynomial new_expr, expr.products == 1
 -(-1-2)-3
 
-(-1*(-2))-3 -> -1*(-2)-3
+(-1*(-2))-3 -> -1*(-2)-3    monomial new_expr, monomial current expr
 -(-1*(-2))-3
 
 (-1-2)*3
 -(-1-2)*3
 
-(-1*(-2))*3 -> -1*(-2)*3
+(-1*(-2))*3 -> -1*(-2)*3    monomial new_expr, monomial current expr
 -(-1*(-2))*3
 
 fn Expression.flatten() -> FlattenResult {

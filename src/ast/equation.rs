@@ -70,8 +70,10 @@ impl Equation {
                 analyzed_element.element.node_or_expression
             {
                 info!("Before flatten {}", expression);
-                let (mut new_expr, _) = expression.flatten();
+                // println!("{:#?}", expression);
+                let mut new_expr = expression.flatten();
                 info!("After flatten: {}", new_expr);
+                // println!("{:#?}", new_expr);
 
                 let mut info = ExpressionInfo::default();
                 let mut is_number = false;

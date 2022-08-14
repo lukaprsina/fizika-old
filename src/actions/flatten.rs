@@ -18,35 +18,76 @@ fn move_element_to_product(element: Element, new_product: &mut Product, side_pos
 
 impl Expression {
     #[tracing::instrument(skip_all)]
-    pub fn flatten(self) -> (Expression, FlattenResult) {
+    pub fn flatten(self) -> Expression {
         info!("Flatten: {}", self);
-        let mut new_expression = Expression::new(vec![]);
+
+        let mut result_expression = Expression::new(vec![]);
 
         for product in self.products.into_iter() {
-            let mut new_product = Product::new(vec![], vec![]);
+            // debug!("New product: {}", product);
+            let mut result_product = Product::new(vec![], vec![]);
 
             for (side_pos, side) in [product.numerator, product.denominator]
                 .into_iter()
                 .enumerate()
             {
-                let num_products_in_side = side.len();
+                // debug!("Side {}", side_pos);
+                // println!("{:#?}", side);
+                let num_elements_in_expr = side.len();
 
                 for element in side.into_iter() {
+                    // debug!("Element: {}", element);
                     match element.node_or_expression {
                         NodeOrExpression::Expression(expression) => {
-                            let (mut new_expr, flatten_result) = expression.flatten();
-                            info!("Flatten result: {:?} -> {}", flatten_result, new_expr);
+                            let mut new_expr = expression.flatten();
 
                             let create_new_element = match element.sign {
                                 Sign::Positive => {
-                                    if new_expr.products.len() == 1 {
+                                    match num_elements_in_expr {
+                                        1 => {
+                                            info!("num_elements_in_expr 1");
+                                            /* for product in new_expr.products.clone() {
+                                                result_product.numerator.extend(product.numerator);
+                                                result_product
+                                                    .denominator
+                                                    .extend(product.denominator);
+                                            } */
+
+                                            // println!("New expr:\n{}", new_expr);
+
+                                            result_expression
+                                                .products
+                                                .extend(new_expr.products.clone());
+                                            false
+                                        }
+                                        0 => unreachable!(),
+                                        _ => {
+                                            info!("num_elements_in_expr > 1");
+                                            if new_expr.products.len() == 1 {
+                                                let only_product = new_expr.products.remove(0);
+
+                                                result_product
+                                                    .numerator
+                                                    .extend(only_product.numerator);
+
+                                                result_product
+                                                    .denominator
+                                                    .extend(only_product.denominator);
+
+                                                false
+                                            } else {
+                                                true
+                                            }
+                                        }
+                                    }
+                                    /* if new_expr.products.len() == 1 {
                                         let new = new_expr.products.remove(0);
                                         new_product.numerator.extend(new.numerator.into_iter());
                                         new_product.denominator.extend(new.denominator.into_iter());
                                         false
                                     } else {
                                         true
-                                    }
+                                    } */
                                 }
                                 Sign::Negative => true,
                             };
@@ -57,26 +98,22 @@ impl Expression {
                                     NodeOrExpression::Expression(new_expr),
                                 );
 
-                                move_element_to_product(new_elem, &mut new_product, side_pos)
+                                move_element_to_product(new_elem, &mut result_product, side_pos)
                             }
                         }
                         NodeOrExpression::Node(_) => {
-                            move_element_to_product(element, &mut new_product, side_pos)
+                            move_element_to_product(element, &mut result_product, side_pos)
                         }
                     }
                 }
             }
 
-            new_expression.products.push(new_product);
+            if !result_product.numerator.is_empty() || !result_product.denominator.is_empty() {
+                result_expression.products.push(result_product);
+            }
         }
 
-        let flatten_result = if new_expression.products.len() == 1 {
-            FlattenResult::Monomial
-        } else {
-            FlattenResult::Polynomial
-        };
-
-        (new_expression, flatten_result)
+        result_expression
     }
 }
 
