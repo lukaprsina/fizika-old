@@ -19,7 +19,7 @@ fn move_element_to_product(element: Element, new_product: &mut Product, side_pos
 impl Expression {
     #[tracing::instrument(skip_all)]
     pub fn flatten(self) -> Expression {
-        info!("Flatten: {}", self);
+        // info!("Flatten: {}", self);
 
         let mut result_expression = Expression::new(vec![]);
 
@@ -27,13 +27,14 @@ impl Expression {
             // debug!("New product: {}", product);
             let mut result_product = Product::new(vec![], vec![]);
 
+            let is_surrounded = (product.numerator.len() + product.denominator.len()) >= 2;
+
             for (side_pos, side) in [product.numerator, product.denominator]
                 .into_iter()
                 .enumerate()
             {
                 // debug!("Side {}", side_pos);
                 // println!("{:#?}", side);
-                let num_elements_in_expr = side.len();
 
                 for element in side.into_iter() {
                     // debug!("Element: {}", element);
@@ -43,51 +44,27 @@ impl Expression {
 
                             let create_new_element = match element.sign {
                                 Sign::Positive => {
-                                    match num_elements_in_expr {
-                                        1 => {
-                                            info!("num_elements_in_expr 1");
-                                            /* for product in new_expr.products.clone() {
-                                                result_product.numerator.extend(product.numerator);
-                                                result_product
-                                                    .denominator
-                                                    .extend(product.denominator);
-                                            } */
+                                    if is_surrounded {
+                                        info!("num_elements_in_expr > 1");
+                                        if new_expr.products.len() == 1 {
+                                            let only_product = new_expr.products.remove(0);
 
-                                            // println!("New expr:\n{}", new_expr);
+                                            result_product.numerator.extend(only_product.numerator);
 
-                                            result_expression
-                                                .products
-                                                .extend(new_expr.products.clone());
+                                            result_product
+                                                .denominator
+                                                .extend(only_product.denominator);
+
                                             false
+                                        } else {
+                                            true
                                         }
-                                        0 => unreachable!(),
-                                        _ => {
-                                            info!("num_elements_in_expr > 1");
-                                            if new_expr.products.len() == 1 {
-                                                let only_product = new_expr.products.remove(0);
-
-                                                result_product
-                                                    .numerator
-                                                    .extend(only_product.numerator);
-
-                                                result_product
-                                                    .denominator
-                                                    .extend(only_product.denominator);
-
-                                                false
-                                            } else {
-                                                true
-                                            }
-                                        }
-                                    }
-                                    /* if new_expr.products.len() == 1 {
-                                        let new = new_expr.products.remove(0);
-                                        new_product.numerator.extend(new.numerator.into_iter());
-                                        new_product.denominator.extend(new.denominator.into_iter());
-                                        false
                                     } else {
-                                        true
-                                    } */
+                                        result_expression
+                                            .products
+                                            .extend(new_expr.products.clone());
+                                        false
+                                    }
                                 }
                                 Sign::Negative => true,
                             };
@@ -116,29 +93,3 @@ impl Expression {
         result_expression
     }
 }
-
-/* #[tracing::instrument(skip_all)]
-fn match_expression(expression: Expression, sign: Sign, side_len: usize) -> Expression {
-    let (mut new_expr, flatten_result) = expression.flatten();
-    info!("Flatten result: {:#?}", flatten_result);
-    info!("New expr: {}", new_expr);
-
-    match sign {
-        Sign::Positive => {
-            if new_expr.products.len() == 1 {
-                let first = new_expr.products.first_mut().unwrap();
-            }
-            /* match side_len {
-                0 => unreachable!(),
-                1 => (),
-                // > 1
-                _ => {
-
-                }
-            } */
-        }
-        Sign::Negative => (),
-    }
-
-    new_expr
-} */
