@@ -1,5 +1,3 @@
-use tracing::info;
-
 use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
 #[derive(Debug)]
@@ -45,7 +43,7 @@ impl Expression {
                             let create_new_element = match element.sign {
                                 Sign::Positive => {
                                     if is_surrounded {
-                                        info!("num_elements_in_expr > 1");
+                                        // info!("num_elements_in_expr > 1");
                                         if new_expr.products.len() == 1 {
                                             let only_product = new_expr.products.remove(0);
 

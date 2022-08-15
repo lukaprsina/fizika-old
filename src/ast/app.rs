@@ -1,6 +1,5 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
-use tracing::info;
 use uuid::Uuid;
 
 use crate::{actions::strategies::strategy::Strategy, tokenizer::parser::ParseError};
@@ -45,7 +44,7 @@ impl App {
                 }
             })
         {
-            info!("\n\nNew formula: {}", line);
+            // println!("\n\nNew formula: {}", line);
 
             if let Some(eq_err) = App::try_add_equation(Rc::clone(&app), ctx_uuid, line).err() {
                 let mut throw = true;

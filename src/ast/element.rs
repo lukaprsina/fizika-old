@@ -75,80 +75,63 @@ impl ShouldBeParenthesized for Element {
     }
 }
 
-impl Add for Element {
-    type Output = Element;
-    fn add(self, other: Element) -> Self::Output {
+impl Element {
+    pub fn simple_add(lhs: Element, rhs: Element) -> Element {
         let result = Expression::new(vec![
             Product {
-                numerator: vec![self],
+                numerator: vec![lhs],
                 denominator: vec![],
             },
             Product {
-                numerator: vec![other],
+                numerator: vec![rhs],
                 denominator: vec![],
             },
         ]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
-}
 
-impl Sub for Element {
-    type Output = Element;
-    fn sub(self, mut other: Element) -> Self::Output {
-        other.invert_sign();
+    pub fn simple_sub(lhs: Element, mut rhs: Element) -> Element {
+        rhs.invert_sign();
         let result = Expression::new(vec![
             Product {
-                numerator: vec![self],
+                numerator: vec![lhs],
                 denominator: vec![],
             },
             Product {
-                numerator: vec![other],
+                numerator: vec![rhs],
                 denominator: vec![],
             },
         ]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
-}
 
-impl Mul for Element {
-    type Output = Element;
-    fn mul(self, other: Element) -> Self::Output {
+    pub fn simple_mul(lhs: Element, rhs: Element) -> Element {
         let result = Expression::new(vec![Product {
-            numerator: vec![self, other],
+            numerator: vec![lhs, rhs],
             denominator: vec![],
         }]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
-}
 
-impl Div for Element {
-    type Output = Element;
-    fn div(self, other: Element) -> Self::Output {
+    pub fn simple_div(lhs: Element, rhs: Element) -> Element {
         let result = Expression::new(vec![Product {
-            numerator: vec![self],
-            denominator: vec![other],
+            numerator: vec![lhs],
+            denominator: vec![rhs],
         }]);
 
         Element::new(Sign::Positive, NodeOrExpression::Expression(result))
     }
-}
 
-impl Neg for Element {
-    type Output = Element;
-    fn neg(mut self) -> Self::Output {
+    pub fn simple_neg(mut self) -> Element {
         self.invert_sign();
         self
     }
-}
 
-impl Mul<Sign> for Element {
-    type Output = Element;
-
-    fn mul(mut self, rhs: Sign) -> Self::Output {
-        self.sign = self.sign * rhs;
+    pub fn simple_mul_sign(mut self, sign: Sign) -> Element {
+        self.sign = self.sign * sign;
         self
     }
 }

@@ -204,10 +204,10 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
                 let left = stack.pop().expect("Expected a token in the stack");
 
                 let result = match operation {
-                    Operation::Add => left + right,
-                    Operation::Subtract => left - right,
-                    Operation::Multiply => left * right,
-                    Operation::Divide => left / right,
+                    Operation::Add => Element::simple_add(left, right),
+                    Operation::Subtract => Element::simple_sub(left, right),
+                    Operation::Multiply => Element::simple_mul(left, right),
+                    Operation::Divide => Element::simple_div(left, right),
                     Operation::Mod => Element::new(
                         Sign::Positive,
                         NodeOrExpression::Node(Node::Modulo {
