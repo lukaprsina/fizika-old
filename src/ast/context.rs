@@ -33,11 +33,11 @@ impl Context {
         }
     }
 
-    pub fn get_expression(&self, uuid: Uuid) -> Option<&AnalyzedElement> {
+    pub fn get_element(&self, uuid: Uuid) -> Option<&AnalyzedElement> {
         self.elements.get(&uuid)
     }
 
-    pub fn get_expression_mut(&mut self, uuid: Uuid) -> Option<&mut AnalyzedElement> {
+    pub fn get_element_mut(&mut self, uuid: Uuid) -> Option<&mut AnalyzedElement> {
         self.elements.get_mut(&uuid)
     }
 

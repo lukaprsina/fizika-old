@@ -1,16 +1,29 @@
 use std::ops::Mul;
 
+use itertools::Itertools;
+
 use crate::ast::{product::Product, Element, Expression, Node, NodeOrExpression, Sign};
 
 impl Expression {
     pub fn expand(&mut self) {
         for product in self.products.iter_mut() {
-            let new_element = Element::new(
+            let mut new_element = Element::new(
                 Sign::Positive,
                 NodeOrExpression::Expression(Expression::new(vec![])),
             );
 
-            for side in [&product.numerator, &product.denominator] {}
+            let mut new_product = Product::new(vec![], vec![]);
+            for side in [&mut product.numerator, &mut product.denominator] {
+                let mut last_element: Option<&mut Element> = None;
+
+                for element in side {
+                    if let Some(last) = last_element {
+                        element.clone() * last.clone();
+                    }
+
+                    last_element = Some(element);
+                }
+            }
         }
     }
 }
@@ -48,16 +61,25 @@ impl Mul for Element {
                 }
                 // (7/a + 2) * (ab - 3)
                 NodeOrExpression::Expression(rhs_expr) => {
-                    for lhs_product in lhs_expr.products.iter_mut() {
-                        for rhs_product in rhs_expr.products.iter_mut() {
-                            lhs_product.numerator.extend(rhs_product.numerator.clone());
-                            lhs_product
+                    let mut new_expr = Expression::new(vec![]);
+
+                    for rhs_product in rhs_expr.products.iter_mut() {
+                        for lhs_product in lhs_expr.products.iter_mut() {
+                            let mut new_product = Product::new(
+                                lhs_product.numerator.clone(),
+                                lhs_product.denominator.clone(),
+                            );
+
+                            new_product.numerator.extend(rhs_product.numerator.clone());
+                            new_product
                                 .denominator
                                 .extend(rhs_product.denominator.clone());
+
+                            new_expr.products.push(new_product);
                         }
                     }
 
-                    lhs
+                    Element::new(Sign::Positive, NodeOrExpression::Expression(new_expr))
                 }
             },
         }

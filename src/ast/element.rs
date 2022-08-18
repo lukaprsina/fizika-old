@@ -1,5 +1,5 @@
 use super::{product::Product, Expression, Node};
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::Mul;
 
 pub(crate) trait ShouldBeParenthesized {
     fn should_be_parenthesized(&self) -> bool;

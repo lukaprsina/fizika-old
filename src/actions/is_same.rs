@@ -43,8 +43,8 @@ impl IsSame for Equation {
         let contex = borrowed_app.get_context(lhs.context).unwrap();
 
         for (left_uuid, right_uuid) in lhs.uuids.iter().zip(&rhs.uuids) {
-            let a = contex.get_expression(*left_uuid).unwrap();
-            let b = contex.get_expression(*right_uuid).unwrap();
+            let a = contex.get_element(*left_uuid).unwrap();
+            let b = contex.get_element(*right_uuid).unwrap();
             let are_same = AnalyzedElement::is_same(a, b);
             result &= are_same;
             if !result {

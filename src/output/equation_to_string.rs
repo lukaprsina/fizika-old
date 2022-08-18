@@ -28,7 +28,7 @@ impl Display for Equation {
             let analyzed_element = app
                 .get_context(self.context)
                 .unwrap()
-                .get_expression(uuid)
+                .get_element(uuid)
                 .expect("The UUID must be valid");
 
             if pos < self.uuids.len() - 1 {

@@ -1,6 +1,5 @@
 use std::{cell::RefCell, rc::Rc};
 
-use tracing::info;
 use uuid::Uuid;
 
 use crate::{
@@ -39,10 +38,14 @@ impl Equation {
             context: ctx_uuid,
         };
 
-        let mut borrowed_app = app.borrow_mut();
-        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+        // info!("{}", equation);
+        {
+            let mut borrowed_app = app.borrow_mut();
+            let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
-        equation.flatten(context);
+            equation.flatten(context);
+        }
+        // info!("{}", equation);
 
         equation
     }
@@ -92,6 +95,8 @@ impl Equation {
                         is_number,
                     },
                 );
+            } else {
+                context.elements.insert(uuid, analyzed_element);
             }
         }
     }
