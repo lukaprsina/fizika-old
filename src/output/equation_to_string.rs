@@ -162,6 +162,11 @@ impl Display for Product {
         for (pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             last = None;
 
+            let open = side.len() >= 2;
+            if open {
+                result.push('(');
+            }
+
             for (pos, element) in side.iter().enumerate() {
                 let explicit_minus = pos > 0 && element.sign == Sign::Negative;
                 let product_open = element.should_be_parenthesized() || explicit_minus;
@@ -187,6 +192,10 @@ impl Display for Product {
                 }
 
                 last = Some(element);
+            }
+
+            if open {
+                result.push(')');
             }
 
             if pos == 0 && !self.denominator.is_empty() {

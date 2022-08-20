@@ -11,55 +11,22 @@ impl Expression {
             // 7 * a * (2 - a) / 2 * (b + 4) * 4
             for side in [&mut product.numerator, &mut product.denominator] {
                 let mut last_element: Option<Element> = None;
-                let mut new_side: Vec<Element> = vec![];
-                let mut nodes: Vec<Element> = vec![];
-                let mut has_expression = false;
 
-                for mut element in side.clone() {
-                    let is_node = match &mut element.node_or_expression {
-                        NodeOrExpression::Node(_) => {
-                            nodes.push(element.clone());
-                            true
-                        }
-                        NodeOrExpression::Expression(expression) => {
-                            has_expression = true;
-                            expression.expand();
-                            info!("Expanded: {}", element);
-                            false
-                        }
-                    };
-
-                    let new_element = match last_element {
-                        Some(last) => element * last,
-                        None => element,
-                    };
-
-                    last_element = Some(new_element.clone());
-
-                    info!("Multiplied: {}\n", new_element);
-
-                    if !is_node {
-                        new_side.push(new_element);
+                for element in side {
+                    match &mut element.node_or_expression {
+                        NodeOrExpression::Node(_) => (), //nodes.push(node),
+                        NodeOrExpression::Expression(expression) => expression.expand(),
                     }
+
+                    last_element = if let Some(last) = last_element {
+                        Some(element.clone() * last.clone())
+                    } else {
+                        Some(element.clone())
+                    };
+
+                    *element = last_element.clone().unwrap();
+                    info!("{}", element);
                 }
-
-                info!("Has expression?: {}", has_expression);
-                for node in nodes.iter() {
-                    info!("Node: {}", node);
-                }
-
-                side.clear();
-
-                if !has_expression {
-                    side.append(&mut nodes);
-                }
-
-                side.append(&mut new_side);
-                for element in side.iter() {
-                    info!("Element: {}", element);
-                }
-
-                println!("\n\n");
             }
         }
     }

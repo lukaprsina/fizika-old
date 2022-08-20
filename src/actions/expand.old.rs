@@ -6,62 +6,67 @@ use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
 impl Expression {
     // TODO: own self
-    pub fn expand(&mut self) {
-        for product in self.products.iter_mut() {
+    pub fn expand(self) -> Expression {
+        let mut new_expression = Expression::new(vec![]);
+
+        for product in self.products {
             // 7 * a * (2 - a) / 2 * (b + 4) * 4
-            for side in [&mut product.numerator, &mut product.denominator] {
+            let mut new_product = Product::new(vec![], vec![]);
+
+            for (side_pos, side) in [product.numerator, product.denominator]
+                .into_iter()
+                .enumerate()
+            {
+                let mut new_side = vec![];
                 let mut last_element: Option<Element> = None;
-                let mut new_side: Vec<Element> = vec![];
-                let mut nodes: Vec<Element> = vec![];
-                let mut has_expression = false;
 
-                for mut element in side.clone() {
-                    let is_node = match &mut element.node_or_expression {
-                        NodeOrExpression::Node(_) => {
-                            nodes.push(element.clone());
-                            true
-                        }
-                        NodeOrExpression::Expression(expression) => {
-                            has_expression = true;
-                            expression.expand();
-                            info!("Expanded: {}", element);
-                            false
-                        }
-                    };
-
-                    let new_element = match last_element {
-                        Some(last) => element * last,
-                        None => element,
-                    };
-
-                    last_element = Some(new_element.clone());
-
-                    info!("Multiplied: {}\n", new_element);
-
-                    if !is_node {
-                        new_side.push(new_element);
-                    }
-                }
-
-                info!("Has expression?: {}", has_expression);
-                for node in nodes.iter() {
-                    info!("Node: {}", node);
-                }
-
-                side.clear();
-
-                if !has_expression {
-                    side.append(&mut nodes);
-                }
-
-                side.append(&mut new_side);
-                for element in side.iter() {
+                for element in side {
                     info!("Element: {}", element);
+
+                    let expanded_expr = match element.node_or_expression.clone() {
+                        // TODO: expand node fields
+                        NodeOrExpression::Node(_) => None,
+                        NodeOrExpression::Expression(expression) => {
+                            let expanded_expr = expression.expand();
+                            info!("Expr: {}", expanded_expr);
+                            Some(expanded_expr)
+                        }
+                    };
+
+                    match expanded_expr {
+                        Some(expr) => {
+                            let new_element =
+                                Element::new(element.sign, NodeOrExpression::Expression(expr));
+
+                            last_element = if let Some(last) = last_element.clone() {
+                                Some(new_element * last)
+                            } else {
+                                Some(new_element)
+                            };
+                        }
+                        None => {
+                            last_element = Some(element.clone());
+                        }
+                    }
+
+                    match last_element.clone() {
+                        Some(last_expr) => new_side.push(last_expr),
+                        None => new_side.push(element),
+                    }
+                    // new_side.push(last_element.clone().unwrap());
                 }
 
-                println!("\n\n");
+                match side_pos {
+                    0 => new_product.numerator = new_side,
+                    1 => new_product.denominator = new_side,
+                    _ => (),
+                }
             }
+
+            new_expression.products.push(new_product);
         }
+
+        new_expression
     }
 }
 

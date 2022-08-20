@@ -1,6 +1,5 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
-use tracing::info;
 use uuid::Uuid;
 
 use crate::{actions::strategies::strategy::Strategy, tokenizer::parser::ParseError};
@@ -87,10 +86,10 @@ impl App {
     ) -> Result<Equation, CreateEquationError> {
         let no_ctx_equation: NoContextEquation = input.try_into()?;
 
-        no_ctx_equation
-            .sides
-            .iter()
-            .for_each(|side| info!("{}", side.element));
+        /* no_ctx_equation
+        .sides
+        .iter()
+        .for_each(|side| info!("{}", side.element)); */
 
         let equation = App::add_equation(Rc::clone(&app), ctx_uuid, no_ctx_equation);
 
