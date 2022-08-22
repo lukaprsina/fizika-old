@@ -23,6 +23,7 @@ pub enum TokenParseError {
     TooManyOperands,
 }
 
+#[tracing::instrument(skip_all)]
 fn tokens_to_rpn<'a, I>(
     iterator: &mut I,
 ) -> Result<(Vec<Token>, Option<Operation>), TokenParseError>
@@ -249,7 +250,7 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
     }
 
     assert!(stack.len() == 1);
-    // println!("{:#?}", stack.first().unwrap());
+
     Ok(stack.pop().unwrap())
 }
 
@@ -272,6 +273,7 @@ impl TryFrom<TokenizedString> for NoContextEquation {
         let mut sides: Vec<EquationSide> = Vec::new();
         let mut token_iter = tokenized_string.iter();
         let mut should_continue = true;
+
         while should_continue {
             let result = tokens_to_rpn(&mut token_iter);
 
@@ -284,6 +286,7 @@ impl TryFrom<TokenizedString> for NoContextEquation {
                 }
             }
         }
+
         Ok(NoContextEquation { sides })
     }
 }

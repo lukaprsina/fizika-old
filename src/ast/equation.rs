@@ -45,7 +45,7 @@ impl Equation {
 
             equation.flatten(context);
         }
-        // info!("{}", equation);
+        // println!("{:#?}", equation);
 
         equation
     }
@@ -75,6 +75,9 @@ impl Equation {
                 // info!("Before flatten {}", expression);
                 // println!("{:#?}", expression);
                 let mut new_expr = expression.flatten();
+
+                // TODO: after remove analyzed element fix this sign
+                if analyzed_element.element.sign == Sign::Negative {}
                 // info!("After flatten: {}", new_expr);
                 // println!("{:#?}", new_expr);
 

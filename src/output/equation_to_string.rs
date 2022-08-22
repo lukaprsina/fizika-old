@@ -159,7 +159,7 @@ impl Display for Product {
 
         let mut last: Option<&Element>;
 
-        for (pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
+        for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             last = None;
 
             let open = side.len() >= 2;
@@ -167,8 +167,9 @@ impl Display for Product {
                 result.push('(');
             }
 
-            for (pos, element) in side.iter().enumerate() {
-                let explicit_minus = pos > 0 && element.sign == Sign::Negative;
+            for element in side.iter() {
+                let explicit_minus = side_pos > 0 && element.sign == Sign::Negative;
+
                 let product_open = element.should_be_parenthesized() || explicit_minus;
 
                 if let Some(last) = last {
@@ -198,7 +199,7 @@ impl Display for Product {
                 result.push(')');
             }
 
-            if pos == 0 && !self.denominator.is_empty() {
+            if side_pos == 0 && !self.denominator.is_empty() {
                 result += "/";
             }
         }

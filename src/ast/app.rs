@@ -89,7 +89,7 @@ impl App {
         /* no_ctx_equation
         .sides
         .iter()
-        .for_each(|side| info!("{}", side.element)); */
+        .for_each(|side| println!("{:#?}", side.element)); */
 
         let equation = App::add_equation(Rc::clone(&app), ctx_uuid, no_ctx_equation);
 
@@ -111,10 +111,9 @@ impl App {
                 // info!("{}", side.element);
                 let uuid = Uuid::new_v4();
 
-                let element = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
-                // info!("{}", element.element);
+                let analyzed_elem = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
                 let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-                ctx.elements.insert(uuid, element);
+                ctx.elements.insert(uuid, analyzed_elem);
 
                 uuids.push(uuid);
             }

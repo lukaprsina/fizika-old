@@ -30,7 +30,8 @@ fn main() -> Result<()> {
     // let b = "(1/cos(x) + a/cos(x))";
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
-    let a = "2(3 - 4)/5";
+    // let a = "-(2/-3)"; TODO: leading minus is ignored, observe debug
+    let a = "-(2*3)";
 
     let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
@@ -45,11 +46,14 @@ fn main() -> Result<()> {
         let expr1 = ctx.elements.remove(uuid1).unwrap();
         // let expr2 = ctx.get_element(*uuid2).unwrap();
 
+        // println!("{}", expr1.element);
+        // println!("{:#?}", expr1.element);
+
         // println!("EXPR2:\n{expr2}\n");
-        println!("EXPR1:\n{expr1}\n");
-        if let NodeOrExpression::Expression(mut expr) = expr1.element.node_or_expression {
-            expr.expand();
-            println!("Expanded:\n{expr}\n");
+        // println!("EXPR1:\n{expr1}\n");
+        if let NodeOrExpression::Expression(_) = expr1.element.node_or_expression {
+            // expr.expand();
+            // println!("Expanded:\n{expr:#?}\n");
         }
     }
 

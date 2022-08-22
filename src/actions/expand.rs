@@ -1,11 +1,11 @@
 use std::ops::{Div, Mul};
 
-use tracing::info;
-
 use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
 impl Expression {
     pub fn expand(&mut self) {
+        // info!("\nExpand: {}", self);
+
         let mut has_expression = false;
         for product in self.products.iter_mut() {
             for side in [&mut product.numerator, &mut product.denominator] {
@@ -18,11 +18,12 @@ impl Expression {
             }
         }
 
-        info!("Element {}: {}", self, has_expression);
+        // info!("Element {}: {}", self, has_expression);
 
         if has_expression {
+            let mut new_expression = Expression::new(vec![]);
+
             for product in self.products.iter_mut() {
-                let mut new_expression = Expression::new(vec![]);
                 let mut last_element: Option<Element> = None;
 
                 for (side_pos, side) in [&mut product.numerator, &mut product.denominator]
@@ -42,7 +43,16 @@ impl Expression {
                         last_element = Some(new_element);
                     }
                 }
+
+                if let Some(element) = last_element {
+                    // info!("Last element: {}, product: {}", element, product);
+                    new_expression
+                        .products
+                        .push(Product::new(vec![element], vec![]))
+                }
             }
+
+            self.products = new_expression.products;
         }
     }
 }
