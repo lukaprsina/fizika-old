@@ -15,7 +15,7 @@ fn main() -> Result<()> {
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
-    info!("Started the logger crate");
+    // info!("Started the logger crate");
 
     let app = App::new()?;
 

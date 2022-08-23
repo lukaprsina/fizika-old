@@ -52,7 +52,7 @@ impl Expression {
                 }
             }
 
-            self.products = new_expression.products;
+            *self = new_expression;
         }
     }
 }
