@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use uuid::Uuid;
 
 use crate::{
-    ast::analyzed_expression::{Analyze, AnalyzedElement, ExpressionInfo},
+    ast::analyzed_expression::{Analyze, ExpressionInfo},
     tokenizer::{parser::TokenizedString, Operation},
 };
 
@@ -69,7 +69,8 @@ impl Equation {
         for &uuid in self.uuids.iter() {
             let analyzed_element = context.elements.remove(&uuid).unwrap();
 
-            if let NodeOrExpression::Expression(expression) =
+            // ANATODO
+            /* if let NodeOrExpression::Expression(expression) =
                 analyzed_element.element.node_or_expression
             {
                 // info!("Before flatten {}", expression);
@@ -86,21 +87,18 @@ impl Equation {
 
                 new_expr.analyze(context, &mut info, &mut is_number);
 
+                // ANATODO
                 context.elements.insert(
                     uuid,
-                    AnalyzedElement {
-                        element: Element {
-                            sign: Sign::Positive,
-                            node_or_expression: NodeOrExpression::Expression(new_expr),
-                            is_number,
-                        },
-                        info,
+                    Element {
+                        sign: Sign::Positive,
+                        node_or_expression: NodeOrExpression::Expression(new_expr),
                         is_number,
                     },
                 );
             } else {
                 context.elements.insert(uuid, analyzed_element);
-            }
+            } */
         }
     }
 }

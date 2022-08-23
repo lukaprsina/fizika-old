@@ -1,13 +1,8 @@
-use crate::ast::{
-    analyzed_expression::AnalyzedElement, product::Product, Element, Equation, Expression, Node,
-    NodeOrExpression,
-};
+use crate::ast::{product::Product, Element, Equation, Expression, Node, NodeOrExpression};
 
 use super::strategy::Strategy;
 
 fn simplify_equation(_equation: &mut Equation) {}
-
-fn simplify_analyzed_element(_analyzed_element: &mut AnalyzedElement) {}
 
 fn simplify_element(_element: &mut Element) {}
 
@@ -22,7 +17,6 @@ fn simplify_product(_product: &mut Product) {}
 pub fn get_simplify() -> Strategy {
     Strategy {
         equation: Box::new(simplify_equation),
-        analyzed_element: Box::new(simplify_analyzed_element),
         element: Box::new(simplify_element),
         node_or_expression: Box::new(simplify_node_or_expression),
         node: Box::new(simplify_node),

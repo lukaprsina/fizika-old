@@ -1,4 +1,4 @@
-use crate::ast::{analyzed_expression::AnalyzedElement, Equation};
+use crate::ast::Equation;
 
 pub trait Simplify {
     fn simplify(&mut self);
@@ -12,11 +12,5 @@ impl Simplify for Equation {
         for uuid in self.uuids.iter() {
             let _analyzed_element = context.get_element_mut(*uuid).unwrap();
         }
-    }
-}
-
-impl Simplify for AnalyzedElement {
-    fn simplify(&mut self) {
-        todo!()
     }
 }

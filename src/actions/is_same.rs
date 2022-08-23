@@ -1,7 +1,4 @@
-use crate::ast::{
-    analyzed_expression::AnalyzedElement, product::Product, Element, Equation, Expression, Node,
-    NodeOrExpression,
-};
+use crate::ast::{product::Product, Element, Equation, Expression, Node, NodeOrExpression};
 
 pub trait IsSame {
     fn is_same(lhs: &Self, rhs: &Self) -> bool;
@@ -45,19 +42,15 @@ impl IsSame for Equation {
         for (left_uuid, right_uuid) in lhs.uuids.iter().zip(&rhs.uuids) {
             let a = contex.get_element(*left_uuid).unwrap();
             let b = contex.get_element(*right_uuid).unwrap();
-            let are_same = AnalyzedElement::is_same(a, b);
+
+            // ANATODO
+            /* let are_same = AnalyzedElement::is_same(a, b);
             result &= are_same;
             if !result {
                 break;
-            }
+            } */
         }
         result
-    }
-}
-
-impl IsSame for AnalyzedElement {
-    fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        Element::is_same(&lhs.element, &rhs.element)
     }
 }
 

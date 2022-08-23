@@ -1,4 +1,4 @@
-use crate::ast::{analyzed_expression::AnalyzedElement, Equation, Expression, Node, Sign};
+use crate::ast::{Equation, Expression, Node, Sign};
 use std::fmt::{Display, Write};
 
 use crate::ast::{
@@ -25,7 +25,8 @@ impl Display for Equation {
         let app = self.app.borrow();
 
         for (pos, &uuid) in self.uuids.iter().enumerate() {
-            let analyzed_element = app
+            // ANATODO
+            /* let analyzed_element = app
                 .get_context(self.context)
                 .unwrap()
                 .get_element(uuid)
@@ -35,7 +36,7 @@ impl Display for Equation {
                 write!(result, "{} = ", analyzed_element.element).unwrap()
             } else {
                 write!(result, "{}", analyzed_element.element).unwrap()
-            }
+            } */
         }
 
         write!(f, "{}", result)
@@ -142,12 +143,6 @@ impl Display for Expression {
         }
 
         write!(f, "{}", result)
-    }
-}
-
-impl Display for AnalyzedElement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.element)
     }
 }
 

@@ -43,18 +43,7 @@ fn main() -> Result<()> {
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
-        let expr1 = ctx.elements.remove(uuid1).unwrap();
-        // let expr2 = ctx.get_element(*uuid2).unwrap();
-
-        // println!("{}", expr1.element);
-        // println!("{:#?}", expr1.element);
-
-        // println!("EXPR2:\n{expr2}\n");
-        // println!("EXPR1:\n{expr1}\n");
-        if let NodeOrExpression::Expression(_) = expr1.element.node_or_expression {
-            // expr.expand();
-            // println!("Expanded:\n{expr:#?}\n");
-        }
+        let _expr1 = ctx.elements.remove(uuid1).unwrap();
     }
 
     Ok(())

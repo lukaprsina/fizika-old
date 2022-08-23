@@ -111,9 +111,10 @@ impl App {
                 // info!("{}", side.element);
                 let uuid = Uuid::new_v4();
 
-                let analyzed_elem = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
+                // ANATODO
+                // let analyzed_elem = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
                 let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-                ctx.elements.insert(uuid, analyzed_elem);
+                // ctx.elements.insert(uuid, analyzed_elem);
 
                 uuids.push(uuid);
             }

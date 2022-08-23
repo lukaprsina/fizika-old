@@ -3,14 +3,14 @@ use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 use thiserror::Error;
 use uuid::Uuid;
 
-use crate::{ast::analyzed_expression::AnalyzedElement, tokenizer::parser::ParseError};
+use crate::tokenizer::parser::ParseError;
 
-use super::{app::App, token_to_element::TokensToEquationError, Equation};
+use super::{app::App, token_to_element::TokensToEquationError, Element, Equation};
 
 #[derive(Debug, Clone)]
 pub struct Context {
     pub app: Rc<RefCell<App>>,
-    pub elements: HashMap<Uuid, AnalyzedElement>,
+    pub elements: HashMap<Uuid, Element>,
     pub equations: HashMap<Uuid, Equation>,
     pub uuid: Uuid,
 }
@@ -33,11 +33,11 @@ impl Context {
         }
     }
 
-    pub fn get_element(&self, uuid: Uuid) -> Option<&AnalyzedElement> {
+    pub fn get_element(&self, uuid: Uuid) -> Option<&Element> {
         self.elements.get(&uuid)
     }
 
-    pub fn get_element_mut(&mut self, uuid: Uuid) -> Option<&mut AnalyzedElement> {
+    pub fn get_element_mut(&mut self, uuid: Uuid) -> Option<&mut Element> {
         self.elements.get_mut(&uuid)
     }
 

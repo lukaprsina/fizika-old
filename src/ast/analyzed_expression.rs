@@ -5,14 +5,14 @@ use super::{
     NodeOrExpression,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+/* #[derive(Debug, Clone, PartialEq)]
 pub struct AnalyzedElement {
     pub element: Element,
     pub info: ExpressionInfo,
     pub is_number: bool,
-}
+} */
 
-impl EquationSide {
+/* impl EquationSide {
     // TODO: ignores operations
     pub fn analyze(mut self, context: &Context) -> AnalyzedElement {
         let mut info = ExpressionInfo::default();
@@ -28,7 +28,7 @@ impl EquationSide {
             is_number,
         }
     }
-}
+} */
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ExpressionInfo {
