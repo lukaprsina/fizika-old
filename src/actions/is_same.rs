@@ -31,13 +31,13 @@ impl<T: PartialOrd + Clone + IsSame> IsSame for Vec<T> {
 
 impl IsSame for Equation {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        if lhs.sides.len() != rhs.sides.len() {
+        if lhs.eq_sides.len() != rhs.eq_sides.len() {
             return false;
         }
         // TODO: not true
         let mut result = true;
 
-        for (left, right) in lhs.sides.iter().zip(&rhs.sides) {
+        for (left, right) in lhs.eq_sides.iter().zip(&rhs.eq_sides) {
             result &= Element::is_same(left, right);
             if !result {
                 break;

@@ -83,7 +83,7 @@ impl App {
         app: Rc<RefCell<App>>,
         ctx_uuid: Uuid,
         input: T,
-    ) -> Result<Equation, CreateEquationError> {
+    ) -> Result<Uuid, CreateEquationError> {
         let no_ctx_equation: NoContextEquation = input.try_into()?;
 
         /* no_ctx_equation
@@ -100,17 +100,23 @@ impl App {
         app: Rc<RefCell<App>>,
         ctx_uuid: Uuid,
         input: T,
-    ) -> Equation {
-        let equation: NoContextEquation = input.into();
+    ) -> Uuid {
+        let no_ctx_eq: NoContextEquation = input.into();
 
         let mut elements: Vec<Element> = Vec::new();
 
-        for side in equation.sides {
+        for side in no_ctx_eq.sides {
             // info!("{}", side.element);
             // TODO: ignores operation
             elements.push(side.element);
         }
 
-        Equation::new(elements, Rc::clone(&app), ctx_uuid)
+        let equation = Equation::new(elements, Rc::clone(&app), ctx_uuid);
+
+        {
+            let mut borrowed_app = app.borrow_mut();
+            let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+            ctx.insert_equation(equation)
+        }
     }
 }

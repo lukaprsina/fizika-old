@@ -7,15 +7,17 @@ use crate::ast::{
 };
 
 impl Display for Equation {
-    /* TODO: equation has a reference to context */
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        for side in &self.sides[..self.sides.len() - 2] {
-            result += &format!("{} = ", side)
+        let len = self.eq_sides.len() as isize - 2;
+        if len.is_positive() {
+            for side in &self.eq_sides[0..len as usize] {
+                result += &format!("{} = ", side)
+            }
         }
 
-        if let Some(last) = self.sides.last() {
+        if let Some(last) = self.eq_sides.last() {
             result += &format!("{}", last)
         }
 
@@ -187,17 +189,22 @@ impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        let open = false; // TODO self.sign == Sign::Negative; // self.should_be_parenthesized();
+        // let open = false; // TODO self.sign == Sign::Negative; // self.should_be_parenthesized();
+        /* let open = self.sign == Sign::Negative;
 
         if open {
-            write!(result, "({}", self.sign).unwrap();
+            result.push('(');
+        } */
+
+        if self.sign == Sign::Negative {
+            write!(result, "{}", self.sign).unwrap();
         }
 
         result += &self.node_or_expression.to_string();
 
-        if open {
+        /* if open {
             result.push(')');
-        }
+        } */
 
         write!(f, "{}", result)
     }

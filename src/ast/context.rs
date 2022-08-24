@@ -55,6 +55,12 @@ impl Context {
         equation
     }
 
+    pub(crate) fn insert_equation(&mut self, equation: Equation) -> Uuid {
+        let uuid = Uuid::new_v4();
+        self.equations.insert(uuid, equation);
+        uuid
+    }
+
     pub fn solve(&mut self) {
         /* println!("Context:");
         for (uuid, analyzed_element) in self.elements.iter() {

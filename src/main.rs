@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use color_eyre::eyre::Result;
-use math_eval::ast::{app::App, context::Context, NodeOrExpression};
+use math_eval::ast::{app::App, context::Context};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -31,17 +31,23 @@ fn main() -> Result<()> {
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
     // let a = "-(2/-3)"; TODO: leading minus is ignored, observe debug
-    let a = "-(2*3)";
+    let a = "-(2/-3)";
 
-    let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
-    // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
-
-    let uuid1 = e1.sides.first().unwrap();
-    // let uuid2 = e2.uuids.first().unwrap();
+    let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
 
     {
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+
+        let eq1 = ctx.remove_equation(uuid1).unwrap();
+
+        // info!("{:#?}", eq1);
+        info!(%eq1);
+
+        let new_eq1 = eq1.flatten();
+
+        // info!("{:#?}", new_eq1);
+        info!(%new_eq1);
     }
 
     Ok(())

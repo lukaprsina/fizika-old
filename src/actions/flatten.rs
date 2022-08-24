@@ -1,4 +1,6 @@
-use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
+use std::rc::Rc;
+
+use crate::ast::{product::Product, Element, Equation, Expression, NodeOrExpression, Sign};
 
 #[derive(Debug)]
 pub enum FlattenResult {
@@ -11,6 +13,37 @@ fn move_element_to_product(element: Element, new_product: &mut Product, side_pos
         0 => new_product.numerator.push(element.clone()),
         1 => new_product.denominator.push(element.clone()),
         _ => unreachable!(),
+    }
+}
+
+impl Equation {
+    // #[tracing::instrument(skip_all)]
+    pub fn flatten(self) -> Equation {
+        let mut new_equation = Equation {
+            eq_sides: vec![],
+            app: Rc::clone(&self.app),
+            context: self.context,
+            cache: self.cache,
+        };
+
+        // ANATODO
+        for element in self.eq_sides {
+            new_equation.eq_sides.push(element.flatten());
+        }
+
+        new_equation
+    }
+}
+
+impl Element {
+    pub fn flatten(self) -> Element {
+        match self.node_or_expression {
+            NodeOrExpression::Expression(expression) => Element::new(
+                self.sign,
+                NodeOrExpression::Expression(expression.flatten()),
+            ),
+            NodeOrExpression::Node(_) => self,
+        }
     }
 }
 
