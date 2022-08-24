@@ -31,25 +31,19 @@ impl<T: PartialOrd + Clone + IsSame> IsSame for Vec<T> {
 
 impl IsSame for Equation {
     fn is_same(lhs: &Self, rhs: &Self) -> bool {
-        if lhs.uuids.len() != rhs.uuids.len() {
+        if lhs.sides.len() != rhs.sides.len() {
             return false;
         }
         // TODO: not true
         let mut result = true;
-        let borrowed_app = lhs.app.borrow();
-        let contex = borrowed_app.get_context(lhs.context).unwrap();
 
-        for (left_uuid, right_uuid) in lhs.uuids.iter().zip(&rhs.uuids) {
-            let a = contex.get_element(*left_uuid).unwrap();
-            let b = contex.get_element(*right_uuid).unwrap();
-
-            // ANATODO
-            /* let are_same = AnalyzedElement::is_same(a, b);
-            result &= are_same;
+        for (left, right) in lhs.sides.iter().zip(&rhs.sides) {
+            result &= Element::is_same(left, right);
             if !result {
                 break;
-            } */
+            }
         }
+
         result
     }
 }

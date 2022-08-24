@@ -11,32 +11,12 @@ impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        /* let sides = self.sides();
+        for side in &self.sides[..self.sides.len() - 2] {
+            result += &format!("{} = ", side)
+        }
 
-        let mut chunks = sides.peekable();
-        while let Some(side) = chunks.next() {
-            if chunks.peek().is_some() {
-                result += &format!("{} = ", side.element)
-            } else {
-                result += &format!("{}", side.element)
-            }
-        } */
-
-        let app = self.app.borrow();
-
-        for (pos, &uuid) in self.uuids.iter().enumerate() {
-            // ANATODO
-            /* let analyzed_element = app
-                .get_context(self.context)
-                .unwrap()
-                .get_element(uuid)
-                .expect("The UUID must be valid");
-
-            if pos < self.uuids.len() - 1 {
-                write!(result, "{} = ", analyzed_element.element).unwrap()
-            } else {
-                write!(result, "{}", analyzed_element.element).unwrap()
-            } */
+        if let Some(last) = self.sides.last() {
+            result += &format!("{}", last)
         }
 
         write!(f, "{}", result)

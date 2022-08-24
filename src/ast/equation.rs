@@ -2,22 +2,19 @@ use std::{cell::RefCell, rc::Rc};
 
 use uuid::Uuid;
 
-use crate::{
-    ast::analyzed_expression::{Analyze, ExpressionInfo},
-    tokenizer::{parser::TokenizedString, Operation},
-};
+use crate::tokenizer::{parser::TokenizedString, Operation};
 
-use super::{
-    app::App,
-    context::{Context, CreateEquationError},
-    Element, NodeOrExpression, Sign,
-};
+use super::{app::App, context::CreateEquationError, Element, NodeOrExpression};
+
+#[derive(Debug, Clone)]
+pub struct EquationCache {}
 
 #[derive(Debug, Clone)]
 pub struct Equation {
-    pub uuids: Vec<Uuid>,
+    pub sides: Vec<Element>,
     pub app: Rc<RefCell<App>>,
     pub context: Uuid,
+    pub cache: Option<EquationCache>,
 }
 
 pub struct NoContextEquation {
@@ -31,23 +28,17 @@ pub struct EquationSide {
 }
 
 impl Equation {
-    pub fn new(uuids: Vec<Uuid>, app: Rc<RefCell<App>>, ctx_uuid: Uuid) -> Self {
+    pub fn new(elements: Vec<Element>, app: Rc<RefCell<App>>, ctx_uuid: Uuid) -> Self {
         let equation = Equation {
-            uuids,
+            sides: elements,
             app: Rc::clone(&app),
             context: ctx_uuid,
+            cache: Some(EquationCache {}),
         };
 
         // info!("{}", equation);
-        {
-            let mut borrowed_app = app.borrow_mut();
-            let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-
-            equation.flatten(context);
-        }
+        equation.flatten()
         // println!("{:#?}", equation);
-
-        equation
     }
 }
 
@@ -65,41 +56,20 @@ impl NoContextEquation {
 
 impl Equation {
     // #[tracing::instrument(skip_all)]
-    pub fn flatten(&self, context: &mut Context) {
-        for &uuid in self.uuids.iter() {
-            let analyzed_element = context.elements.remove(&uuid).unwrap();
+    pub fn flatten(self) -> Equation {
+        let new_equation = Equation::new(vec![], Rc::clone(&self.app), self.context);
 
-            // ANATODO
-            /* if let NodeOrExpression::Expression(expression) =
-                analyzed_element.element.node_or_expression
-            {
-                // info!("Before flatten {}", expression);
-                // println!("{:#?}", expression);
-                let mut new_expr = expression.flatten();
-
-                // TODO: after remove analyzed element fix this sign
-                if analyzed_element.element.sign == Sign::Negative {}
-                // info!("After flatten: {}", new_expr);
-                // println!("{:#?}", new_expr);
-
-                let mut info = ExpressionInfo::default();
-                let mut is_number = false;
-
-                new_expr.analyze(context, &mut info, &mut is_number);
-
-                // ANATODO
-                context.elements.insert(
-                    uuid,
-                    Element {
-                        sign: Sign::Positive,
-                        node_or_expression: NodeOrExpression::Expression(new_expr),
-                        is_number,
-                    },
-                );
-            } else {
-                context.elements.insert(uuid, analyzed_element);
-            } */
+        // ANATODO
+        for element in self.sides {
+            match element.node_or_expression {
+                NodeOrExpression::Expression(expression) => {
+                    let mut new_expr = expression.flatten();
+                }
+                NodeOrExpression::Node(_) => {}
+            }
         }
+
+        new_equation
     }
 }
 

@@ -5,13 +5,12 @@ use uuid::Uuid;
 
 use crate::tokenizer::parser::ParseError;
 
-use super::{app::App, token_to_element::TokensToEquationError, Element, Equation};
+use super::{app::App, token_to_element::TokensToEquationError, Equation};
 
 #[derive(Debug, Clone)]
 pub struct Context {
     pub app: Rc<RefCell<App>>,
-    pub elements: HashMap<Uuid, Element>,
-    pub equations: HashMap<Uuid, Equation>,
+    equations: HashMap<Uuid, Equation>,
     pub uuid: Uuid,
 }
 
@@ -26,19 +25,34 @@ pub enum CreateEquationError {
 impl Context {
     pub fn new(app: Rc<RefCell<App>>) -> Context {
         Context {
-            elements: HashMap::new(),
             equations: HashMap::new(),
             app,
             uuid: Uuid::nil(),
         }
     }
 
-    pub fn get_element(&self, uuid: Uuid) -> Option<&Element> {
-        self.elements.get(&uuid)
+    pub fn get_equation(&self, uuid: Uuid) -> Option<&Equation> {
+        self.equations.get(&uuid)
     }
 
-    pub fn get_element_mut(&mut self, uuid: Uuid) -> Option<&mut Element> {
-        self.elements.get_mut(&uuid)
+    pub fn get_equation_mut(&mut self, uuid: Uuid) -> Option<&mut Equation> {
+        let mut equation = self.equations.get_mut(&uuid);
+
+        if let Some(eq) = &mut equation {
+            eq.cache = None;
+        }
+
+        equation
+    }
+
+    pub fn remove_equation(&mut self, uuid: Uuid) -> Option<Equation> {
+        let mut equation = self.equations.remove(&uuid);
+
+        if let Some(eq) = &mut equation {
+            eq.cache = None;
+        }
+
+        equation
     }
 
     pub fn solve(&mut self) {

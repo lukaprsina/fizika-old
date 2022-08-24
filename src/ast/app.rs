@@ -7,7 +7,7 @@ use crate::{actions::strategies::strategy::Strategy, tokenizer::parser::ParseErr
 use super::{
     context::{Context, CreateEquationError},
     equation::NoContextEquation,
-    Equation,
+    Element, Equation,
 };
 
 #[derive(Debug)]
@@ -103,25 +103,14 @@ impl App {
     ) -> Equation {
         let equation: NoContextEquation = input.into();
 
-        let mut uuids: Vec<Uuid> = Vec::new();
+        let mut elements: Vec<Element> = Vec::new();
 
-        {
-            let mut borrowed_app = app.borrow_mut();
-            for side in equation.sides {
-                // info!("{}", side.element);
-                let uuid = Uuid::new_v4();
-
-                // ANATODO
-                // let analyzed_elem = side.analyze(borrowed_app.get_context(ctx_uuid).unwrap());
-                let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-                // ctx.elements.insert(uuid, analyzed_elem);
-
-                uuids.push(uuid);
-            }
+        for side in equation.sides {
+            // info!("{}", side.element);
+            // TODO: ignores operation
+            elements.push(side.element);
         }
 
-        let equation = Equation::new(uuids, Rc::clone(&app), ctx_uuid);
-
-        equation
+        Equation::new(elements, Rc::clone(&app), ctx_uuid)
     }
 }

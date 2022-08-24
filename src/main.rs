@@ -5,7 +5,7 @@ use math_eval::ast::{app::App, context::Context, NodeOrExpression};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
-// TODO: vec unwrap
+// TODO: vec remove unwrap
 fn main() -> Result<()> {
     color_eyre::install()?;
     let subscriber = FmtSubscriber::builder()
@@ -36,14 +36,12 @@ fn main() -> Result<()> {
     let e1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     // let e2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
 
-    let uuid1 = e1.uuids.first().unwrap();
+    let uuid1 = e1.sides.first().unwrap();
     // let uuid2 = e2.uuids.first().unwrap();
 
     {
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-
-        let _expr1 = ctx.elements.remove(uuid1).unwrap();
     }
 
     Ok(())
