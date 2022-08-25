@@ -174,7 +174,7 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
             ))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number)))
+                Ok(Token::Number(Number::Float(number.into())))
             },
         ), // Case two: 42e42 and 42.42e42
         map_res(
@@ -187,14 +187,14 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
             ))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number)))
+                Ok(Token::Number(Number::Float(number.into())))
             },
         ), // Case three: 42. and 42.42
         map_res(
             recognize(tuple((parse_decimal, char('.'), opt(parse_decimal)))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number)))
+                Ok(Token::Number(Number::Float(number.into())))
             },
         ),
     ))(input)
@@ -467,22 +467,22 @@ mod tests {
     #[test]
     fn test_parse_float() {
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(0.42)))),
+            Ok(("", Token::Number(Number::Float(0.42.into())))),
             parse_float(".42")
         );
 
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(10e3)))),
+            Ok(("", Token::Number(Number::Float(10e3.into())))),
             parse_float("10e3")
         );
 
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(10.1e3)))),
+            Ok(("", Token::Number(Number::Float(10.1e3.into())))),
             parse_float("10.1e3")
         );
 
         assert_eq!(
-            Ok(("", Token::Number(Number::Float(297.42)))),
+            Ok(("", Token::Number(Number::Float(297.42.into())))),
             parse_float("297.42")
         );
     }
@@ -494,10 +494,10 @@ mod tests {
             ("0o73", Token::Number(Number::Int(0o73))),
             ("0b011001", Token::Number(Number::Int(0b011001))),
             ("297", Token::Number(Number::Int(297))),
-            (".42", Token::Number(Number::Float(0.42))),
-            ("10e3", Token::Number(Number::Float(10e3))),
-            ("10.1e3", Token::Number(Number::Float(10.1e3))),
-            ("297.42", Token::Number(Number::Float(297.42))),
+            (".42", Token::Number(Number::Float(0.42.into()))),
+            ("10e3", Token::Number(Number::Float(10e3.into()))),
+            ("10.1e3", Token::Number(Number::Float(10.1e3.into()))),
+            ("297.42", Token::Number(Number::Float(297.42.into()))),
         ];
 
         for case in cases {

@@ -27,13 +27,13 @@ impl Mul for Sign {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum NodeOrExpression {
     Node(Node),
     Expression(Expression),
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Element {
     pub sign: Sign,
     pub node_or_expression: NodeOrExpression,
@@ -53,6 +53,32 @@ impl Element {
         match self.sign {
             Sign::Positive => self.sign = Sign::Negative,
             Sign::Negative => self.sign = Sign::Positive,
+        }
+    }
+
+    pub fn apply_to_every_element<T: FnMut(&Element)>(&self, mut function: T) {
+        function(&self);
+
+        if let NodeOrExpression::Node(node) = &self.node_or_expression {
+            match &node {
+                Node::Power { base, power } => {
+                    function(&base);
+                    function(&power);
+                }
+                Node::Modulo { lhs, rhs } => {
+                    function(&lhs);
+                    function(&rhs);
+                }
+                Node::Factorial { child } => {
+                    function(&child);
+                }
+                Node::Function { name: _, arguments } => {
+                    for argument in arguments.iter() {
+                        function(&argument);
+                    }
+                }
+                _ => (),
+            }
         }
     }
 }

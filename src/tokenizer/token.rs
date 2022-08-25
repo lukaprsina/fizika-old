@@ -51,10 +51,10 @@ impl Display for Operation {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Eq, Ord)]
 pub enum Number {
     Int(i64),
-    Float(f64),
+    Float(ordered_float::OrderedFloat<f64>),
 }
 
 impl Display for Number {
@@ -63,7 +63,7 @@ impl Display for Number {
             Number::Int(integer) => write!(f, "{}", integer),
             Number::Float(float) => {
                 let mut buffer = ryu::Buffer::new();
-                write!(f, "{}", buffer.format(*float))
+                write!(f, "{}", buffer.format(float.0))
             }
         }
     }

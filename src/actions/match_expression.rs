@@ -1,7 +1,6 @@
 #![allow(unused_variables)]
 
-use super::is_same::IsSame;
-use crate::ast::{product::Product, Element, Node, NodeOrExpression};
+use crate::ast::{product::Product, Element, NodeOrExpression};
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum BindResult {
@@ -24,7 +23,7 @@ impl Match for Element {
         match &instructions.node_or_expression {
             NodeOrExpression::Node(node_instr) => match &self.node_or_expression {
                 NodeOrExpression::Node(node_self) => {
-                    if Node::is_same(node_instr, node_self) {
+                    /* if Node::is_same(node_instr, node_self, names) {
                         if self.sign == instructions.sign {
                             BindResult::Ok
                         } else {
@@ -32,7 +31,8 @@ impl Match for Element {
                         }
                     } else {
                         BindResult::NotOk
-                    }
+                    } */
+                    BindResult::NotOk
                 }
                 NodeOrExpression::Expression(expr_self) => BindResult::NotOk,
             },

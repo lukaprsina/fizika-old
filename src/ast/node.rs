@@ -5,7 +5,7 @@ use super::{
     Element,
 };
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Node {
     Number(Number),
     Variable(String),

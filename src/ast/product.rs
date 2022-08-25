@@ -5,7 +5,7 @@ use super::{
     Element, Node, NodeOrExpression, Sign,
 };
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Product {
     pub numerator: Vec<Element>,
     pub denominator: Vec<Element>,
