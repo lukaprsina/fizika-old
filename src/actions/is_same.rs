@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::{Debug, Display},
+};
 
 use crate::ast::{product::Product, Element, Equation, Expression, Node, NodeOrExpression};
 
@@ -19,9 +22,37 @@ impl IsSameNames {
             functions: HashMap::new(),
         }
     }
+
+    pub fn check(&self) -> bool {
+        let mut result = true;
+
+        'outer: for map in [&self.variables, &self.functions] {
+            let mut name_set: HashSet<String> = HashSet::new();
+
+            for name_options in map.values() {
+                if name_options.len() == 1 {
+                    if let Some(name) = name_options.first() {
+                        if name_set.contains(name) {
+                            result = false;
+                            break 'outer;
+                        }
+
+                        name_set.insert(name.clone());
+                    } else {
+                        unreachable!();
+                    }
+                } else {
+                    result = false;
+                    break 'outer;
+                }
+            }
+        }
+
+        result
+    }
 }
 
-impl<T: Ord + Clone + IsSame> IsSame for Vec<T> {
+impl<T: Ord + Clone + IsSame + Display> IsSame for Vec<T> {
     fn is_same(lhs: &Self, rhs: &Self, names: &mut IsSameNames) -> bool {
         if lhs.len() != rhs.len() {
             return false;
@@ -36,14 +67,27 @@ impl<T: Ord + Clone + IsSame> IsSame for Vec<T> {
         a.sort();
         b.sort();
 
+        /* info!("New Vec<{}>", std::any::type_name::<T>());
+
+        for (left, right) in lhs.iter().zip(rhs.iter()) {
+            info!("Not s: lhs: {}, rhs: {}", left, right);
+        }
+
+        for (left, right) in a.iter().zip(b.iter()) {
+            info!("Sorted lhs: {}, rhs: {}", left, right);
+        }
+
+        info!(""); */
+
         let mut result = false;
-        for left in a.iter() {
-            for right in b.iter() {
-                let are_same = T::is_same(&left, &right, names);
-                result |= are_same;
-                if result {
-                    break;
-                }
+
+        for (left, right) in a.iter().zip(b.iter()) {
+            let are_same = T::is_same(&left, &right, names);
+
+            // TODO: wrong
+            result &= are_same;
+            if result {
+                break;
             }
         }
 
@@ -104,6 +148,7 @@ impl IsSame for Node {
             }
             Node::Variable(left_name) => {
                 if let Node::Variable(right_name) = rhs {
+                    // info!("Variable l: {}, r: {}", left_name, right_name);
                     match names.variables.get_mut(left_name) {
                         Some(name) => {
                             name.push(right_name.clone());
@@ -190,15 +235,6 @@ impl IsSame for Node {
                 }
 
                 true
-                /* if let Node::Function {
-                    name: right_name,
-                    arguments: right_arguments,
-                } = rhs
-                {
-                    left_name == right_name && Vec::is_same(left_arguments, right_arguments, names)
-                } else {
-                    false
-                } */
             }
         }
     }
@@ -206,15 +242,13 @@ impl IsSame for Node {
 
 impl IsSame for Expression {
     fn is_same(lhs: &Self, rhs: &Self, names: &mut IsSameNames) -> bool {
-        let result = Vec::is_same(&lhs.products, &rhs.products, names);
-        result
+        Vec::is_same(&lhs.products, &rhs.products, names)
     }
 }
 
 impl IsSame for Product {
     fn is_same(lhs: &Self, rhs: &Self, names: &mut IsSameNames) -> bool {
-        let mut result = Vec::is_same(&lhs.numerator, &rhs.numerator, names);
-        result &= Vec::is_same(&lhs.denominator, &rhs.denominator, names);
-        result
+        Vec::is_same(&lhs.numerator, &rhs.numerator, names)
+            && Vec::is_same(&lhs.denominator, &rhs.denominator, names)
     }
 }

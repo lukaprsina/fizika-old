@@ -34,8 +34,8 @@ fn main() -> Result<()> {
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
     // let a = "-(2/-3)"; TODO: leading minus is ignored, observe debug
-    let a = "a";
-    let b = "b";
+    let a = "a+b";
+    let b = "c+a";
 
     let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
@@ -55,8 +55,8 @@ fn main() -> Result<()> {
 
         let mut names = IsSameNames::new();
         let is_same = Element::is_same(&expr1, &expr2, &mut names);
-
-        println!("{:#?}\nIs same: {}", names, is_same);
+        println!("{:#?}\n", names);
+        info!("check: {}, is_same: {}", names.check(), is_same);
     }
 
     Ok(())
