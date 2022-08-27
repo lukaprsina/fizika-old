@@ -34,8 +34,8 @@ fn main() -> Result<()> {
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
     // let a = "-(2/-3)"; TODO: leading minus is ignored, observe debug
-    let a = "a+b";
-    let b = "c+a";
+    let a = "2log(a)+b";
+    let b = "b+2logs(a)";
 
     let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;

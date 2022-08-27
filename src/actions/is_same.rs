@@ -12,39 +12,35 @@ pub trait IsSame {
 #[derive(Debug)]
 pub struct IsSameNames {
     pub variables: HashMap<String, Vec<String>>,
-    pub functions: HashMap<String, Vec<String>>,
 }
 
 impl IsSameNames {
     pub fn new() -> IsSameNames {
         IsSameNames {
             variables: HashMap::new(),
-            functions: HashMap::new(),
         }
     }
 
     pub fn check(&self) -> bool {
         let mut result = true;
 
-        'outer: for map in [&self.variables, &self.functions] {
-            let mut name_set: HashSet<String> = HashSet::new();
+        let mut name_set: HashSet<String> = HashSet::new();
 
-            for name_options in map.values() {
-                if name_options.len() == 1 {
-                    if let Some(name) = name_options.first() {
-                        if name_set.contains(name) {
-                            result = false;
-                            break 'outer;
-                        }
-
-                        name_set.insert(name.clone());
-                    } else {
-                        unreachable!();
+        for name_options in self.variables.values() {
+            if name_options.len() == 1 {
+                if let Some(name) = name_options.first() {
+                    if name_set.contains(name) {
+                        result = false;
+                        break;
                     }
+
+                    name_set.insert(name.clone());
                 } else {
-                    result = false;
-                    break 'outer;
+                    unreachable!();
                 }
+            } else {
+                result = false;
+                break;
             }
         }
 
@@ -79,14 +75,20 @@ impl<T: Ord + Clone + IsSame + Display> IsSame for Vec<T> {
 
         info!(""); */
 
-        let mut result = false;
+        let mut result = true;
 
         for (left, right) in a.iter().zip(b.iter()) {
             let are_same = T::is_same(&left, &right, names);
+            /* info!(
+                "Are same: {}, lhs: {}, rhs: {} - {}",
+                are_same,
+                left,
+                right,
+                std::any::type_name::<T>()
+            ); */
 
-            // TODO: wrong
             result &= are_same;
-            if result {
+            if !result {
                 break;
             }
         }
@@ -216,25 +218,10 @@ impl IsSame for Node {
                     arguments: right_arguments,
                 } = rhs
                 {
-                    if Vec::is_same(left_arguments, right_arguments, names) {
-                        match names.functions.get_mut(left_name) {
-                            Some(name) => {
-                                name.push(right_name.clone());
-                            }
-                            None => {
-                                names
-                                    .functions
-                                    .insert(left_name.clone(), vec![right_name.clone()]);
-                            }
-                        }
-                    } else {
-                        return false;
-                    }
+                    left_name == right_name && Vec::is_same(left_arguments, right_arguments, names)
                 } else {
-                    return false;
+                    false
                 }
-
-                true
             }
         }
     }
@@ -248,7 +235,8 @@ impl IsSame for Expression {
 
 impl IsSame for Product {
     fn is_same(lhs: &Self, rhs: &Self, names: &mut IsSameNames) -> bool {
-        Vec::is_same(&lhs.numerator, &rhs.numerator, names)
-            && Vec::is_same(&lhs.denominator, &rhs.denominator, names)
+        let mut result = Vec::is_same(&lhs.numerator, &rhs.numerator, names);
+        result &= Vec::is_same(&lhs.denominator, &rhs.denominator, names);
+        result
     }
 }
