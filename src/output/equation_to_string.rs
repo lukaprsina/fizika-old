@@ -108,7 +108,7 @@ impl Display for Expression {
                 Some(element) => {
                     if pos == 0 {
                         if element.sign == Sign::Negative {
-                            write!(result, "{} ", element.sign).unwrap()
+                            // write!(result, "{} ", element.sign).unwrap()
                         }
                     } else {
                         write!(result, "{} ", element.sign).unwrap()
@@ -159,9 +159,9 @@ impl Display for Product {
                     result.push('(');
                 }
 
-                if explicit_minus {
+                /* if explicit_minus {
                     write!(result, "{} ", element.sign).unwrap();
-                }
+                } */
 
                 result += &element.to_string();
 
@@ -177,7 +177,7 @@ impl Display for Product {
             }
 
             if side_pos == 0 && !self.denominator.is_empty() {
-                result += "/";
+                result.push('/');
             }
         }
 
@@ -190,21 +190,22 @@ impl Display for Element {
         let mut result = String::new();
 
         // let open = false; // TODO self.sign == Sign::Negative; // self.should_be_parenthesized();
-        /* let open = self.sign == Sign::Negative;
-
-        if open {
-            result.push('(');
-        } */
+        let open = self.sign == Sign::Negative
+            && matches!(self.node_or_expression, NodeOrExpression::Expression(_));
 
         if self.sign == Sign::Negative {
             write!(result, "{}", self.sign).unwrap();
         }
 
+        if open {
+            result.push('(');
+        }
+
         result += &self.node_or_expression.to_string();
 
-        /* if open {
+        if open {
             result.push(')');
-        } */
+        }
 
         write!(f, "{}", result)
     }

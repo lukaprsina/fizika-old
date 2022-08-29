@@ -62,12 +62,10 @@ impl Context {
     }
 
     pub fn solve(&mut self) {
-        /* println!("Context:");
-        for (uuid, analyzed_element) in self.elements.iter() {
-            println!(
-                "{}: {}\nIs number?: {}\n{:#?}\n\n",
-                uuid, analyzed_element.element, analyzed_element.is_number, analyzed_element.info
-            );
-        } */
+        println!("Context {}", self.uuid);
+        for (_, equation) in self.equations.iter() {
+            // println!("{:#?}\n", equation);
+            println!("{}\n{}\n", equation, "-".repeat(80));
+        }
     }
 }

@@ -37,13 +37,15 @@ impl Equation {
 
 impl Element {
     pub fn flatten(self) -> Element {
-        match self.node_or_expression {
-            NodeOrExpression::Expression(expression) => Element::new(
-                self.sign,
-                NodeOrExpression::Expression(expression.flatten()),
-            ),
-            NodeOrExpression::Node(_) => self,
-        }
+        let sign = self.sign;
+
+        self.apply_to_every_element_into(move |element| {
+            if let NodeOrExpression::Expression(expression) = element.node_or_expression {
+                Element::new(sign, NodeOrExpression::Expression(expression.flatten()))
+            } else {
+                element
+            }
+        })
     }
 }
 

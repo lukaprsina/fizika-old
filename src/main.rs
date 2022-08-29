@@ -1,11 +1,8 @@
 use std::rc::Rc;
 
 use color_eyre::eyre::Result;
-use math_eval::{
-    actions::is_same::{IsSame, IsSameNames},
-    ast::{app::App, context::Context, Element},
-};
-use tracing::{info, Level};
+use math_eval::ast::{app::App, context::Context};
+use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
 // TODO: vec remove unwrap
@@ -33,30 +30,36 @@ fn main() -> Result<()> {
     // let b = "(1/cos(x) + a/cos(x))";
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
-    // let a = "-(2/-3)"; TODO: leading minus is ignored, observe debug
-    let a = "2log(a)+b";
-    let b = "b+2logs(a)";
+    let a = "log(2+3+4)"; // TODO: leading minus is ignored, observe debug
 
-    let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
-    let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
+    // let a = "2log(a+c)+b";
+    // let b = "b+2log(c+b)";
+
+    let _uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
+    // let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
 
     {
         let mut borrowed_app = app.borrow_mut();
+        let ctx_uuid = borrowed_app.formulas;
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
-        let eq1 = ctx.remove_equation(uuid1).unwrap();
-        let eq2 = ctx.remove_equation(uuid2).unwrap();
+        ctx.solve();
 
-        info!(%eq1);
-        info!(%eq2);
+        // let eq1 = ctx.remove_equation(uuid1).unwrap();
 
-        let expr1 = eq1.eq_sides.first().unwrap();
+        // let eq2 = ctx.remove_equation(uuid2).unwrap();
+
+        // println!("{:#?}", eq1);
+        // info!(%eq1);
+        // info!(%eq2);
+
+        /* let expr1 = eq1.eq_sides.first().unwrap();
         let expr2 = eq2.eq_sides.first().unwrap();
 
         let mut names = IsSameNames::new();
         let is_same = Element::is_same(&expr1, &expr2, &mut names);
         println!("{:#?}\n", names);
-        info!("check: {}, is_same: {}", names.check(), is_same);
+        info!("check: {}, is_same: {}", names.check(), is_same); */
     }
 
     Ok(())

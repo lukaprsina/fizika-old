@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 use super::{product::Product, Expression, Node};
 use std::ops::Mul;
 
@@ -60,25 +62,89 @@ impl Element {
         function(&self);
 
         if let NodeOrExpression::Node(node) = &self.node_or_expression {
-            match &node {
+            match node {
                 Node::Power { base, power } => {
-                    function(&base);
-                    function(&power);
+                    function(base);
+                    function(power);
                 }
                 Node::Modulo { lhs, rhs } => {
-                    function(&lhs);
-                    function(&rhs);
+                    function(lhs);
+                    function(rhs);
                 }
                 Node::Factorial { child } => {
-                    function(&child);
+                    function(child);
                 }
                 Node::Function { name: _, arguments } => {
                     for argument in arguments.iter() {
-                        function(&argument);
+                        function(argument);
                     }
                 }
                 _ => (),
             }
+        }
+    }
+
+    pub fn apply_to_every_element_mut<T: FnMut(&mut Element)>(&mut self, mut function: T) {
+        function(self);
+
+        if let NodeOrExpression::Node(node) = &mut self.node_or_expression {
+            match node {
+                Node::Power { base, power } => {
+                    function(base);
+                    function(power);
+                }
+                Node::Modulo { lhs, rhs } => {
+                    function(lhs);
+                    function(rhs);
+                }
+                Node::Factorial { child } => {
+                    function(child);
+                }
+                Node::Function { name: _, arguments } => {
+                    for mut argument in arguments.iter_mut() {
+                        function(&mut argument);
+                    }
+                }
+                _ => (),
+            }
+        }
+    }
+
+    pub fn apply_to_every_element_into<T: FnMut(Element) -> Element>(
+        self,
+        mut function: T,
+    ) -> Element {
+        match self.node_or_expression {
+            NodeOrExpression::Node(node) => {
+                let new_node = match node {
+                    Node::Power { base, power } => Node::Power {
+                        base: Box::new(function(*base)),
+                        power: Box::new(function(*power)),
+                    },
+                    Node::Modulo { lhs, rhs } => Node::Modulo {
+                        lhs: Box::new(function(*lhs)),
+                        rhs: Box::new(function(*rhs)),
+                    },
+                    Node::Factorial { child } => Node::Factorial {
+                        child: Box::new(function(*child)),
+                    },
+                    Node::Function { name, arguments } => {
+                        let new_args = arguments
+                            .into_iter()
+                            .map(|argument| function(argument))
+                            .collect_vec();
+
+                        Node::Function {
+                            name,
+                            arguments: new_args,
+                        }
+                    }
+                    _ => node,
+                };
+
+                Element::new(self.sign, NodeOrExpression::Node(new_node))
+            }
+            NodeOrExpression::Expression(_) => function(self),
         }
     }
 }
