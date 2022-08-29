@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use color_eyre::eyre::Result;
+use itertools::Itertools;
 use math_eval::ast::{app::App, context::Context};
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
@@ -30,34 +31,37 @@ fn main() -> Result<()> {
     // let b = "(1/cos(x) + a/cos(x))";
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
-    let a = "log(2+3+4)"; // TODO: leading minus is ignored, observe debug
+    // let a = "log(2+3+4)"; // TODO: leading minus is ignored, observe debug
 
     // let a = "2log(a+c)+b";
     // let b = "b+2log(c+b)";
+    let a = "1 + 2 + 3";
+    let b = "5 + 6";
 
-    let _uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
-    // let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
+    let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
+    let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
 
     {
         let mut borrowed_app = app.borrow_mut();
-        let ctx_uuid = borrowed_app.formulas;
+        // let ctx_uuid = borrowed_app.formulas;
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
-        ctx.solve();
+        // ctx.solve();
 
-        // let eq1 = ctx.remove_equation(uuid1).unwrap();
-
-        // let eq2 = ctx.remove_equation(uuid2).unwrap();
+        let eq1 = ctx.remove_equation(uuid1).unwrap();
+        let eq2 = ctx.remove_equation(uuid2).unwrap();
 
         // println!("{:#?}", eq1);
         // info!(%eq1);
         // info!(%eq2);
 
-        /* let expr1 = eq1.eq_sides.first().unwrap();
-        let expr2 = eq2.eq_sides.first().unwrap();
+        let elem1 = eq1.eq_sides.first().unwrap();
+        let elem2 = eq2.eq_sides.first().unwrap();
 
-        let mut names = IsSameNames::new();
-        let is_same = Element::is_same(&expr1, &expr2, &mut names);
+        elem1.bind(&elem2);
+
+        /* let mut names = IsSameNames::new();
+        let is_same = Element::is_same(&elem1, &elem2, &mut names);
         println!("{:#?}\n", names);
         info!("check: {}, is_same: {}", names.check(), is_same); */
     }
