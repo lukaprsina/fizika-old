@@ -1,0 +1,2 @@
+web/public/assets/fonts/*.woff2 filter=lfs diff=lfs merge=lfs -text
+web/public/assets/sounds/*.wav filter=lfs diff=lfs merge=lfs -text
