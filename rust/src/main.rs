@@ -1,9 +1,20 @@
-use fizika::get_only_element;
+use fizika::utils::get_only_element;
 use itertools::Itertools;
-use select::{document::Document, predicate::Class};
+use select::{
+    document::Document,
+    predicate::{Class, Name},
+};
 use std::{error::Error, path::Path, str::FromStr};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    /* {
+        let json = include_str!("../draftjs.json");
+        let rust = serde_json::de::from_str::<ContentState>(json)?;
+
+        println!("{:#?}", rust);
+        return Ok(());
+    } */
+
     let courses_dir = Path::new("courses");
 
     let mut i = 0;
@@ -21,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     println!("{}\n{}\n", "-".repeat(50), name);
                     let content = std::fs::read_to_string(name)?;
                     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
-                    process_tab(document)?;
+                    process_document(document)?;
                 } else {
                     break;
                 }
@@ -38,7 +49,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn process_tab(document: Document) -> Result<(), Box<dyn Error>> {
+fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
     let exercise = get_only_element(exercises);
 
@@ -80,8 +91,40 @@ fn process_tab(document: Document) -> Result<(), Box<dyn Error>> {
                             }
                         }
                     }
-                    "table" | "ul" | "ol" | "div" | "h1" | "img" | "script" | "h2" | "iframe"
-                    | "h3" | "a" => (),
+                    "table" => {
+                        let t_children = child.children().collect_vec();
+                        let mut t_bodies = vec![];
+
+                        for child in t_children {
+                            if child.is(Name("tbody")) {
+                                t_bodies.push(child);
+                            }
+                        }
+
+                        match t_bodies.len() {
+                            // quiz
+                            0 => println!("{}\n-> {}", exercise.html(), child.html()),
+                            1 => {
+                                let mut t_rows = vec![];
+                                let t_body_children = t_bodies[0].children().collect_vec();
+
+                                for child in t_body_children {
+                                    if child.is(Name("tr")) {
+                                        t_rows.push(child);
+                                    }
+                                }
+
+                                match t_rows.len() {
+                                    0 => println!("{}\n-> {}", exercise.html(), t_bodies[0].html()),
+                                    1 => (),
+                                    _ => println!("{}\n-> {}", exercise.html(), t_bodies[0].html()),
+                                }
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    "ul" | "ol" | "div" | "h1" | "img" | "script" | "h2" | "iframe" | "h3"
+                    | "a" => (),
 
                     _ => panic!("New name: {}: {}", name, child.html()),
                 },

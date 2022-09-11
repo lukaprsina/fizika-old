@@ -8,7 +8,7 @@ use std::{
     time::Duration,
 };
 
-use fizika::{create_fizika_tab, get_links, get_only_element};
+use fizika::utils::{create_fizika_tab, get_links, get_only_element};
 use headless_chrome::{Element, Tab};
 use itertools::Itertools;
 use scraper::Html;
