@@ -8,7 +8,7 @@ use std::{
     time::Duration,
 };
 
-use fizika::{create_fizika_tab, get_links};
+use fizika::{create_fizika_tab, get_links, get_only_element};
 use headless_chrome::{Element, Tab};
 use itertools::Itertools;
 use scraper::Html;
@@ -56,6 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let dir_name = pages_dir.join(pos.to_string());
         create_dir(&dir_name)?;
+        create_dir(dir_name.join("exercises"))?;
         let dir_name = dir_name.canonicalize()?;
 
         let chapter_info = process_tab(Arc::clone(&tab), dir_name.as_path())?;
@@ -87,13 +88,23 @@ fn process_tab(tab: Arc<Tab>, dir_name: &Path) -> Result<ChapterInfo, Box<dyn Er
 
     for page in pages.iter().skip(4) {
         let html = page
-            .call_js_fn("function() { return this.innerHTML; }", false)?
+            .call_js_fn("function() { return this.outerHTML; }", false)?
             .value
-            .expect("Can't get innerHTML on div");
+            .expect("Can't get HTML from div");
+
+        /* sleep(Duration::from_secs(1));
+        let mathjax = page.call_js_fn("function() { return MathJax.Hub; }", false)?;
+
+        println!("{:#?}", mathjax);
+        println!("{:#?}", mathjax.object_type);
+        println!("{:#?}", mathjax.value);
+
+        let mut math_file = File::create(dir_name.join("math.json"))?;
+        math_file.write_all(mathjax.value.unwrap().to_string().as_bytes())?; */
 
         let data = Html::parse_fragment(html.as_str().expect("Can't parse HTML"));
 
-        let new_path = dir_name.join(format!("page {}.html", index));
+        let new_path = dir_name.join(format!("exercises/page {}.html", index));
         let mut f = File::create(new_path).expect("Unable to create file");
 
         let html_string = data.root_element().html();
@@ -103,11 +114,6 @@ fn process_tab(tab: Arc<Tab>, dir_name: &Path) -> Result<ChapterInfo, Box<dyn Er
     }
 
     Ok(chapter_info)
-}
-
-fn get_only_element<T>(mut elements: Vec<T>) -> T {
-    assert_eq!(elements.len(), 1);
-    elements.remove(0)
 }
 
 #[derive(Deserialize, Serialize)]

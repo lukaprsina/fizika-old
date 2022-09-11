@@ -1,11 +1,104 @@
-use headless_chrome::Tab;
-use scraper::{ElementRef, Html, Selector};
-use std::{error::Error, sync::Arc};
+use fizika::get_only_element;
+use itertools::Itertools;
+use select::{document::Document, predicate::Class};
+use std::{error::Error, path::Path, str::FromStr};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let courses_dir = Path::new("courses");
+
+    let mut i = 0;
+    loop {
+        let course_dir = courses_dir.join(i.to_string());
+        if course_dir.is_dir() {
+            let mut j = 1;
+            loop {
+                let exercise_dir = course_dir.join(format!("exercises/page {}.html", j));
+                if exercise_dir.is_file() {
+                    let file = exercise_dir.as_path();
+                    let file = file.canonicalize()?;
+                    let name = file.to_str().unwrap();
+
+                    println!("{}\n{}\n", "-".repeat(50), name);
+                    let content = std::fs::read_to_string(name)?;
+                    let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
+                    process_tab(document)?;
+                } else {
+                    break;
+                }
+
+                j += 1;
+            }
+        } else {
+            break;
+        }
+
+        i += 1;
+    }
+
     Ok(())
 }
 
+fn process_tab(document: Document) -> Result<(), Box<dyn Error>> {
+    let exercises = document.find(Class("eplxSlide")).collect_vec();
+    let exercise = get_only_element(exercises);
+
+    let area = if exercise.is(Class("popupImpl")) {
+        let areas = document.find(Class("popupContent")).collect_vec();
+        let area = get_only_element(areas);
+        Some(area)
+    } else if exercise.is(Class("eplxLastSlide")) {
+        None
+    } else {
+        let subheadings = exercise.find(Class("subheading")).collect_vec();
+        if subheadings.is_empty() {
+            println!("{}\n", exercise.html());
+            panic!();
+        }
+        let _subheading = get_only_element(subheadings);
+
+        let areas = document.find(Class("interactive-area")).collect_vec();
+        let area = get_only_element(areas);
+
+        // println!("Subheading:\n{}\n", subheading.inner_html());
+        Some(area)
+    };
+
+    if let Some(area) = area {
+        for child in area.children() {
+            match child.name() {
+                Some(name) => match name {
+                    "p" => {
+                        let new_children = child.children().collect_vec();
+                        if let Some(new_child) = new_children.first() {
+                            match new_child.name() {
+                                Some(name) => match name {
+                                    "a" | "b" | "i" | "span" | "script" => (),
+                                    _ => panic!("New name in p: {}: {}", name, new_child.html()),
+                                },
+                                // text
+                                None => (), // println!("{}\n", new_child.html()),
+                            }
+                        }
+                    }
+                    "table" | "ul" | "ol" | "div" | "h1" | "img" | "script" | "h2" | "iframe"
+                    | "h3" | "a" => (),
+
+                    _ => panic!("New name: {}: {}", name, child.html()),
+                },
+                None => {
+                    let html = child.html();
+                    let trimmed_html = html.trim();
+                    if !trimmed_html.is_empty() {
+                        panic!("{}", trimmed_html);
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+/*
 #[derive(Default)]
 struct Chapter {
     title: String,
@@ -29,36 +122,6 @@ struct Exercise {
 
 struct Popup {
     content: Vec<MediaType>,
-}
-
-fn process_tab(tab: &Arc<Tab>) -> Result<Chapter, Box<dyn Error>> {
-    let pages = tab.find_elements("#container > .eplxSlide")?;
-
-    for page in pages.iter().skip(4) {
-        let html = page
-            .call_js_fn("function() { return this.innerHTML; }", false)?
-            .value
-            .expect("Can't get innerHTML on div");
-
-        let attributes = page.get_attributes()?.expect("No attributes");
-        let popup = attributes
-            .get("class")
-            .expect("No classes in page div")
-            .contains("popupImpl");
-
-        let fragment = Html::parse_fragment(html.as_str().expect("Can't parse HTML"));
-
-        if popup {
-            // parse_popup(fragment);
-        } else {
-            parse_exerice(fragment);
-        }
-    }
-
-    Ok(Chapter {
-        title: "".to_string(),
-        exercises: Vec::new(),
-    })
 }
 
 fn parse_exerice(fragment: Html) -> Exercise {
@@ -103,3 +166,4 @@ fn parse_popup(fragment: Html) -> Popup {
 fn parse_element(element: ElementRef) {
     for item in element.traverse() {}
 }
+ */

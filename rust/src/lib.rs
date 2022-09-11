@@ -35,3 +35,8 @@ pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser), Box<dyn Error>> {
     sleep(Duration::from_secs(1));
     Ok((tab, browser))
 }
+
+pub fn get_only_element<T>(mut elements: Vec<T>) -> T {
+    assert_eq!(elements.len(), 1);
+    elements.remove(0)
+}

@@ -321,6 +321,7 @@ dependencies = [
  "select",
  "serde",
  "serde_json",
+ "tendril",
  "url 2.2.2",
 ]
 
