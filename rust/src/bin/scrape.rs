@@ -37,7 +37,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (tab, _browser) = create_fizika_tab()?;
 
     let lines = get_links(Arc::clone(&tab))?;
+    let mut line_file = File::create("./links.txt")?;
     let url = Url::parse(&tab.get_url())?;
+    line_file.write_all(
+        lines
+            .iter()
+            .map(|line| url.join(&line).unwrap().to_string())
+            .join("\n")
+            .as_bytes(),
+    )?;
+
+    panic!();
     let pages_dir = Path::new("./courses");
 
     if pages_dir.exists() {

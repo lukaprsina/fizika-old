@@ -1,13 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { EditorState, Modifier } from 'draft-js';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 // import { MathfieldElement } from 'mathlive';
 
 const NoSSREditor = dynamic(() =>
     import('react-draft-wysiwyg').then((mod) => mod.Editor), {
     ssr: false
 })
+
+let mathRendered = false;
 
 const WYSIWYG: NextPage = () => {
     const mathRef = useRef<any>();
@@ -16,17 +19,20 @@ const WYSIWYG: NextPage = () => {
             const mathlive = (await import('mathlive'))
 
             let mfe = new mathlive.MathfieldElement();
+
             mfe.setOptions({
                 virtualKeyboards: "all",
-                virtualKeyboardMode: "manual",
+                virtualKeyboardMode: "onfocus",
                 fontsDirectory: "/assets/fonts",
                 soundsDirectory: "/assets/sounds",
             })
+
             mfe.value = "x=\\frac{-b\\pm\\sqrt{b ^ 2 - 4ac}}{2a}";
             // mfe.executeCommand(['switchMode', 'math'])
 
-            if (typeof mathRef.current !== 'undefined') {
-                mathRef.current.append(mfe)
+            if (!mathRendered && typeof mathRef.current !== 'undefined') {
+                mathRef.current.appendChild(mfe)
+                mathRendered = true;
             }
         }
 
