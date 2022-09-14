@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use url::Url;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    {
+    /* {
         println!("This will delete every course. Type \"yes\" if you want to proceed");
 
         let stdin = stdin();
@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("Quitting");
             panic!();
         }
-    }
+    } */
 
     let (tab, _browser) = create_fizika_tab()?;
 
@@ -47,7 +47,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             .as_bytes(),
     )?;
 
-    panic!();
     let pages_dir = Path::new("./courses");
 
     if pages_dir.exists() {
@@ -102,15 +101,47 @@ fn process_tab(tab: Arc<Tab>, dir_name: &Path) -> Result<ChapterInfo, Box<dyn Er
             .value
             .expect("Can't get HTML from div");
 
-        /* sleep(Duration::from_secs(1));
-        let mathjax = page.call_js_fn("function() { return MathJax.Hub; }", false)?;
+        sleep(Duration::from_secs(1));
+        let mathjax = page.call_js_fn(
+            r##"function() {
+            function x() {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        const hub = window.MathJax.Hub;
+                        const arr = hub.getAllJax()
+                        console.log({hub, arr});
+                        let result = ""
 
-        println!("{:#?}", mathjax);
-        println!("{:#?}", mathjax.object_type);
-        println!("{:#?}", mathjax.value);
+                        for(const obj of arr) {
+                            result += obj.originalText + "#!#"
+                        }
 
-        let mut math_file = File::create(dir_name.join("math.json"))?;
-        math_file.write_all(mathjax.value.unwrap().to_string().as_bytes())?; */
+                        resolve(result)
+                    }, 10000);
+                });
+            }
+            const result = await x();
+            return result;
+        }"##,
+            false,
+        )?;
+
+        let mut res_str = mathjax
+            .value
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .split("#!#")
+            .join("\n");
+
+        dbg!(&res_str);
+
+        stdin().lock().lines().next().unwrap().unwrap();
+        res_str.remove(0);
+        res_str.remove(res_str.len() - 1);
+
+        let mut math_file = File::create(dir_name.join("math.txt"))?;
+        math_file.write_all(res_str.as_bytes())?;
 
         let data = Html::parse_fragment(html.as_str().expect("Can't parse HTML"));
 

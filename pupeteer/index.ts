@@ -13,7 +13,11 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     const file = await fs.readFile("./links.txt");
     const links = file.toString().split('\n');
-    links.shift()
+    links.shift();
+
+    let index = 0;
+    await fs.rm("maths", { recursive: true });
+    await fs.mkdir("maths");
 
     for (const link of links) {
         console.log("url", link)
@@ -23,31 +27,25 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
             page.goto(link), // Clicking the link will indirectly cause a navigation
         ]);
 
-        // writes only one function
-        // console log parsed math originalText
-        await page.exposeFunction('readfile', async filePath => {
-            return new Promise((resolve, reject) => {
-                fs.writeFile(filePath)
-            });
-        });
-        const result = await page.evaluate(() => {
-            /* const getCircularReplacer = () => {
-                const seen = new WeakSet();
-                return (key, value) => {
-                    if (typeof value === "object" && value !== null) {
-                        if (seen.has(value)) {
-                            return;
-                        }
-                        seen.add(value);
-                    }
-                    return value;
-                };
+
+        const result = await page.evaluate(function () {
+            let arr = window.MathJax.Hub.getAllJax();
+            let result = ""
+
+            for (const obj of arr) {
+                result += obj.originalText + " a a a a "
             }
 
-            return Promise.resolve(JSON.stringify(window.MathJax.Hub.getAllJax(), getCircularReplacer())); */
+            return Promise.resolve(result)
         });
 
         console.log(result)
+
+        result.split("#!#").join("\n")
+
+        await fs.writeFile(`maths/course ${index}.txt`, result);
+        await delay(1000);
+        index++
     };
 
 
