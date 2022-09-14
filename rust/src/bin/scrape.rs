@@ -58,7 +58,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let pages_dir = pages_dir.canonicalize()?;
     let mut chapter_infos = vec![];
 
-    for (pos, line) in lines.into_iter().enumerate() {
+    let mut good = 0;
+    let mut bad = 0;
+    for (pos, line) in lines.into_iter().skip(0).enumerate() {
         let new_address = url.join(&line)?;
         tab.navigate_to(&new_address.to_string())?;
         tab.wait_until_navigated()?;
@@ -67,11 +69,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         create_dir(&dir_name)?;
         create_dir(dir_name.join("exercises"))?;
         let dir_name = dir_name.canonicalize()?;
+        let chapter_info = process_tab(Arc::clone(&tab), dir_name.as_path(), &mut good, &mut bad)?;
 
-        let chapter_info = process_tab(Arc::clone(&tab), dir_name.as_path())?;
         chapter_infos.push(chapter_info);
         sleep(Duration::from_millis(500));
     }
+    dbg!(good, bad);
 
     let chapter_info_dir = Path::new("chapter_infos.txt");
     if chapter_info_dir.exists() {
@@ -85,7 +88,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn process_tab(tab: Arc<Tab>, dir_name: &Path) -> Result<ChapterInfo, Box<dyn Error>> {
+fn process_tab(
+    tab: Arc<Tab>,
+    dir_name: &Path,
+    good: &mut usize,
+    bad: &mut usize,
+) -> Result<ChapterInfo, Box<dyn Error>> {
     let pages = tab.find_elements("#container > .eplxSlide")?;
 
     let mut title_slides = tab.find_elements("#container > .eplxTitleslide")?;
@@ -95,53 +103,54 @@ fn process_tab(tab: Arc<Tab>, dir_name: &Path) -> Result<ChapterInfo, Box<dyn Er
 
     let mut index = 1;
 
-    for page in pages.iter().skip(4) {
-        let html = page
-            .call_js_fn("function() { return this.outerHTML; }", false)?
-            .value
-            .expect("Can't get HTML from div");
-
-        sleep(Duration::from_secs(1));
-        let mathjax = page.call_js_fn(
-            r##"function() {
+    let document = tab.find_element("html")?;
+    let mathjax = document.call_js_fn(
+        r##"async function() {
             function x() {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
-                        const hub = window.MathJax.Hub;
-                        const arr = hub.getAllJax()
-                        console.log({hub, arr});
                         let result = ""
 
-                        for(const obj of arr) {
+                        for(const obj of window.MathJax.Hub.getAllJax()) {
                             result += obj.originalText + "#!#"
                         }
-
-                        resolve(result)
-                    }, 10000);
+                        
+                        resolve(result);
+                    }, 500);
                 });
             }
+            
             const result = await x();
+            console.log(result);
             return result;
         }"##,
-            false,
-        )?;
+        true,
+    )?;
 
-        let mut res_str = mathjax
-            .value
-            .unwrap()
-            .as_str()
-            .unwrap()
-            .split("#!#")
-            .join("\n");
+    // sleep(Duration::from_secs(1000));
 
-        dbg!(&res_str);
+    let value = mathjax.value.unwrap();
+    let raw_str = value.as_str().unwrap();
 
-        stdin().lock().lines().next().unwrap().unwrap();
+    if !raw_str.is_empty() {
+        let mut res_str = raw_str.split("#!#").join("\n");
+
+        // stdin().lock().lines().next().unwrap().unwrap();
         res_str.remove(0);
         res_str.remove(res_str.len() - 1);
 
         let mut math_file = File::create(dir_name.join("math.txt"))?;
         math_file.write_all(res_str.as_bytes())?;
+        *good += 1;
+    } else {
+        *bad += 1;
+    }
+
+    for page in pages.iter().skip(4) {
+        let html = page
+            .call_js_fn("function() { return this.outerHTML; }", false)?
+            .value
+            .expect("Can't get HTML from div");
 
         let data = Html::parse_fragment(html.as_str().expect("Can't parse HTML"));
 
