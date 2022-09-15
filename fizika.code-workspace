@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "pupeteer"
+		},
+		{
+			"path": "svelte"
 		}
 	],
 	"settings": {}
