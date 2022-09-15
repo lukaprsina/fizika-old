@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { spring } from 'svelte/motion';
+	import {} from '$app/environment';
 
 	let count = 0;
 
