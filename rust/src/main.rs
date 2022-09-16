@@ -2,19 +2,12 @@ use fizika::utils::get_only_element;
 use itertools::Itertools;
 use select::{
     document::Document,
+    node::Node,
     predicate::{Class, Name},
 };
 use std::{error::Error, path::Path, str::FromStr};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    /* {
-        let json = include_str!("../draftjs.json");
-        let rust = serde_json::de::from_str::<ContentState>(json)?;
-
-        println!("{:#?}", rust);
-        return Ok(());
-    } */
-
     let courses_dir = Path::new("courses");
 
     let mut i = 0;
@@ -73,6 +66,11 @@ fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
         // println!("Subheading:\n{}\n", subheading.inner_html());
         Some(area)
     };
+
+    if let Some(area) = area {
+        process_node(&area);
+    }
+    return Ok(());
 
     if let Some(area) = area {
         for child in area.children() {
@@ -141,6 +139,29 @@ fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+fn process_node(node: &Node) {
+    for child in node.children() {
+        match child.name() {
+            Some(name) => match name {
+                "p" | "a" | "b" | "i" | "span" | "script" => (),
+                "li" | "ul" | "ol" | "div" | "h1" | "img" | "caption" | "h2" | "iframe" | "h3" => {
+                    ()
+                }
+                "table" | "tbody" | "td" | "tr" => (),
+                "nobr" => (),
+                "canvas" => (),
+                "input" | "label" => (),
+                _ => panic!("{}", name),
+            },
+            None => (),
+        }
+        for grandchild in child.children() {
+            process_node(&grandchild);
+        }
+    }
+}
+
 /*
 #[derive(Default)]
 struct Chapter {
