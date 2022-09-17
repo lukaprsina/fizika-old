@@ -1,9 +1,18 @@
+use color_eyre::Result;
 use fizika::utils::get_only_element;
 use itertools::Itertools;
-use select::{document::Document, node::Node, predicate::Class};
-use std::{collections::HashMap, error::Error, path::Path, str::FromStr};
+use select::{
+    document::Document,
+    node::Node,
+    predicate::{And, Class},
+};
+use std::{collections::HashMap, path::Path, str::FromStr};
+use thiserror::Error;
+use uuid::Uuid;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
+    color_eyre::install()?;
+
     let courses_dir = Path::new("courses");
 
     let mut i = 0;
@@ -11,17 +20,51 @@ fn main() -> Result<(), Box<dyn Error>> {
         let course_dir = courses_dir.join(i.to_string());
         if course_dir.is_dir() {
             let mut j = 0;
+            let mut popup_count = 0;
+
             loop {
+                let popup = if popup_count == 0 {
+                    false
+                } else {
+                    popup_count -= 1;
+                    true
+                };
+
+                let mut popups: HashMap<String, Uuid> = HashMap::new();
+
                 let exercise_dir = course_dir.join(format!("exercises/page_{}.html", j));
                 if exercise_dir.is_file() {
                     let file = exercise_dir.as_path();
                     let file = file.canonicalize()?;
                     let name = file.to_str().unwrap();
 
-                    println!("{}\n{}\n", "-".repeat(50), name);
+                    println!(
+                        "{}\n{} -> popup: {}, popup count: {}\n",
+                        "-".repeat(50),
+                        name,
+                        popup,
+                        popup_count
+                    );
                     let content = std::fs::read_to_string(name)?;
                     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
-                    process_document(document)?;
+
+                    if popup {
+                        process_popup(document)?;
+                    } else {
+                        let result = process_exercise(document);
+                        match result {
+                            Ok(new_popups) => {
+                                println!("{:#?}", &new_popups);
+                                popup_count = new_popups.len();
+                                popups = new_popups;
+                            }
+                            Err(err) => {
+                                if err == ExerciseError::HiddenExercise {
+                                    // popup_count += 1;
+                                }
+                            }
+                        }
+                    }
                 } else {
                     break;
                 }
@@ -38,14 +81,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
+fn process_popup(document: Document) -> Result<()> {
+    let areas = document.find(Class("popupContent")).collect_vec();
+    let area = get_only_element(areas);
+
+    let mut parent_vec = vec![];
+    let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
+
+    let mut popups: HashMap<String, Uuid> = HashMap::new();
+    node_hot(area, &mut parent_vec, &mut popups);
+
+    // TODO: pri kvizu so za naprej
+    // assert_eq!(popups.len(), 0);
+
+    Ok(())
+}
+
+#[derive(Error, Debug, PartialEq, PartialOrd)]
+enum ExerciseError {
+    #[error("This is a hidden exercise")]
+    HiddenExercise,
+}
+
+fn process_exercise(document: Document) -> Result<HashMap<String, Uuid>, ExerciseError> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
     let exercise = get_only_element(exercises);
 
     let area = if exercise.is(Class("popupImpl")) {
-        let areas = document.find(Class("popupContent")).collect_vec();
-        let area = get_only_element(areas);
-        Some(area)
+        return Err(ExerciseError::HiddenExercise);
     } else if exercise.is(Class("eplxLastSlide")) {
         None
     } else {
@@ -66,13 +129,16 @@ fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
     if let Some(area) = area {
         let mut parent_vec = vec![];
         let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
-        node_hot(area, &mut parent_vec);
+
+        let mut popups: HashMap<String, Uuid> = HashMap::new();
+        node_hot(area, &mut parent_vec, &mut popups);
+        return Ok(popups);
     }
 
-    Ok(())
+    Ok(HashMap::new())
 }
 
-fn node_hot(node: Node, parents: &mut Vec<Option<String>>) {
+fn node_hot(node: Node, parents: &mut Vec<Option<String>>, popups: &mut HashMap<String, Uuid>) {
     match node.name() {
         Some(name) => match name {
             "script" => {
@@ -88,17 +154,17 @@ fn node_hot(node: Node, parents: &mut Vec<Option<String>>) {
                 }
             }
             "a" => {
-                let mut count = 0;
+                // skip non-explanetory ones like 7-1
+                if node.is(And(Class("goToSlide"), Class("explain"))) {
+                    let mut href = node
+                        .attr("href")
+                        .expect("goToSlide must have an href")
+                        .to_string();
+                    href.remove(0);
 
-                for class in ["button-gray", "explain", "goToSlide"].into_iter() {
-                    if node.is(Class(class)) {
-                        count += 1;
-                    }
-                }
-
-                if count == 0 || count == 3 {
+                    popups.insert(href, Uuid::new_v4());
+                } else if node.is(Class("goToHidden")) {
                 } else {
-                    panic!("Count isnt right, {}, {}", count, node.html());
                 }
             }
             _ => (),
@@ -115,7 +181,7 @@ fn node_hot(node: Node, parents: &mut Vec<Option<String>>) {
 
         new_parents.push(maybe_name);
 
-        node_hot(child, &mut new_parents);
+        node_hot(child, &mut new_parents, popups);
     }
 }
 

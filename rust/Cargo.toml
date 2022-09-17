@@ -7,6 +7,7 @@ default-run = "fizika"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+color-eyre = "0.6.2"
 headless_chrome = "0.9.0"
 itertools = "0.10.3"
 reqwest = "0.11.11"
@@ -14,5 +15,7 @@ select = "0.5.0"
 serde = "1.0.144"
 serde_json = "1.0.85"
 tendril = "0.4.3"
+thiserror = "1.0.35"
 tokio = { version = "1.21.1", features = ["full"] }
 url = "2.2.2"
+uuid = { version = "1.1.2", features = ["v4"] }
