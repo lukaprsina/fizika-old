@@ -1,22 +1,19 @@
 use fizika::utils::get_only_element;
 use itertools::Itertools;
-use select::{
-    document::Document,
-    node::Node,
-    predicate::{Class, Name},
-};
-use std::{error::Error, path::Path, str::FromStr};
+use select::{document::Document, node::Node, predicate::Class};
+use std::{collections::HashMap, error::Error, path::Path, str::FromStr};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let courses_dir = Path::new("courses");
 
-    let mut i = 1;
+    let mut max_count = usize::MIN;
+    let mut i = 0;
     loop {
         let course_dir = courses_dir.join(i.to_string());
         if course_dir.is_dir() {
-            let mut j = 1;
+            let mut j = 0;
             loop {
-                let exercise_dir = course_dir.join(format!("exercises/page {}.html", j));
+                let exercise_dir = course_dir.join(format!("exercises/page_{}.html", j));
                 if exercise_dir.is_file() {
                     let file = exercise_dir.as_path();
                     let file = file.canonicalize()?;
@@ -25,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     println!("{}\n{}\n", "-".repeat(50), name);
                     let content = std::fs::read_to_string(name)?;
                     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
-                    process_document(document)?;
+                    process_document(document, &mut max_count)?;
                 } else {
                     break;
                 }
@@ -39,10 +36,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         i += 1;
     }
 
+    println!("Max count: {}", max_count);
+
     Ok(())
 }
 
-fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
+fn process_document(document: Document, max_count: &mut usize) -> Result<(), Box<dyn Error>> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
     let exercise = get_only_element(exercises);
 
@@ -68,88 +67,66 @@ fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
     };
 
     if let Some(area) = area {
-        let parent_vec = vec![];
-        let new_area = process_node(area, &parent_vec);
-        // println!("{}", new_area.html());
-    }
+        let mut parent_vec = vec![];
+        let mut map: HashMap<usize, (usize, String)> = HashMap::new();
+        let _new_area = process_node(area, &mut parent_vec, &mut map);
 
-    return Ok(());
-
-    if let Some(area) = area {
-        for child in area.children() {
-            match child.name() {
-                Some(name) => match name {
-                    "p" => {
-                        let new_children = child.children().collect_vec();
-                        if let Some(new_child) = new_children.first() {
-                            match new_child.name() {
-                                Some(name) => match name {
-                                    "a" | "b" | "i" | "span" | "script" => (),
-                                    _ => panic!("New name in p: {}: {}", name, new_child.html()),
-                                },
-                                // text
-                                None => (), // println!("{}\n", new_child.html()),
-                            }
-                        }
-                    }
-                    "table" => {
-                        let t_children = child.children().collect_vec();
-                        let mut t_bodies = vec![];
-
-                        for child in t_children {
-                            if child.is(Name("tbody")) {
-                                t_bodies.push(child);
-                            }
-                        }
-
-                        match t_bodies.len() {
-                            // quiz
-                            0 => println!("{}\n-> {}", exercise.html(), child.html()),
-                            1 => {
-                                let mut t_rows = vec![];
-                                let t_body_children = t_bodies[0].children().collect_vec();
-
-                                for child in t_body_children {
-                                    if child.is(Name("tr")) {
-                                        t_rows.push(child);
-                                    }
-                                }
-
-                                match t_rows.len() {
-                                    0 => println!("{}\n-> {}", exercise.html(), t_bodies[0].html()),
-                                    1 => (),
-                                    _ => println!("{}\n-> {}", exercise.html(), t_bodies[0].html()),
-                                }
-                            }
-                            _ => unreachable!(),
-                        }
-                    }
-                    "ul" | "ol" | "div" | "h1" | "img" | "script" | "h2" | "iframe" | "h3"
-                    | "a" => (),
-
-                    _ => panic!("New name: {}: {}", name, child.html()),
-                },
-                None => {
-                    let html = child.html();
-                    let trimmed_html = html.trim();
-                    if !trimmed_html.is_empty() {
-                        panic!("{}", trimmed_html);
-                    }
-                }
-            }
+        for count in map.iter_mut() {
+            *max_count = usize::max(*count.0, *max_count);
         }
+
+        println!("{:#?}", map);
+        /* let mut index = 0;
+        loop {
+            match map.get_mut(&index) {
+                Some(value) => println!("{}: {:?}", index, value),
+                None => break,
+            }
+            index += 1;
+        } */
     }
 
     Ok(())
 }
 
-fn process_node<'a>(node: Node<'a>, parents: &'a Vec<Option<&'a str>>) -> Node<'a> {
+fn process_node<'a>(
+    node: Node<'a>,
+    parents: &'a mut Vec<Option<String>>,
+    counts: &mut HashMap<usize, (usize, String)>,
+) -> Node<'a> {
+    match counts.get_mut(&parents.len()) {
+        Some(mut value) => {
+            let mut result = String::new();
+
+            let mut last = None;
+            for parent in parents.into_iter() {
+                last = parent.clone();
+                match parent {
+                    Some(tag_str) => {
+                        result += &format!(", {}", tag_str);
+                    }
+                    None => {
+                        // result += ", text";
+                    }
+                }
+            }
+
+            if last.is_some() {
+                value.0 += 1;
+                value.1 = result.to_string();
+            }
+        }
+        None => {
+            counts.insert(parents.len(), (0, "".to_string()));
+        }
+    }
+
     for child in node.children() {
         let maybe_name = child.name();
 
         match maybe_name {
             Some(name) => match name {
-                "p" | "a" | "b" | "i" => (),
+                "span" | "p" | "a" | "b" | "i" => (),
                 "li" | "ul" | "ol" | "div" | "h1" | "img" | "caption" | "h2" | "iframe" | "h3" => {
                     ()
                 }
@@ -157,29 +134,36 @@ fn process_node<'a>(node: Node<'a>, parents: &'a Vec<Option<&'a str>>) -> Node<'
                 "nobr" => (),
                 "canvas" => (),
                 "input" | "label" => (),
-                "span" => {
-                    if child.is(Class("MathJax")) {
-                        // panic!();
-                    }
-                }
                 "script" => {
                     if let Some(attr_type) = child.attr("type") {
                         if attr_type == "math/tex" {
-                            println!("{}", child.inner_html());
+                            // println!("{}", child.inner_html());
+                        } else if attr_type == "math/tex; mode=display" {
+                        } else {
+                            println!("{}: {}", attr_type, child.html());
+                            panic!("Script is not math");
                         }
                     }
-                    for script_child in child.children() {}
                 }
                 _ => panic!("{}", name),
             },
             None => (),
         }
 
-        let mut new_parents = parents.clone();
-        new_parents.push(maybe_name);
+        let maybe_name = match maybe_name {
+            Some(name) => Some(name.to_string()),
+            None => None,
+        };
 
+        /* println!(
+            "{:#?}\n\n{:#?}\n\n{}\n\n",
+            node.html(),
+            maybe_name,
+            "-".repeat(60)
+        ); */
+        parents.push(maybe_name);
         for grandchild in child.children() {
-            process_node(grandchild, &new_parents);
+            process_node(grandchild, parents, counts);
         }
     }
 
@@ -254,4 +238,69 @@ fn parse_popup(fragment: Html) -> Popup {
 fn parse_element(element: ElementRef) {
     for item in element.traverse() {}
 }
+
+if let Some(area) = area {
+        for child in area.children() {
+            match child.name() {
+                Some(name) => match name {
+                    "p" => {
+                        let new_children = child.children().collect_vec();
+                        if let Some(new_child) = new_children.first() {
+                            match new_child.name() {
+                                Some(name) => match name {
+                                    "a" | "b" | "i" | "span" | "script" => (),
+                                    _ => panic!("New name in p: {}: {}", name, new_child.html()),
+                                },
+                                // text
+                                None => (), // println!("{}\n", new_child.html()),
+                            }
+                        }
+                    }
+                    "table" => {
+                        let t_children = child.children().collect_vec();
+                        let mut t_bodies = vec![];
+
+                        for child in t_children {
+                            if child.is(Name("tbody")) {
+                                t_bodies.push(child);
+                            }
+                        }
+
+                        match t_bodies.len() {
+                            // quiz
+                            0 => println!("{}\n-> {}", exercise.html(), child.html()),
+                            1 => {
+                                let mut t_rows = vec![];
+                                let t_body_children = t_bodies[0].children().collect_vec();
+
+                                for child in t_body_children {
+                                    if child.is(Name("tr")) {
+                                        t_rows.push(child);
+                                    }
+                                }
+
+                                match t_rows.len() {
+                                    0 => println!("{}\n-> {}", exercise.html(), t_bodies[0].html()),
+                                    1 => (),
+                                    _ => println!("{}\n-> {}", exercise.html(), t_bodies[0].html()),
+                                }
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    "ul" | "ol" | "div" | "h1" | "img" | "script" | "h2" | "iframe" | "h3"
+                    | "a" => (),
+
+                    _ => panic!("New name: {}: {}", name, child.html()),
+                },
+                None => {
+                    let html = child.html();
+                    let trimmed_html = html.trim();
+                    if !trimmed_html.is_empty() {
+                        panic!("{}", trimmed_html);
+                    }
+                }
+            }
+        }
+    }
  */

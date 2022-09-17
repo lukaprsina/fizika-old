@@ -1,14 +1,60 @@
-use std::{error::Error, sync::Arc, thread::sleep, time::Duration};
+use itertools::Itertools;
+use select::{
+    document::Document,
+    node::Node,
+    predicate::{Child, Class, Name},
+};
+use serde::{Deserialize, Serialize};
+use std::error::Error;
 
-use headless_chrome::{Browser, LaunchOptionsBuilder, Tab};
+pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>> {
+    let html = title_slide.inner_html();
 
-pub fn get_links(tab: Arc<Tab>) -> Result<Vec<String>, Box<dyn Error>> {
+    let document = Document::from(html.as_str());
+    let texts = document.find(Class("logo_txt")).collect_vec();
+    let text = get_only_element(texts);
+
+    let headings = text.find(Name("h1")).collect_vec();
+    let heading = get_only_element(headings);
+
+    let iter = text.find(Name("h3")).collect_vec();
+    let author = iter.get(0);
+    let goals = iter.get(1);
+
+    Ok(ChapterInfo {
+        heading: heading.inner_html().trim().to_string(),
+        author: author.map(get_not_span),
+        goals: goals.map(get_not_span),
+    })
+}
+
+pub fn get_only_element<T>(mut elements: Vec<T>) -> T {
+    assert_eq!(elements.len(), 1);
+    elements.remove(0)
+}
+
+pub fn get_not_span(x: &Node) -> String {
+    let mut result = String::new();
+
+    for child in x.children() {
+        if !child.is(Name("span")) {
+            result = child.html()
+        }
+    }
+
+    result
+}
+
+pub fn get_links(html: &Document) -> Result<Vec<String>, Box<dyn Error>> {
     let mut links = Vec::new();
-    let elements = tab.find_elements("body > div a")?;
 
-    for element in elements {
-        let attributes = element.get_attributes()?.expect("No attributes");
-        let on_click = attributes.get("onclick").unwrap();
+    let arr = html
+        .find(Child(Child(Name("body"), Name("div")), Name("a")))
+        .collect_vec();
+
+    for element in arr {
+        let on_click = element.attr("onclick").expect("No attribute onclick");
+
         let start = "window.open(\'".len();
         let end = on_click
             .chars()
@@ -22,21 +68,9 @@ pub fn get_links(tab: Arc<Tab>) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(links)
 }
 
-pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser), Box<dyn Error>> {
-    let options = LaunchOptionsBuilder::default()
-        .headless(false)
-        .idle_browser_timeout(Duration::from_secs(10 * 60))
-        .build()?;
-
-    let browser = Browser::new(options)?;
-    let tab = browser.wait_for_initial_tab()?;
-    tab.navigate_to("http://fizika.sc-nm.si/")?;
-    tab.wait_until_navigated()?;
-    sleep(Duration::from_secs(1));
-    Ok((tab, browser))
-}
-
-pub fn get_only_element<T>(mut elements: Vec<T>) -> T {
-    assert_eq!(elements.len(), 1);
-    elements.remove(0)
+#[derive(Deserialize, Serialize)]
+pub struct ChapterInfo {
+    pub heading: String,
+    pub author: Option<String>,
+    pub goals: Option<String>,
 }
