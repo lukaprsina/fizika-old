@@ -6,7 +6,6 @@ use std::{collections::HashMap, error::Error, path::Path, str::FromStr};
 fn main() -> Result<(), Box<dyn Error>> {
     let courses_dir = Path::new("courses");
 
-    let mut max_count = usize::MIN;
     let mut i = 0;
     loop {
         let course_dir = courses_dir.join(i.to_string());
@@ -22,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     println!("{}\n{}\n", "-".repeat(50), name);
                     let content = std::fs::read_to_string(name)?;
                     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
-                    process_document(document, &mut max_count)?;
+                    process_document(document)?;
                 } else {
                     break;
                 }
@@ -36,12 +35,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         i += 1;
     }
 
-    println!("Max count: {}", max_count);
-
     Ok(())
 }
 
-fn process_document(document: Document, max_count: &mut usize) -> Result<(), Box<dyn Error>> {
+fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
     let exercise = get_only_element(exercises);
 
@@ -68,58 +65,72 @@ fn process_document(document: Document, max_count: &mut usize) -> Result<(), Box
 
     if let Some(area) = area {
         let mut parent_vec = vec![];
-        let mut map: HashMap<usize, (usize, String)> = HashMap::new();
-        let _new_area = process_node(area, &mut parent_vec, &mut map);
-
-        for count in map.iter_mut() {
-            *max_count = usize::max(*count.0, *max_count);
-        }
-
-        println!("{:#?}", map);
-        /* let mut index = 0;
-        loop {
-            match map.get_mut(&index) {
-                Some(value) => println!("{}: {:?}", index, value),
-                None => break,
-            }
-            index += 1;
-        } */
+        let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
+        node_hot(area, &mut parent_vec);
     }
 
     Ok(())
 }
 
-fn process_node<'a>(
-    node: Node<'a>,
-    parents: &'a mut Vec<Option<String>>,
-    counts: &mut HashMap<usize, (usize, String)>,
-) -> Node<'a> {
-    match counts.get_mut(&parents.len()) {
-        Some(mut value) => {
-            let mut result = String::new();
+fn node_hot(node: Node, parents: &mut Vec<Option<String>>) {
+    match node.name() {
+        Some(name) => match name {
+            "script" => {
+                if let Some(attr_type) = node.attr("type") {
+                    let display_mode = match attr_type {
+                        "math/tex" => false,
+                        "math/tex; mode=display" => true,
+                        _ => panic!("Script is not math"),
+                    };
 
-            let mut last = None;
-            for parent in parents.into_iter() {
-                last = parent.clone();
-                match parent {
-                    Some(tag_str) => {
-                        result += &format!(", {}", tag_str);
-                    }
-                    None => {
-                        // result += ", text";
-                    }
+                    let script_children = node.children().collect_vec();
+                    let script_child = get_only_element(script_children);
                 }
             }
+            "a" => {
+                let mut count = 0;
 
-            if last.is_some() {
-                value.0 += 1;
-                value.1 = result.to_string();
+                for class in ["button-gray", "explain", "goToSlide"].into_iter() {
+                    if node.is(Class(class)) {
+                        count += 1;
+                    }
+                }
+
+                if count == 0 || count == 3 {
+                } else {
+                    panic!("Count isnt right, {}, {}", count, node.html());
+                }
             }
-        }
-        None => {
-            counts.insert(parents.len(), (0, "".to_string()));
-        }
+            _ => (),
+        },
+        None => (),
     }
+    for child in node.children() {
+        let mut new_parents = parents.clone();
+
+        let maybe_name = match child.name() {
+            Some(name) => Some(name.to_string()),
+            None => None,
+        };
+
+        new_parents.push(maybe_name);
+
+        node_hot(child, &mut new_parents);
+    }
+}
+
+/* fn process_node<'a>(
+    node: Node<'a>,
+    parents: &'a mut Vec<Option<String>>,
+    counts: &mut HashMap<usize, Vec<Option<String>>>,
+) -> Node<'a> {
+    let maybe_count = counts.remove(&parents.len());
+    let new_count = match maybe_count {
+        Some(_) => parents.clone(),
+        None => vec![],
+    };
+
+    counts.insert(parents.len(), new_count);
 
     for child in node.children() {
         let maybe_name = child.name();
@@ -127,8 +138,9 @@ fn process_node<'a>(
         match maybe_name {
             Some(name) => match name {
                 "span" | "p" | "a" | "b" | "i" => (),
-                "li" | "ul" | "ol" | "div" | "h1" | "img" | "caption" | "h2" | "iframe" | "h3" => {
-                    ()
+                "li" | "ul" | "ol" | "div" | "h1" | "caption" | "h2" | "iframe" | "h3" => (),
+                "img" => {
+                    println!("{:#?}", parents);
                 }
                 "table" | "tbody" | "td" | "tr" => (),
                 "nobr" => (),
@@ -161,16 +173,17 @@ fn process_node<'a>(
             maybe_name,
             "-".repeat(60)
         ); */
-        parents.push(maybe_name);
         for grandchild in child.children() {
-            process_node(grandchild, parents, counts);
+            let mut new_parents = parents.clone();
+            new_parents.push(maybe_name.clone());
+            println!("{:?}", grandchild.name());
+            process_node(grandchild, &mut new_parents, counts);
         }
     }
 
     node
 }
 
-/*
 #[derive(Default)]
 struct Chapter {
     title: String,

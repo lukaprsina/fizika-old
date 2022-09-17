@@ -1,13 +1,13 @@
 {
 	"folders": [
 		{
-			"path": "../../.."
+			"path": "rust"
 		},
 		{
-			"path": "../../../../react"
+			"path": "react"
 		},
 		{
-			"path": "../../../../pupeteer"
+			"path": "pupeteer"
 		}
 	],
 	"settings": {}
