@@ -10,7 +10,7 @@ use std::{error::Error, path::Path, str::FromStr};
 fn main() -> Result<(), Box<dyn Error>> {
     let courses_dir = Path::new("courses");
 
-    let mut i = 0;
+    let mut i = 1;
     loop {
         let course_dir = courses_dir.join(i.to_string());
         if course_dir.is_dir() {
@@ -68,8 +68,11 @@ fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
     };
 
     if let Some(area) = area {
-        process_node(&area);
+        let parent_vec = vec![];
+        let new_area = process_node(area, &parent_vec);
+        // println!("{}", new_area.html());
     }
+
     return Ok(());
 
     if let Some(area) = area {
@@ -140,11 +143,13 @@ fn process_document(document: Document) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn process_node(node: &Node) {
+fn process_node<'a>(node: Node<'a>, parents: &'a Vec<Option<&'a str>>) -> Node<'a> {
     for child in node.children() {
-        match child.name() {
+        let maybe_name = child.name();
+
+        match maybe_name {
             Some(name) => match name {
-                "p" | "a" | "b" | "i" | "span" | "script" => (),
+                "p" | "a" | "b" | "i" => (),
                 "li" | "ul" | "ol" | "div" | "h1" | "img" | "caption" | "h2" | "iframe" | "h3" => {
                     ()
                 }
@@ -152,14 +157,33 @@ fn process_node(node: &Node) {
                 "nobr" => (),
                 "canvas" => (),
                 "input" | "label" => (),
+                "span" => {
+                    if child.is(Class("MathJax")) {
+                        // panic!();
+                    }
+                }
+                "script" => {
+                    if let Some(attr_type) = child.attr("type") {
+                        if attr_type == "math/tex" {
+                            println!("{}", child.inner_html());
+                        }
+                    }
+                    for script_child in child.children() {}
+                }
                 _ => panic!("{}", name),
             },
             None => (),
         }
+
+        let mut new_parents = parents.clone();
+        new_parents.push(maybe_name);
+
         for grandchild in child.children() {
-            process_node(&grandchild);
+            process_node(grandchild, &new_parents);
         }
     }
+
+    node
 }
 
 /*

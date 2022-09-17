@@ -136,8 +136,8 @@ fn process_tab(
         let mut res_str = raw_str.split("#!#").join("\n");
 
         // stdin().lock().lines().next().unwrap().unwrap();
-        res_str.remove(0);
-        res_str.remove(res_str.len() - 1);
+        /* res_str.remove(0);
+        res_str.remove(res_str.len() - 1); */
 
         let mut math_file = File::create(dir_name.join("math.txt"))?;
         math_file.write_all(res_str.as_bytes())?;
