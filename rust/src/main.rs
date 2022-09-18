@@ -1,9 +1,7 @@
 use build_html::{Html, HtmlPage};
-use build_html::{Html, HtmlPage};
 use color_eyre::Result;
 use fizika::utils::get_only_element;
 use itertools::Itertools;
-use katex::OutputType;
 use katex::OutputType;
 use select::{
     document::Document,
@@ -182,7 +180,7 @@ fn process_popup(document: Document, output_page: &mut HtmlPage) -> Result<Strin
     // TODO: pri kvizu so za naprej
     // assert_eq!(popups.len(), 0);
 
-    Ok(uuid.to_stringuuid.to_string())
+    Ok(uuid.to_string())
 }
 
 #[derive(Error, Debug, PartialEq, PartialOrd)]
@@ -192,10 +190,7 @@ enum ExerciseError {
 }
 
 fn process_exercise(
-    
     document: Document,
-    output_page: &mut HtmlPage,
-,
     output_page: &mut HtmlPage,
 ) -> Result<HashMap<String, Uuid>, ExerciseError> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
