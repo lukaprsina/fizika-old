@@ -10,6 +10,16 @@
     "goals": " Poznavanje in uporaba gravitacijskega zakona.\nPoznavanje  in uporaba Kepperjevih zakonov."
   },
   {
+    "heading": "1. Kviz o premem gibanju",
+    "author": " Matej Rožič",
+    "goals": " Preverjaje znanja dijakov o premem gibanju."
+  },
+  {
+    "heading": "2. Plinski zakoni - kviz",
+    "author": " Matej Rožič",
+    "goals": null
+  },
+  {
     "heading": "1. Merjenje",
     "author": " Matej Rožič",
     "goals": " Poznavanje merskih količin, osnovnih enot. Pretvarjanje med enotami. Napake (merske, sistemske, absolutne, relativne...)"

@@ -3,8 +3,6 @@ use std::{
     fs::{create_dir, remove_dir_all, remove_file, File},
     io::Write,
     path::Path,
-    thread::sleep,
-    time::Duration,
 };
 
 use fizika::utils::{get_chapter_info, get_links, ChapterInfo};
@@ -44,12 +42,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let dir_name = pages_dir.join(pos.to_string());
         create_dir(&dir_name)?;
-        create_dir(dir_name.join("exercises"))?;
         let dir_name = dir_name.canonicalize()?;
-        let chapter_info = process_tab(course_document, dir_name.as_path())?;
+        let chapter_info = process_tab(course_document, dir_name.as_path(), pos)?;
 
         chapter_infos.push(chapter_info);
-        sleep(Duration::from_millis(500));
     }
 
     let chapter_info_dir = Path::new("chapter_infos.txt");
@@ -64,7 +60,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn process_tab(course_document: Document, dir_name: &Path) -> Result<ChapterInfo, Box<dyn Error>> {
+fn process_tab(
+    course_document: Document,
+    dir_name: &Path,
+    course_pos: usize,
+) -> Result<ChapterInfo, Box<dyn Error>> {
     let pages = course_document
         .find(Child(
             select::predicate::Attr("id", "container"),
@@ -84,9 +84,24 @@ fn process_tab(course_document: Document, dir_name: &Path) -> Result<ChapterInfo
 
     let mut page_pos = 0;
     for page in pages.into_iter().skip(4) {
-        let new_path = dir_name.join(format!("exercises/page_{}.html", page_pos));
+        // TODO: exercise double
+        if course_pos == 24 && (page_pos >= 32 && page_pos <= 35) {
+            page_pos = 36;
+            continue;
+        }
+
+        let new_path = dir_name.join(format!("page_{}.html", page_pos));
         let mut f = File::create(new_path)?;
         f.write_all(page.html().as_bytes())?;
+
+        if course_pos == 27 && page_pos == 104 {
+            // TODO: two popup links, both broken
+            page_pos += 1;
+            let new_path = dir_name.join(format!("page_{}.html", page_pos));
+            let mut f = File::create(new_path)?;
+            f.write_all(page.html().as_bytes())?;
+        }
+
         page_pos += 1;
     }
 

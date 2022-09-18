@@ -2,7 +2,7 @@ use itertools::Itertools;
 use select::{
     document::Document,
     node::Node,
-    predicate::{Child, Class, Name},
+    predicate::{Class, Descendant, Name},
 };
 use serde::{Deserialize, Serialize};
 use std::error::Error;
@@ -45,11 +45,12 @@ pub fn get_not_span(x: &Node) -> String {
     result
 }
 
+// previously 37 courses, now 39
 pub fn get_links(html: &Document) -> Result<Vec<String>, Box<dyn Error>> {
     let mut links = Vec::new();
 
     let arr = html
-        .find(Child(Child(Name("body"), Name("div")), Name("a")))
+        .find(Descendant(Descendant(Name("body"), Name("div")), Name("a")))
         .collect_vec();
 
     for element in arr {
