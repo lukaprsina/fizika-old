@@ -1,7 +1,9 @@
 use build_html::{Html, HtmlPage};
+use build_html::{Html, HtmlPage};
 use color_eyre::Result;
 use fizika::utils::get_only_element;
 use itertools::Itertools;
+use katex::OutputType;
 use katex::OutputType;
 use select::{
     document::Document,
@@ -27,16 +29,25 @@ fn main() -> Result<()> {
     if output_dir.exists() {
         remove_dir_all(&output_dir)?;
     }
+    let output_dir = Path::new("output");
+
+    if output_dir.exists() {
+        remove_dir_all(&output_dir)?;
+    }
 
     let mut i = 0;
     loop {
         let course_dir = courses_dir.join(i.to_string());
         let course_output_dir = output_dir.join(i.to_string());
 
+        let course_output_dir = output_dir.join(i.to_string());
+
         if course_dir.is_dir() {
             let mut j = 0;
             let mut popup_count = 0;
 
+            let mut last_exercise_dir = PathBuf::new();
+            let mut popups: HashMap<String, Uuid> = HashMap::new();
             let mut last_exercise_dir = PathBuf::new();
             let mut popups: HashMap<String, Uuid> = HashMap::new();
             loop {
@@ -81,6 +92,7 @@ fn main() -> Result<()> {
                     let content = std::fs::read_to_string(name)?;
                     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
                     let mut output_page = build_html::HtmlPage::new();
+                    let mut output_page = build_html::HtmlPage::new();
 
                     if popup {
                         let html_uuid = process_popup(document, &mut output_page)?;
@@ -124,7 +136,7 @@ fn main() -> Result<()> {
                             }
                             Err(err) => {
                                 if err == ExerciseError::HiddenExercise {
-                                    // TODO: popup_count += 1;
+                                    // TODO: TODO: popup_count += 1;
                                 }
                             }
                         }
@@ -155,6 +167,12 @@ fn process_popup(document: Document, output_page: &mut HtmlPage) -> Result<Strin
     let exercise = get_only_element(exercises);
     let uuid = exercise.attr("id").unwrap();
 
+    let exercises = document
+        .find(And(Class("eplxSlide"), Class("popupImpl")))
+        .collect_vec();
+    let exercise = get_only_element(exercises);
+    let uuid = exercise.attr("id").unwrap();
+
     let mut parent_vec = vec![];
     let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
@@ -164,7 +182,7 @@ fn process_popup(document: Document, output_page: &mut HtmlPage) -> Result<Strin
     // TODO: pri kvizu so za naprej
     // assert_eq!(popups.len(), 0);
 
-    Ok(uuid.to_string())
+    Ok(uuid.to_stringuuid.to_string())
 }
 
 #[derive(Error, Debug, PartialEq, PartialOrd)]
@@ -174,7 +192,10 @@ enum ExerciseError {
 }
 
 fn process_exercise(
+    
     document: Document,
+    output_page: &mut HtmlPage,
+,
     output_page: &mut HtmlPage,
 ) -> Result<HashMap<String, Uuid>, ExerciseError> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
@@ -273,7 +294,7 @@ fn node_hot(node: Node, parents: &mut Vec<Option<String>>, popups: &mut HashMap<
                 }
             }
             "a" => {
-                // TODO: skip non-explanetory ones like 7-1
+                // TODO: TODO: skip non-explanetory ones like 7-1
                 if node.is(And(Class("goToSlide"), Class("explain"))) {
                     let mut href = node
                         .attr("href")
