@@ -20,7 +20,7 @@ const Home: NextPage = () => {
         editor.ui.registry.addButton('customInsertButton', {
             text: 'My Button',
             onAction: () => {
-                editor.insertContent('<button id="test" onclick="myFunction()">Test</button>', {});
+                editor.insertContent('<button onclick="console.log(1)" id="test" class="nextPage notProcessed">Test</button>', { format: 'raw' });
             },
         });
     }
@@ -46,27 +46,19 @@ const Home: NextPage = () => {
                 apiKey={'drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker'}
                 initialValue=''
                 init={{
-                    // entity_encoding: 'raw',
                     content_css: '/tinymce/styles.css',
                     height: 500,
                     external_plugins: {
                         tiny_mce_wiris: '/tinymce/math_wiris.min.js'
                     },
                     setup,
-                    /* plugins: ['advlist autolink lists link image charmap print preview anchor',
-                        'searchreplace visualblocks code fullscreen',
-                        'insertdatetime media table paste code help wordcount'], */
+                    extended_valid_elements: "button[*]",
                     plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
                     menubar: 'file edit view insert format tools table help',
                     toolbar: 'customInsertButton | undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
                     toolbar_sticky: true,
                     toolbar_mode: 'sliding',
                     contextmenu: 'link image table',
-                    /* toolbar: 'undo redo | formatselect | ' +
-                        'bold italic backcolor | alignleft aligncenter ' +
-                        'alignright alignjustify | bullist numlist outdent indent | ' +
-                        'removeformat | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | ' +
-                        'help', */
                     draggable_modal: true,
                     autosave_ask_before_unload: true,
                     autosave_interval: '30s',
