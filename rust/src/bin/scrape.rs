@@ -49,7 +49,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let chapter_info = process_tab(course_document, dir_name.as_path())?;
 
         chapter_infos.push(chapter_info);
-        sleep(Duration::from_millis(500));
     }
 
     let chapter_info_dir = Path::new("chapter_infos.txt");
