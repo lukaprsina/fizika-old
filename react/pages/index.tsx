@@ -2,7 +2,7 @@ import { AppShell, Button, Header, Navbar } from '@mantine/core'
 import { Editor } from '@tinymce/tinymce-react'
 import type { NextPage } from 'next'
 import dynamic from 'next/dynamic'
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 
 const DynamicEditor = dynamic(() => import('@tinymce/tinymce-react').then(mod => mod.Editor), {
     ssr: false,
@@ -17,10 +17,37 @@ const Home: NextPage = () => {
         if (typeof (editor) === 'undefined')
             return;
 
-        editor.ui.registry.addButton('customInsertButton', {
-            text: 'My Button',
+        editor.ui.registry.addButton('addModalButton', {
+            text: 'Modal',
             onAction: () => {
-                editor.insertContent('<button onclick="console.log(1)" id="test" class="nextPage notProcessed">Test</button>', { format: 'raw' });
+                let elements = editor.contentDocument.querySelectorAll(".popup")
+                let html = '<ul>'
+                elements.forEach(elem => {
+                    html += '<li>' + elem.tagName + '</li>'
+                })
+                html += '</ul>'
+
+                editor.windowManager.open({
+                    title: "Add modal",
+                    body: {
+                        type: 'panel',
+                        items: [
+                            {
+                                type: 'htmlpanel',
+                                html
+                            }
+                        ]
+
+                    },
+                    buttons: [
+                        {
+                            type: 'submit',
+                            text: 'OK'
+                        }
+                    ]
+                })
+                // editor.insertContent('<button onclick="openModal()">Test</button>', { format: 'raw' });
+                console.log("Test")
             },
         });
     }
@@ -37,7 +64,6 @@ const Home: NextPage = () => {
                 if (typeof (editor) === 'undefined')
                     return;
 
-                console.log(editor.contentDocument.querySelector("button"))
             }}>Test</Button>
             <DynamicEditor
                 onInit={(_, editor) => {
@@ -55,7 +81,7 @@ const Home: NextPage = () => {
                     extended_valid_elements: "button[*]",
                     plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
                     menubar: 'file edit view insert format tools table help',
-                    toolbar: 'customInsertButton | undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
+                    toolbar: 'addModalButton | undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
                     toolbar_sticky: true,
                     toolbar_mode: 'sliding',
                     contextmenu: 'link image table',

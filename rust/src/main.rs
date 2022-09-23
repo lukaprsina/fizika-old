@@ -1,4 +1,4 @@
-use build_html::{Html, HtmlPage};
+use build_html::*;
 use color_eyre::Result;
 use fizika::utils::get_only_element;
 use itertools::Itertools;
@@ -90,7 +90,6 @@ fn main() -> Result<()> {
                     let content = std::fs::read_to_string(name)?;
                     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
                     let mut output_page = build_html::HtmlPage::new();
-                    let mut output_page = build_html::HtmlPage::new();
 
                     if popup {
                         let html_uuid = process_popup(document, &mut output_page)?;
@@ -175,7 +174,7 @@ fn process_popup(document: Document, output_page: &mut HtmlPage) -> Result<Strin
     let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
     let mut popups: HashMap<String, Uuid> = HashMap::new();
-    node_hot(area, &mut parent_vec, &mut popups);
+    node_hot(area, &mut parent_vec, &mut popups, output_page);
 
     // TODO: pri kvizu so za naprej
     // assert_eq!(popups.len(), 0);
@@ -218,16 +217,22 @@ fn process_exercise(
         let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
         let mut popups: HashMap<String, Uuid> = HashMap::new();
-        node_hot(area, &mut parent_vec, &mut popups);
+        node_hot(area, &mut parent_vec, &mut popups, output_page);
         return Ok(popups);
     }
 
     Ok(HashMap::new())
 }
 
-fn node_hot(node: Node, parents: &mut Vec<Option<String>>, popups: &mut HashMap<String, Uuid>) {
+fn node_hot(
+    node: Node,
+    parents: &mut Vec<Option<String>>,
+    popups: &mut HashMap<String, Uuid>,
+    output_page: &mut HtmlPage,
+) {
     match node.name() {
         Some(name) => match name {
+            "p" => output_page.with_paragraph(node.text()),
             "script" => {
                 if let Some(attr_type) = node.attr("type") {
                     let display_mode = match attr_type {
@@ -239,42 +244,8 @@ fn node_hot(node: Node, parents: &mut Vec<Option<String>>, popups: &mut HashMap<
                     let script_children = node.children().collect_vec();
                     let script_child = get_only_element(script_children);
 
-                    let formula = script_child.as_text().unwrap();
-                    let mut formula = formula
-                        .replace("\\mbox", "\\,")
-                        .replace("{%}", "{ \\%}")
-                        .replace("{ %}", "{ \\%}")
-                        .replace("{ % }", "{ \\%}")
-                        .replace("y: F_{tn}-F_S$=0", "y: F_{tn}-F_S=0")
-                        .replace("^'", "^\\prime")
-                        .replace("\\frc", "\\frac")
-                        .replace("\\cdor", "\\cdot")
-                        .replace("\\codt", "\\cdot")
-                        .replace("\\epsilo", "\\epsilon")
-                        .replace("\\epsilonn", "\\epsilon");
-
-                    let long_replace = [
-                        (
-                            "$k=\\frac{\\Delta F}{\\Delta l}=\\frac{60 \\,{ kN}-0 \\,{ kN}}{0,40 \\,{ m}-0,20 \\,{ m}}=300 \\,{ kN/m}",
-                            "k=\\frac{\\Delta F}{\\Delta l}=\\frac{60 \\,{ kN}-0 \\,{ kN}}{0,40 \\,{ m}-0,20 \\,{ m}}=300 \\,{ kN/m}"
-                        ),
-                        (
-                            "P_p=\\frac{\\Delta m_p \\cdot q_{izp}}{t_1}= {\\Delta m_p \\cdot q_{izp} \\cdot f",
-                            "P_p=\\frac{\\Delta m_p \\cdot q_{izp}}{t_1}= {\\Delta m_p \\cdot q_{izp} \\cdot f}"
-                        ),
-                        (
-                            "v_0=$\\sqrt{2 \\cdot g \\cdot \\Delta h}=6,3 \\,{ m/s} =22,6 \\,{ km/h}",
-                            "v_0=\\sqrt{2 \\cdot g \\cdot \\Delta h}=6,3 \\,{ m/s} =22,6 \\,{ km/h}"
-                        ),
-                        (
-                            "\\Sigma F=m \\cdot a$: $-F_{vzmeti}=m \\cdot a",
-                            "\\Sigma F=m \\cdot a -F_{vzmeti}=m \\cdot a"
-                        )
-                    ];
-
-                    for long in long_replace {
-                        formula = formula.replace(long.0, long.1)
-                    }
+                    let mut formula = script_child.as_text().unwrap();
+                    fix_formula(&mut formula);
 
                     let opts = katex::Opts::builder()
                         .display_mode(display_mode)
@@ -316,6 +287,44 @@ fn node_hot(node: Node, parents: &mut Vec<Option<String>>, popups: &mut HashMap<
 
         new_parents.push(maybe_name);
 
-        node_hot(child, &mut new_parents, popups);
+        node_hot(child, &mut new_parents, popups, output_page);
+    }
+}
+
+pub fn fix_formula(formula: &mut str) {
+    let mut formula = formula
+        .replace("\\mbox", "\\,")
+        .replace("{%}", "{ \\%}")
+        .replace("{ %}", "{ \\%}")
+        .replace("{ % }", "{ \\%}")
+        .replace("y: F_{tn}-F_S$=0", "y: F_{tn}-F_S=0")
+        .replace("^'", "^\\prime")
+        .replace("\\frc", "\\frac")
+        .replace("\\cdor", "\\cdot")
+        .replace("\\codt", "\\cdot")
+        .replace("\\epsilo", "\\epsilon")
+        .replace("\\epsilonn", "\\epsilon");
+
+    let long_replace = [
+                        (
+                            "$k=\\frac{\\Delta F}{\\Delta l}=\\frac{60 \\,{ kN}-0 \\,{ kN}}{0,40 \\,{ m}-0,20 \\,{ m}}=300 \\,{ kN/m}",
+                            "k=\\frac{\\Delta F}{\\Delta l}=\\frac{60 \\,{ kN}-0 \\,{ kN}}{0,40 \\,{ m}-0,20 \\,{ m}}=300 \\,{ kN/m}"
+                        ),
+                        (
+                            "P_p=\\frac{\\Delta m_p \\cdot q_{izp}}{t_1}= {\\Delta m_p \\cdot q_{izp} \\cdot f",
+                            "P_p=\\frac{\\Delta m_p \\cdot q_{izp}}{t_1}= {\\Delta m_p \\cdot q_{izp} \\cdot f}"
+                        ),
+                        (
+                            "v_0=$\\sqrt{2 \\cdot g \\cdot \\Delta h}=6,3 \\,{ m/s} =22,6 \\,{ km/h}",
+                            "v_0=\\sqrt{2 \\cdot g \\cdot \\Delta h}=6,3 \\,{ m/s} =22,6 \\,{ km/h}"
+                        ),
+                        (
+                            "\\Sigma F=m \\cdot a$: $-F_{vzmeti}=m \\cdot a",
+                            "\\Sigma F=m \\cdot a -F_{vzmeti}=m \\cdot a"
+                        )
+                    ];
+
+    for long in long_replace {
+        formula = formula.replace(long.0, long.1)
     }
 }
