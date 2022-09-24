@@ -1,8 +1,11 @@
-use build_html::*;
 use color_eyre::Result;
 use fizika::utils::get_only_element;
 use itertools::Itertools;
 use katex::OutputType;
+use quick_xml::{
+    events::{BytesStart, Event},
+    writer::Writer,
+};
 use select::{
     document::Document,
     node::Node,
@@ -11,7 +14,7 @@ use select::{
 use std::{
     collections::HashMap,
     fs::{create_dir_all, remove_dir_all, File},
-    io::Write,
+    io::{Cursor, Write},
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -47,12 +50,6 @@ fn main() -> Result<()> {
                     true
                 };
 
-                if i == 24 && j == 2
-                /* 32 */
-                {
-                    println!("a");
-                }
-
                 if i == 21 {
                     if j > 34 && j < 38 {
                         j = 38;
@@ -67,67 +64,15 @@ fn main() -> Result<()> {
                 create_dir_all(&output_exercise_dir)?;
 
                 if exercise_file.is_file() {
-                    let file = exercise_file.as_path();
-                    let file = file.canonicalize()?;
-                    let name = file.to_str().unwrap();
-
-                    println!(
-                        "{}\n{} -> popup: {}, popup count: {}\n",
-                        "-".repeat(50),
-                        name,
+                    parse_file(
+                        exercise_file,
+                        &mut last_exercise_dir,
+                        course_output_dir.clone(),
+                        output_exercise_dir,
                         popup,
-                        popup_count
-                    );
-                    let content = std::fs::read_to_string(name)?;
-                    let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
-
-                    if popup {
-                        let (html_uuid, html_page) = process_popup(document)?;
-                        let popup_dir = last_exercise_dir.join("popups");
-                        create_dir_all(&popup_dir)?;
-
-                        match popups.remove(&html_uuid) {
-                            Some(new_uuid) => {
-                                let mut name = new_uuid.to_string();
-                                name.push_str(".html");
-
-                                let mut file = File::create(popup_dir.join(&name))?;
-                                file.write_all(html_page.to_html_string().as_bytes())?;
-                            }
-                            None => {
-                                // TODO: hidden popup
-                                let lost_popups = course_output_dir.join("lost_popups");
-
-                                create_dir_all(&lost_popups)?;
-                                let mut file = File::create(
-                                    lost_popups.join(&format!("{}.html", html_uuid.as_str())),
-                                )?;
-                                file.write_all(html_page.to_html_string().as_bytes())?;
-
-                                println!("{}", html_uuid);
-                                popup_count += 1;
-                            }
-                        }
-                    } else {
-                        let result = process_exercise(document);
-
-                        match result {
-                            Ok((new_popups, html_page)) => {
-                                let index_file = output_exercise_dir.join("index.html");
-                                let mut file = File::create(&index_file)?;
-                                file.write_all(html_page.to_html_string().as_bytes())?;
-                                last_exercise_dir = output_exercise_dir.as_path().to_owned();
-                                // println!("{:#?}", &new_popups);
-                                popup_count = new_popups.len();
-                                popups = new_popups;
-                            }
-                            Err(err) => {
-                                if err == ExerciseError::HiddenExercise {
-                                    // TODO: TODO: popup_count += 1;
-                                }
-                            }
-                        }
-                    }
+                        &mut popup_count,
+                        &mut popups,
+                    )?;
                 } else {
                     break;
                 }
@@ -144,8 +89,81 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn process_popup(document: Document) -> Result<(String, HtmlPage)> {
-    let output_page = HtmlPage::new();
+fn parse_file(
+    exercise_file: PathBuf,
+    last_exercise_dir: &mut PathBuf,
+    course_output_dir: PathBuf,
+    output_exercise_dir: PathBuf,
+    popup: bool,
+    popup_count: &mut usize,
+    popups: &mut HashMap<String, Uuid>,
+) -> Result<()> {
+    let file = exercise_file.as_path();
+    let file = file.canonicalize()?;
+    let name = file.to_str().unwrap();
+
+    println!(
+        "{}\n{} -> popup: {}, popup count: {}\n",
+        "-".repeat(50),
+        name,
+        popup,
+        popup_count
+    );
+    let content = std::fs::read_to_string(name)?;
+    let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
+
+    if popup {
+        let (html_uuid, writer) = process_popup(document)?;
+        let popup_dir = last_exercise_dir.join("popups");
+        create_dir_all(&popup_dir)?;
+
+        match popups.remove(&html_uuid) {
+            Some(new_uuid) => {
+                let mut name = new_uuid.to_string();
+                name.push_str(".html");
+
+                let mut file = File::create(popup_dir.join(&name))?;
+                file.write_all(&writer.into_inner().into_inner())?;
+            }
+            None => {
+                // TODO: hidden popup
+                let lost_popups = course_output_dir.join("lost_popups");
+
+                create_dir_all(&lost_popups)?;
+                let mut file =
+                    File::create(lost_popups.join(&format!("{}.html", html_uuid.as_str())))?;
+                file.write_all(&writer.into_inner().into_inner())?;
+
+                println!("{}", html_uuid);
+                *popup_count += 1;
+            }
+        }
+    } else {
+        let result = process_exercise(document);
+
+        match result {
+            Ok((new_popups, writer)) => {
+                let index_file = output_exercise_dir.join("index.html");
+                let mut file = File::create(&index_file)?;
+                file.write_all(&writer.into_inner().into_inner())?;
+                *last_exercise_dir = output_exercise_dir.as_path().to_owned();
+                // println!("{:#?}", &new_popups);
+                *popup_count = new_popups.len();
+                *popups = new_popups;
+            }
+            Err(err) => {
+                if err == ExerciseError::HiddenExercise {
+                    // TODO: TODO: popup_count += 1;
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn process_popup(document: Document) -> Result<(String, Writer<Cursor<Vec<u8>>>)> {
+    let mut writer = Writer::new(Cursor::new(Vec::new()));
     let areas = document.find(Class("popupContent")).collect_vec();
     let area = get_only_element(areas);
 
@@ -159,12 +177,12 @@ fn process_popup(document: Document) -> Result<(String, HtmlPage)> {
     let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
     let mut popups: HashMap<String, Uuid> = HashMap::new();
-    let html_page = node_hot(area, &mut parent_vec, &mut popups, output_page);
+    node_hot(area, &mut parent_vec, &mut popups, &mut writer);
 
     // TODO: pri kvizu so za naprej
     // assert_eq!(popups.len(), 0);
 
-    Ok((uuid.to_string(), html_page))
+    Ok((uuid.to_string(), writer))
 }
 
 #[derive(Error, Debug, PartialEq, PartialOrd)]
@@ -175,8 +193,8 @@ enum ExerciseError {
 
 fn process_exercise(
     document: Document,
-) -> Result<(HashMap<String, Uuid>, HtmlPage), ExerciseError> {
-    let output_page = HtmlPage::new();
+) -> Result<(HashMap<String, Uuid>, Writer<Cursor<Vec<u8>>>), ExerciseError> {
+    let mut writer = Writer::new(Cursor::new(Vec::new()));
     let exercises = document.find(Class("eplxSlide")).collect_vec();
     let exercise = get_only_element(exercises);
 
@@ -202,23 +220,25 @@ fn process_exercise(
         let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
         let mut popups: HashMap<String, Uuid> = HashMap::new();
-        let html_page = node_hot(area, &mut parent_vec, &mut popups, output_page);
-        return Ok((popups, html_page));
+        node_hot(area, &mut parent_vec, &mut popups, &mut writer);
+        return Ok((popups, writer));
     }
 
-    Ok((HashMap::new(), output_page))
+    Ok((HashMap::new(), writer))
 }
 
 fn node_hot(
     node: Node,
     parents: &mut Vec<Option<String>>,
     popups: &mut HashMap<String, Uuid>,
-    mut output_page: HtmlPage,
-) -> HtmlPage {
+    writer: &mut Writer<Cursor<Vec<u8>>>,
+) {
     match node.name() {
         Some(name) => match name {
             "p" => {
-                output_page = output_page.with_paragraph(node.text());
+                let mut elem = BytesStart::new("p");
+                elem.push_attribute(("id", "test"));
+                writer.write_event(Event::Start(elem)).unwrap();
             }
             "script" => {
                 if let Some(attr_type) = node.attr("type") {
@@ -275,12 +295,8 @@ fn node_hot(
 
         new_parents.push(maybe_name);
 
-        let new_page = build_html::HtmlPage::new();
-        let html_page = node_hot(child, &mut new_parents, popups, new_page);
-        output_page = output_page.with_paragraph(html_page.to_html_string());
+        node_hot(child, &mut new_parents, popups, writer);
     }
-
-    output_page
 }
 
 pub fn fix_formula(formula: &mut String) {

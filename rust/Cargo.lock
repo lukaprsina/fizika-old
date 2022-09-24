@@ -114,12 +114,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
-name = "build_html"
-version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa8ffb62af7b0911893e2d6126891b2a018e387078fa5d855cb42d0d90d88075"
-
-[[package]]
 name = "bumpalo"
 version = "3.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -409,11 +403,11 @@ dependencies = [
 name = "fizika"
 version = "0.1.0"
 dependencies = [
- "build_html",
  "color-eyre",
  "headless_chrome",
  "itertools",
  "katex",
+ "quick-xml",
  "reqwest",
  "select",
  "serde",
@@ -1203,6 +1197,15 @@ checksum = "19cb4cefcb00f4ab9b332664d06005a74f582ac16aa959c6ad5912957bd83e5f"
 dependencies = [
  "libquickjs-sys",
  "once_cell",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58e21a144a0ffb5fad7b464babcdab934a325ad69b7c0373bcfef5cbd9799ca9"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
