@@ -3,7 +3,7 @@ use fizika::utils::get_only_element;
 use itertools::Itertools;
 use katex::OutputType;
 use quick_xml::{
-    events::{BytesStart, Event},
+    events::{BytesEnd, BytesStart, Event},
     writer::Writer,
 };
 use select::{
@@ -32,9 +32,10 @@ fn main() -> Result<()> {
     }
 
     let mut i = 0;
-    loop {
+    while i < 1 {
         let course_dir = courses_dir.join(i.to_string());
         let course_output_dir = output_dir.join(i.to_string());
+        let mut page_num = 0;
 
         if course_dir.is_dir() {
             let mut j = 0;
@@ -60,11 +61,11 @@ fn main() -> Result<()> {
                 }
 
                 let exercise_file = course_dir.join(format!("page_{}.html", j));
-                let output_exercise_dir = course_output_dir.join(format!("page_{}", j));
+                let output_exercise_dir = course_output_dir.join(format!("page_{}", page_num));
                 create_dir_all(&output_exercise_dir)?;
 
                 if exercise_file.is_file() {
-                    parse_file(
+                    let popup = parse_file(
                         exercise_file,
                         &mut last_exercise_dir,
                         course_output_dir.clone(),
@@ -73,6 +74,10 @@ fn main() -> Result<()> {
                         &mut popup_count,
                         &mut popups,
                     )?;
+
+                    if !popup {
+                        page_num += 1;
+                    }
                 } else {
                     break;
                 }
@@ -97,7 +102,7 @@ fn parse_file(
     popup: bool,
     popup_count: &mut usize,
     popups: &mut HashMap<String, Uuid>,
-) -> Result<()> {
+) -> Result<bool> {
     let file = exercise_file.as_path();
     let file = file.canonicalize()?;
     let name = file.to_str().unwrap();
@@ -159,7 +164,7 @@ fn parse_file(
         }
     }
 
-    Ok(())
+    Ok(popup)
 }
 
 fn process_popup(document: Document) -> Result<(String, Writer<Cursor<Vec<u8>>>)> {
@@ -177,7 +182,7 @@ fn process_popup(document: Document) -> Result<(String, Writer<Cursor<Vec<u8>>>)
     let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
     let mut popups: HashMap<String, Uuid> = HashMap::new();
-    node_hot(area, &mut parent_vec, &mut popups, &mut writer);
+    node_hot(area, &mut parent_vec, &mut popups, &mut writer, 0);
 
     // TODO: pri kvizu so za naprej
     // assert_eq!(popups.len(), 0);
@@ -220,7 +225,7 @@ fn process_exercise(
         let _map: HashMap<usize, Vec<Option<String>>> = HashMap::new();
 
         let mut popups: HashMap<String, Uuid> = HashMap::new();
-        node_hot(area, &mut parent_vec, &mut popups, &mut writer);
+        node_hot(area, &mut parent_vec, &mut popups, &mut writer, 0);
         return Ok((popups, writer));
     }
 
@@ -232,58 +237,65 @@ fn node_hot(
     parents: &mut Vec<Option<String>>,
     popups: &mut HashMap<String, Uuid>,
     writer: &mut Writer<Cursor<Vec<u8>>>,
+    level: usize,
 ) {
-    match node.name() {
-        Some(name) => match name {
-            "p" => {
-                let mut elem = BytesStart::new("p");
-                elem.push_attribute(("id", "test"));
-                writer.write_event(Event::Start(elem)).unwrap();
-            }
-            "script" => {
-                if let Some(attr_type) = node.attr("type") {
-                    let display_mode = match attr_type {
-                        "math/tex" => false,
-                        "math/tex; mode=display" => true,
-                        _ => panic!("Script is not math"),
-                    };
-
-                    let script_children = node.children().collect_vec();
-                    let script_child = get_only_element(script_children);
-
-                    let mut formula = script_child.as_text().unwrap().to_string();
-                    fix_formula(&mut formula);
-
-                    let opts = katex::Opts::builder()
-                        .display_mode(display_mode)
-                        .output_type(OutputType::Mathml)
-                        .build()
-                        .unwrap();
-                    let _mathml = katex::render_with_opts(&formula, opts).unwrap();
-                    /* println!(
-                        "{}\n{}\n",
-                        "-".repeat(60)
-                    ); */
+    let ending_tag = match node.name() {
+        Some(name) => {
+            match name {
+                "p" => {
+                    let mut elem = BytesStart::new("p");
+                    elem.push_attribute(("id", "test"));
+                    elem.push_attribute(("level", level.to_string().as_str()));
+                    writer.write_event(Event::Start(elem.clone())).unwrap();
+                    Some(BytesEnd::new("p"))
                 }
-            }
-            "a" => {
-                // TODO: TODO: skip non-explanetory ones like 7-1
-                if node.is(And(Class("goToSlide"), Class("explain"))) {
-                    let mut href = node
-                        .attr("href")
-                        .expect("goToSlide must have an href")
-                        .to_string();
-                    href.remove(0);
+                "script" => {
+                    if let Some(attr_type) = node.attr("type") {
+                        let display_mode = match attr_type {
+                            "math/tex" => false,
+                            "math/tex; mode=display" => true,
+                            _ => panic!("Script is not math"),
+                        };
 
-                    popups.insert(href, Uuid::new_v4());
-                } else if node.is(Class("goToHidden")) {
-                } else {
+                        let script_children = node.children().collect_vec();
+                        let script_child = get_only_element(script_children);
+
+                        let mut formula = script_child.as_text().unwrap().to_string();
+                        fix_formula(&mut formula);
+
+                        let opts = katex::Opts::builder()
+                            .display_mode(display_mode)
+                            .output_type(OutputType::Mathml)
+                            .build()
+                            .unwrap();
+                        let _mathml = katex::render_with_opts(&formula, opts).unwrap();
+                        /* println!(
+                            "{}\n{}\n",
+                            "-".repeat(60)
+                        ); */
+                    }
+                    None
                 }
+                "a" => {
+                    // TODO: TODO: skip non-explanetory ones like 7-1
+                    if node.is(And(Class("goToSlide"), Class("explain"))) {
+                        let mut href = node
+                            .attr("href")
+                            .expect("goToSlide must have an href")
+                            .to_string();
+                        href.remove(0);
+
+                        popups.insert(href, Uuid::new_v4());
+                    } else if node.is(Class("goToHidden")) {
+                    } else {
+                    }
+                    None
+                }
+                _ => None,
             }
-            _ => (),
-        },
-        None => (),
-    }
+        }
+        None => None,
+    };
 
     for child in node.children() {
         let mut new_parents = parents.clone();
@@ -295,7 +307,11 @@ fn node_hot(
 
         new_parents.push(maybe_name);
 
-        node_hot(child, &mut new_parents, popups, writer);
+        node_hot(child, &mut new_parents, popups, writer, level + 1);
+    }
+
+    if let Some(end) = ending_tag {
+        writer.write_event(Event::End(end)).unwrap();
     }
 }
 
