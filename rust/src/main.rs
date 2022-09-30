@@ -2,10 +2,6 @@ use color_eyre::Result;
 use fizika::utils::get_only_element;
 use itertools::Itertools;
 use katex::OutputType;
-use quick_xml::{
-    events::{BytesEnd, BytesStart, Event},
-    writer::Writer,
-};
 use select::{
     document::Document,
     node::Node,
@@ -20,6 +16,7 @@ use std::{
 };
 use thiserror::Error;
 use uuid::Uuid;
+use xml::EmitterConfig;
 
 fn main() -> Result<()> {
     color_eyre::install()?;
@@ -65,7 +62,7 @@ fn main() -> Result<()> {
                 create_dir_all(&output_exercise_dir)?;
 
                 if exercise_file.is_file() {
-                    let popup = parse_file(
+                    let popup2 = parse_file(
                         exercise_file,
                         &mut last_exercise_dir,
                         course_output_dir.clone(),
@@ -75,7 +72,9 @@ fn main() -> Result<()> {
                         &mut popups,
                     )?;
 
-                    if !popup {
+                    assert_eq!(popup, popup2);
+
+                    if !popup2 {
                         page_num += 1;
                     }
                 } else {
@@ -116,10 +115,12 @@ fn parse_file(
     );
     let content = std::fs::read_to_string(name)?;
     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
+    let mut config = EmitterConfig::new().perform_indent(true);
+    config.perform_escaping = false;
 
-    if popup {
-        let (html_uuid, writer) = process_popup(document)?;
+    let mut file_maybe = if popup {
         let popup_dir = last_exercise_dir.join("popups");
+        let html_uuid = process_popup(document)?;
         create_dir_all(&popup_dir)?;
 
         match popups.remove(&html_uuid) {
@@ -127,48 +128,49 @@ fn parse_file(
                 let mut name = new_uuid.to_string();
                 name.push_str(".html");
 
-                let mut file = File::create(popup_dir.join(&name))?;
-                file.write_all(&writer.into_inner().into_inner())?;
+                Some(File::create(popup_dir.join(&name))?)
             }
             None => {
                 // TODO: hidden popup
                 let lost_popups = course_output_dir.join("lost_popups");
 
                 create_dir_all(&lost_popups)?;
-                let mut file =
-                    File::create(lost_popups.join(&format!("{}.html", html_uuid.as_str())))?;
-                file.write_all(&writer.into_inner().into_inner())?;
-
-                println!("{}", html_uuid);
                 *popup_count += 1;
+                // println!("{}", html_uuid);
+
+                Some(File::create(
+                    lost_popups.join(&format!("{}.html", html_uuid.as_str())),
+                )?)
             }
         }
     } else {
-        let result = process_exercise(document);
-
-        match result {
-            Ok((new_popups, writer)) => {
+        match process_exercise(document) {
+            Ok(new_popups) => {
                 let index_file = output_exercise_dir.join("index.html");
                 let mut file = File::create(&index_file)?;
-                file.write_all(&writer.into_inner().into_inner())?;
                 *last_exercise_dir = output_exercise_dir.as_path().to_owned();
                 // println!("{:#?}", &new_popups);
                 *popup_count = new_popups.len();
                 *popups = new_popups;
+                Some(file)
             }
             Err(err) => {
                 if err == ExerciseError::HiddenExercise {
                     // TODO: TODO: popup_count += 1;
                 }
+                None
             }
         }
+    };
+
+    if let Some(file) = file_maybe {
+        config.create_writer(file);
     }
 
     Ok(popup)
 }
 
-fn process_popup(document: Document) -> Result<(String, Writer<Cursor<Vec<u8>>>)> {
-    let mut writer = Writer::new(Cursor::new(Vec::new()));
+fn process_popup(document: Document) -> Result<String> {
     let areas = document.find(Class("popupContent")).collect_vec();
     let area = get_only_element(areas);
 
@@ -187,7 +189,7 @@ fn process_popup(document: Document) -> Result<(String, Writer<Cursor<Vec<u8>>>)
     // TODO: pri kvizu so za naprej
     // assert_eq!(popups.len(), 0);
 
-    Ok((uuid.to_string(), writer))
+    Ok(uuid.to_string())
 }
 
 #[derive(Error, Debug, PartialEq, PartialOrd)]
@@ -196,10 +198,7 @@ enum ExerciseError {
     HiddenExercise,
 }
 
-fn process_exercise(
-    document: Document,
-) -> Result<(HashMap<String, Uuid>, Writer<Cursor<Vec<u8>>>), ExerciseError> {
-    let mut writer = Writer::new(Cursor::new(Vec::new()));
+fn process_exercise(document: Document) -> Result<HashMap<String, Uuid>, ExerciseError> {
     let exercises = document.find(Class("eplxSlide")).collect_vec();
     let exercise = get_only_element(exercises);
 
@@ -229,14 +228,13 @@ fn process_exercise(
         return Ok((popups, writer));
     }
 
-    Ok((HashMap::new(), writer))
+    Ok(HashMap::new())
 }
 
 fn node_hot(
     node: Node,
     parents: &mut Vec<Option<String>>,
     popups: &mut HashMap<String, Uuid>,
-    writer: &mut Writer<Cursor<Vec<u8>>>,
     level: usize,
 ) {
     let ending_tag = match node.name() {
@@ -244,7 +242,6 @@ fn node_hot(
             match name {
                 "p" => {
                     let mut elem = BytesStart::new("p");
-                    elem.push_attribute(("id", "test"));
                     elem.push_attribute(("level", level.to_string().as_str()));
                     writer.write_event(Event::Start(elem.clone())).unwrap();
                     Some(BytesEnd::new("p"))
@@ -278,6 +275,8 @@ fn node_hot(
                 }
                 "a" => {
                     // TODO: TODO: skip non-explanetory ones like 7-1
+                    let mut elem = BytesStart::new("a");
+
                     if node.is(And(Class("goToSlide"), Class("explain"))) {
                         let mut href = node
                             .attr("href")
@@ -285,13 +284,26 @@ fn node_hot(
                             .to_string();
                         href.remove(0);
 
-                        popups.insert(href, Uuid::new_v4());
+                        let uuid = Uuid::new_v4();
+                        popups.insert(href, uuid);
+
+                        elem.push_attribute((
+                            "onclick",
+                            format!("() => {{openModal(\'{}\')}}", uuid).as_str(),
+                        ));
+
+                        writer.write_event(Event::Start(elem.clone())).unwrap();
                     } else if node.is(Class("goToHidden")) {
                     } else {
                     }
-                    None
+
+                    Some(BytesEnd::new("a"))
                 }
-                _ => None,
+                name => {
+                    let elem = BytesStart::new(name);
+                    writer.write_event(Event::Start(elem.clone())).unwrap();
+                    Some(BytesEnd::new(name))
+                }
             }
         }
         None => None,

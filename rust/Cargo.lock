@@ -407,7 +407,6 @@ dependencies = [
  "headless_chrome",
  "itertools",
  "katex",
- "quick-xml",
  "reqwest",
  "select",
  "serde",
@@ -418,6 +417,7 @@ dependencies = [
  "url 2.3.1",
  "uuid",
  "wasm-bindgen",
+ "xml-rs",
 ]
 
 [[package]]
@@ -1197,15 +1197,6 @@ checksum = "19cb4cefcb00f4ab9b332664d06005a74f582ac16aa959c6ad5912957bd83e5f"
 dependencies = [
  "libquickjs-sys",
  "once_cell",
-]
-
-[[package]]
-name = "quick-xml"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58e21a144a0ffb5fad7b464babcdab934a325ad69b7c0373bcfef5cbd9799ca9"
-dependencies = [
- "memchr",
 ]
 
 [[package]]
@@ -2292,6 +2283,12 @@ checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
 dependencies = [
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "xml-rs"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 
 [[package]]
 name = "xml5ever"
