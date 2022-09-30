@@ -75,3 +75,43 @@ pub struct ChapterInfo {
     pub author: Option<String>,
     pub goals: Option<String>,
 }
+
+pub fn fix_formula(formula: &mut String) {
+    let mut fixed = formula
+        .replace("\\mbox", "\\,")
+        .replace("{%}", "{ \\%}")
+        .replace("{ %}", "{ \\%}")
+        .replace("{ % }", "{ \\%}")
+        .replace("y: F_{tn}-F_S$=0", "y: F_{tn}-F_S=0")
+        .replace("^'", "^\\prime")
+        .replace("\\frc", "\\frac")
+        .replace("\\cdor", "\\cdot")
+        .replace("\\codt", "\\cdot")
+        .replace("\\epsilo", "\\epsilon")
+        .replace("\\epsilonn", "\\epsilon");
+
+    let long_replace = [
+                        (
+                            "$k=\\frac{\\Delta F}{\\Delta l}=\\frac{60 \\,{ kN}-0 \\,{ kN}}{0,40 \\,{ m}-0,20 \\,{ m}}=300 \\,{ kN/m}",
+                            "k=\\frac{\\Delta F}{\\Delta l}=\\frac{60 \\,{ kN}-0 \\,{ kN}}{0,40 \\,{ m}-0,20 \\,{ m}}=300 \\,{ kN/m}"
+                        ),
+                        (
+                            "P_p=\\frac{\\Delta m_p \\cdot q_{izp}}{t_1}= {\\Delta m_p \\cdot q_{izp} \\cdot f",
+                            "P_p=\\frac{\\Delta m_p \\cdot q_{izp}}{t_1}= {\\Delta m_p \\cdot q_{izp} \\cdot f}"
+                        ),
+                        (
+                            "v_0=$\\sqrt{2 \\cdot g \\cdot \\Delta h}=6,3 \\,{ m/s} =22,6 \\,{ km/h}",
+                            "v_0=\\sqrt{2 \\cdot g \\cdot \\Delta h}=6,3 \\,{ m/s} =22,6 \\,{ km/h}"
+                        ),
+                        (
+                            "\\Sigma F=m \\cdot a$: $-F_{vzmeti}=m \\cdot a",
+                            "\\Sigma F=m \\cdot a -F_{vzmeti}=m \\cdot a"
+                        )
+                    ];
+
+    for long in long_replace {
+        fixed = fixed.replace(long.0, long.1)
+    }
+
+    *formula = fixed;
+}
