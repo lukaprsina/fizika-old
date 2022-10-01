@@ -4,7 +4,7 @@ use itertools::Itertools;
 use katex::OutputType;
 use select::{
     node::Node,
-    predicate::{And, Class},
+    predicate::{And, Class, Comment},
 };
 use uuid::Uuid;
 use xml::{writer::XmlEvent, EventWriter};
@@ -17,10 +17,19 @@ pub fn recurse_node<W: Write>(
     popups: &mut HashMap<String, Uuid>,
     writer: &mut EventWriter<W>,
 ) {
-    let ending_tag: Option<()> = match node.name() {
+    if node.is(Class("placeholder-for-subslides")) {
+        return;
+    }
+
+    let mut default_tag = |name: &str| {
+        let event: XmlEvent = XmlEvent::start_element(name).into();
+        writer.write(event).unwrap();
+        true
+    };
+
+    let ending_tag = match node.name() {
         Some(name) => {
             match name {
-                "p" => None,
                 "script" => {
                     if let Some(attr_type) = node.attr("type") {
                         let display_mode = match attr_type {
@@ -46,7 +55,37 @@ pub fn recurse_node<W: Write>(
                             "-".repeat(60)
                         ); */
                     }
-                    None
+                    false
+                }
+                "div" => match node.attr("href") {
+                    Some(href) => {
+                        let event: XmlEvent = XmlEvent::start_element("video").into();
+                        writer.write(event).unwrap();
+
+                        let source: XmlEvent =
+                            XmlEvent::start_element("source").attr("href", href).into();
+                        writer.write(source).unwrap();
+                        writer.write(XmlEvent::end_element()).unwrap();
+                        true
+                    }
+                    None => default_tag("div"),
+                },
+                "img" => {
+                    let src = node.attr("src").unwrap();
+                    let mut start_event = XmlEvent::start_element("img").attr("src", src);
+
+                    match node.attr("alt") {
+                        Some(alt) => {
+                            start_event = start_event.attr("alt", alt);
+                        }
+                        None => unsafe {
+                            ALT_COUNTER += 1;
+                        },
+                    }
+
+                    let event: XmlEvent = start_event.into();
+                    writer.write(event).unwrap();
+                    true
                 }
                 "a" => {
                     // TODO: skip non-explanetory ones like 7-1
@@ -59,22 +98,33 @@ pub fn recurse_node<W: Write>(
                         href.remove(0);
 
                         let uuid = Uuid::new_v4();
+                        let uuid_str = uuid.to_string();
                         popups.insert(href, uuid);
-
-                        /* elem.push_attribute((
-                            "onclick",
-                            format!("() => {{openModal(\'{}\')}}", uuid).as_str(),
-                        )); */
+                        let event: XmlEvent = XmlEvent::start_element("button")
+                            .attr("onclick", "() => course.openModal()")
+                            .attr("data-id", &uuid_str)
+                            .into();
+                        writer.write(event).unwrap();
+                        true
                     } else if node.is(Class("goToHidden")) {
+                        false
                     } else {
+                        false
                     }
-
-                    None
                 }
-                _name => None,
+                name => default_tag(name),
             }
         }
-        None => None,
+        None => {
+            if !node.is(Comment) {
+                let html = node.html();
+                let event: XmlEvent = XmlEvent::characters(&html).into();
+                writer.write(event).unwrap();
+                // if node.check_if_text() {}
+            }
+
+            false
+        }
     };
 
     for child in node.children() {
@@ -90,8 +140,32 @@ pub fn recurse_node<W: Write>(
         recurse_node(child, &mut new_parents, popups, writer);
     }
 
-    if let Some(end) = ending_tag {
+    if ending_tag {
         writer.write(XmlEvent::end_element()).unwrap();
-        // writer.write_event(Event::End(end)).unwrap();
     }
 }
+
+pub static mut ALT_COUNTER: i32 = 0;
+
+/* trait WalkNode {
+    fn check_if_text(&self) -> bool;
+}
+
+impl WalkNode for Node<'_> {
+    fn check_if_text(&self) -> bool {
+        if self.name().is_some() {
+            return false;
+        }
+
+        for child in self.children() {
+            let is_text = child.check_if_text();
+
+            if is_text {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+ */

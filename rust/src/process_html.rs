@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use color_eyre::Result;
 use itertools::Itertools;
 use select::{
@@ -8,7 +6,6 @@ use select::{
     predicate::{And, Class},
 };
 use thiserror::Error;
-use uuid::Uuid;
 
 use crate::utils::get_only_element;
 
@@ -36,9 +33,7 @@ pub enum ExerciseError {
     HiddenExercise,
 }
 
-pub fn process_exercise<'a, 'b>(
-    document: &'a Document,
-) -> Result<(HashMap<String, Uuid>, Option<Node<'b>>), ExerciseError>
+pub fn process_exercise<'a, 'b>(document: &'a Document) -> Result<Option<Node<'b>>, ExerciseError>
 where
     'a: 'b,
 {
@@ -62,5 +57,5 @@ where
         Some(area)
     };
 
-    Ok((HashMap::new(), area))
+    Ok(area)
 }

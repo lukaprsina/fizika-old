@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use fizika::parse_file;
+use fizika::{parse_file, recurse_node::ALT_COUNTER};
 
 use std::{
     collections::HashMap,
@@ -19,7 +19,8 @@ fn main() -> Result<()> {
     }
 
     let mut i = 0;
-    while i < 1 {
+    /* while i < 1 */
+    loop {
         let course_dir = courses_dir.join(i.to_string());
         let course_output_dir = output_dir.join(i.to_string());
         let mut page_num = 0;
@@ -52,7 +53,7 @@ fn main() -> Result<()> {
                 create_dir_all(&output_exercise_dir)?;
 
                 if exercise_file.is_file() {
-                    let popup2 = parse_file::parse_file(
+                    parse_file::parse_file(
                         exercise_file,
                         &mut last_exercise_dir,
                         course_output_dir.clone(),
@@ -62,9 +63,7 @@ fn main() -> Result<()> {
                         &mut popups,
                     )?;
 
-                    assert_eq!(popup, popup2);
-
-                    if !popup2 {
+                    if !popup {
                         page_num += 1;
                     }
                 } else {
@@ -78,6 +77,10 @@ fn main() -> Result<()> {
         }
 
         i += 1;
+    }
+
+    unsafe {
+        println!("Missing alt attributes: {}", ALT_COUNTER);
     }
 
     Ok(())

@@ -57,6 +57,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let json = serde_json::ser::to_string_pretty(&chapter_infos)?;
     chapter_infos_file.write_all(json.as_bytes())?;
 
+    eprintln!("Run \"python fix_courses.py\"");
+
     Ok(())
 }
 

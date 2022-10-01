@@ -7,9 +7,9 @@ use std::{
     str::FromStr,
 };
 use uuid::Uuid;
-use xml::{writer::XmlEvent, EmitterConfig};
+use xml::EmitterConfig;
 
-use crate::process_html::{process_exercise, process_popup, ExerciseError};
+use crate::{process_html::{process_exercise, process_popup, ExerciseError}, recurse_node};
 
 pub fn parse_file(
     exercise_file: PathBuf,
@@ -19,7 +19,7 @@ pub fn parse_file(
     popup: bool,
     popup_count: &mut usize,
     popups: &mut HashMap<String, Uuid>,
-) -> Result<bool> {
+) -> Result<()> {
     let file = exercise_file.as_path();
     let file = file.canonicalize()?;
     let name = file.to_str().unwrap();
@@ -35,13 +35,14 @@ pub fn parse_file(
     let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
     let mut config = EmitterConfig::new().perform_indent(true);
     config.perform_escaping = false;
+    config.write_document_declaration = false;
 
-    let file_maybe = if popup {
+    let (file_maybe, area_maybe) = if popup {
         let popup_dir = last_exercise_dir.join("popups");
         let (html_uuid, area) = process_popup(&document)?;
         create_dir_all(&popup_dir)?;
 
-        match popups.remove(&html_uuid) {
+        let file_maybe = match popups.remove(&html_uuid) {
             Some(new_uuid) => {
                 let mut name = new_uuid.to_string();
                 name.push_str(".html");
@@ -60,33 +61,40 @@ pub fn parse_file(
                     lost_popups.join(&format!("{}.html", html_uuid.as_str())),
                 )?)
             }
-        }
+        };
+
+        (file_maybe, Some(area))
     } else {
         match process_exercise(&document) {
-            Ok((new_popups, area)) => {
+            Ok(area_maybe) => {
                 let index_file = output_exercise_dir.join("index.html");
                 let file = File::create(&index_file)?;
                 *last_exercise_dir = output_exercise_dir.as_path().to_owned();
-                // println!("{:#?}", &new_popups);
-                *popup_count = new_popups.len();
-                *popups = new_popups;
-                Some(file)
+                
+                (Some(file), area_maybe)
             }
             Err(err) => {
                 if err == ExerciseError::HiddenExercise {
-                    // TODO: TODO: popup_count += 1;
+                    // TODO: TODO: popup_count += 1;                    
                 }
-                None
+                (None, None)
             }
         }
     };
+    
+    if let Some(file) = file_maybe && let Some(area) = area_maybe
+    {
+        let mut writer = config.create_writer(file);
+        let mut parents: Vec<Option<String>> = Vec::new();
+        let mut new_popups: HashMap<String, Uuid> = HashMap::new();
 
-    if let Some(file) = file_maybe {
-        let writer = config.create_writer(file);
-        let event: XmlEvent = xml::writer::XmlEvent::start_element("a")
-            .attr("test", "id")
-            .into();
+        recurse_node::recurse_node(area, &mut parents, &mut new_popups, &mut writer);     
+        
+        if !popup {
+            *popup_count = new_popups.len();
+            *popups = new_popups;
+        }
     }
 
-    Ok(popup)
+    Ok(())
 }
