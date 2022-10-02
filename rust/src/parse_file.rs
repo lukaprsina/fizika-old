@@ -1,10 +1,11 @@
 use color_eyre::Result;
 use select::document::Document;
+use serde::{Serialize, Deserialize};
 use std::{
     collections::HashMap,
     fs::{create_dir_all, File},
     path::PathBuf,
-    str::FromStr,
+    str::FromStr, io::Write,
 };
 use uuid::Uuid;
 use xml::EmitterConfig;
@@ -66,12 +67,25 @@ pub fn parse_file(
         (file_maybe, Some(area))
     } else {
         match process_exercise(&document) {
-            Ok(area_maybe) => {
-                let index_file = output_exercise_dir.join("index.html");
-                let file = File::create(&index_file)?;
-                *last_exercise_dir = output_exercise_dir.as_path().to_owned();
-                
-                (Some(file), area_maybe)
+            Ok(result) => {
+                if let Some((area, subheading)) = result {
+                    let index_path = output_exercise_dir.join("index.html");
+                        let index_file = File::create(&index_path)?;
+                        *last_exercise_dir = output_exercise_dir.as_path().to_owned();
+
+                        {
+                            let config_path = output_exercise_dir.join("config.json");
+                        let mut config_file = File::create(&config_path)?;
+                        let config_json = serde_json::to_string_pretty(&PageConfig {
+                            subheading: subheading.text()
+                        })?;
+                        config_file.write_all(config_json.as_bytes())?;
+                    }
+                        
+                        (Some(index_file), Some(area))
+                        } else {
+                (None, None)
+                }                
             }
             Err(err) => {
                 if err == ExerciseError::HiddenExercise {
@@ -97,4 +111,10 @@ pub fn parse_file(
     }
 
     Ok(())
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PageConfig {
+    pub subheading: String
 }

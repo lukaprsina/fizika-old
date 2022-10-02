@@ -33,7 +33,9 @@ pub enum ExerciseError {
     HiddenExercise,
 }
 
-pub fn process_exercise<'a, 'b>(document: &'a Document) -> Result<Option<Node<'b>>, ExerciseError>
+pub fn process_exercise<'a, 'b>(
+    document: &'a Document,
+) -> Result<Option<(Node<'b>, Node<'b>)>, ExerciseError>
 where
     'a: 'b,
 {
@@ -49,12 +51,12 @@ where
         if subheadings.is_empty() {
             unreachable!("{}\n", exercise.html());
         }
-        let _subheading = get_only_element(subheadings);
+        let subheading = get_only_element(subheadings);
 
         let areas = document.find(Class("interactive-area")).collect_vec();
         let area = get_only_element(areas);
 
-        Some(area)
+        Some((area, subheading))
     };
 
     Ok(area)

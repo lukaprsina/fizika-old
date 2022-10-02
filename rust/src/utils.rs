@@ -69,7 +69,7 @@ pub fn get_links(html: &Document) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(links)
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ChapterInfo {
     pub heading: String,
     pub author: Option<String>,
