@@ -1,16 +1,20 @@
 use color_eyre::Result;
 use select::document::Document;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fs::{create_dir_all, File},
+    io::Write,
     path::PathBuf,
-    str::FromStr, io::Write,
+    str::FromStr,
 };
 use uuid::Uuid;
 use xml::EmitterConfig;
 
-use crate::{process_html::{process_exercise, process_popup, ExerciseError}, recurse_node};
+use crate::{
+    process_html::{process_exercise, process_popup, ExerciseError},
+    recurse_node,
+};
 
 pub fn parse_file(
     exercise_file: PathBuf,
@@ -70,40 +74,39 @@ pub fn parse_file(
             Ok(result) => {
                 if let Some((area, subheading)) = result {
                     let index_path = output_exercise_dir.join("index.html");
-                        let index_file = File::create(&index_path)?;
-                        *last_exercise_dir = output_exercise_dir.as_path().to_owned();
+                    let index_file = File::create(&index_path)?;
+                    *last_exercise_dir = output_exercise_dir.as_path().to_owned();
 
-                        {
-                            let config_path = output_exercise_dir.join("config.json");
+                    {
+                        let config_path = output_exercise_dir.join("config.json");
                         let mut config_file = File::create(&config_path)?;
                         let config_json = serde_json::to_string_pretty(&PageConfig {
-                            subheading: subheading.text()
+                            subheading: subheading.text(),
                         })?;
                         config_file.write_all(config_json.as_bytes())?;
                     }
-                        
-                        (Some(index_file), Some(area))
-                        } else {
-                (None, None)
-                }                
+
+                    (Some(index_file), Some(area))
+                } else {
+                    (None, None)
+                }
             }
             Err(err) => {
                 if err == ExerciseError::HiddenExercise {
-                    // TODO: TODO: popup_count += 1;                    
+                    // TODO: TODO: popup_count += 1;
                 }
                 (None, None)
             }
         }
     };
-    
-    if let Some(file) = file_maybe && let Some(area) = area_maybe
-    {
+
+    if let (Some(file), Some(area)) = (file_maybe, area_maybe) {
         let mut writer = config.create_writer(file);
         let mut parents: Vec<Option<String>> = Vec::new();
         let mut new_popups: HashMap<String, Uuid> = HashMap::new();
 
-        recurse_node::recurse_node(area, &mut parents, &mut new_popups, &mut writer);     
-        
+        recurse_node::recurse_node(area, &mut parents, &mut new_popups, &mut writer);
+
         if !popup {
             *popup_count = new_popups.len();
             *popups = new_popups;
@@ -113,8 +116,7 @@ pub fn parse_file(
     Ok(())
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PageConfig {
-    pub subheading: String
+    pub subheading: String,
 }

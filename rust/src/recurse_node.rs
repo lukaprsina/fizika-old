@@ -46,7 +46,7 @@ pub fn recurse_node<W: Write>(
 
                         let opts = katex::Opts::builder()
                             .display_mode(display_mode)
-                            .output_type(OutputType::Mathml)
+                            .output_type(OutputType::Html)
                             .build()
                             .unwrap();
                         let mathml = katex::render_with_opts(&formula, opts).unwrap();
