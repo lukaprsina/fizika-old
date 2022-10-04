@@ -49,11 +49,8 @@ pub fn recurse_node<W: Write>(
                             .output_type(OutputType::Mathml)
                             .build()
                             .unwrap();
-                        let _mathml = katex::render_with_opts(&formula, opts).unwrap();
-                        /* println!(
-                            "{}\n{}\n",
-                            "-".repeat(60)
-                        ); */
+                        let mathml = katex::render_with_opts(&formula, opts).unwrap();
+                        writer.write(XmlEvent::Characters(&mathml)).unwrap();
                     }
                     false
                 }

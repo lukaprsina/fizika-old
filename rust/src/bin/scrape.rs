@@ -1,15 +1,16 @@
-use std::{
-    error::Error,
-    fs::{create_dir, remove_dir_all, remove_file, File},
-    io::Write,
-    path::Path,
-};
-
+use color_eyre::Result;
 use fizika::utils::{get_chapter_info, get_links, ChapterInfo};
 use itertools::Itertools;
 use select::{
     document::Document,
     predicate::{Child, Class},
+};
+use std::{
+    collections::HashMap,
+    error::Error,
+    fs::{self, create_dir, remove_dir_all, remove_file, File},
+    io::Write,
+    path::Path,
 };
 
 #[tokio::main]
@@ -57,7 +58,63 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let json = serde_json::ser::to_string_pretty(&chapter_infos)?;
     chapter_infos_file.write_all(json.as_bytes())?;
 
-    eprintln!("Run \"python fix_courses.py\"");
+    fix_courses()?;
+
+    Ok(())
+}
+
+fn fix_courses() -> Result<()> {
+    let fixes_in_files: HashMap<&str, Vec<(&str, &str)>> = HashMap::from([
+        (
+            "./courses/9/page_19.html",
+            Vec::from([(
+                "href=\"#resevanjeAVTOosi1\"",
+                "href=\"#94c451e0d35ffc9530e5b98660250ae0\"",
+            )]),
+        ),
+        (
+            "./courses/27/page_103.html",
+            Vec::from([
+                (
+                    "href=\"#resevanjevezaveCvec1\"",
+                    "href=\"#897a79036e984377a709c192890cc547\"",
+                ),
+                (
+                    "href=\"#resevanjevezaveCvec1\"",
+                    "href=\"#6fb1b7ccd9db4229a0982b54c02f2898\"",
+                ),
+            ]),
+        ),
+        (
+            "./courses/27/page_104.html",
+            Vec::from([(
+                "id=\"16c24c5bcf164994d97e797d0e801727\"",
+                "id=\"897a79036e984377a709c192890cc547\"",
+            )]),
+        ),
+        (
+            "./courses/27/page_105.html",
+            Vec::from([(
+                "id=\"16c24c5bcf164994d97e797d0e801727\"",
+                "id=\"6fb1b7ccd9db4229a0982b54c02f2898\"",
+            )]),
+        ),
+        (
+            "./courses/29/page_9.html",
+            Vec::from([(
+                "href=\"#resevanjeMOCvrovalke1\"",
+                "href=\"#4b5c16ef569c72e06c764001bbe69ed4\"",
+            )]),
+        ),
+    ]);
+
+    for (file, fixes) in fixes_in_files {
+        let mut file_str = fs::read_to_string(file)?;
+        for fix in fixes {
+            file_str = file_str.replace(fix.0, fix.1);
+        }
+        fs::write(file, file_str)?;
+    }
 
     Ok(())
 }

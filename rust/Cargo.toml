@@ -10,7 +10,9 @@ default-run = "fizika"
 color-eyre = "0.6.2"
 headless_chrome = "0.9.0"
 itertools = "0.10.5"
-katex = "0.4.4"
+
+#quickjs not supported on windows
+katex = { version = "0.4.4", features = ["duktape"], default-features = false }
 reqwest = "0.11.12"
 select = "0.5.0"
 serde = "1.0.145"
