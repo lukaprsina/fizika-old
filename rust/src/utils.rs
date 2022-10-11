@@ -1,3 +1,4 @@
+use headless_chrome::{Browser, LaunchOptionsBuilder, Tab};
 use itertools::Itertools;
 use select::{
     document::Document,
@@ -5,7 +6,7 @@ use select::{
     predicate::{Class, Descendant, Name},
 };
 use serde::{Deserialize, Serialize};
-use std::error::Error;
+use std::{error::Error, sync::Arc, thread::sleep, time::Duration};
 
 pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>> {
     let html = title_slide.inner_html();
@@ -114,4 +115,18 @@ pub fn fix_formula(formula: &mut String) {
     }
 
     *formula = fixed;
+}
+
+pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser), Box<dyn Error>> {
+    let options = LaunchOptionsBuilder::default()
+        .headless(false)
+        .idle_browser_timeout(Duration::from_secs(10 * 60))
+        .build()?;
+
+    let browser = Browser::new(options)?;
+    let tab = browser.wait_for_initial_tab()?;
+    tab.navigate_to("http://fizika.sc-nm.si/")?;
+    tab.wait_until_navigated()?;
+    sleep(Duration::from_secs(1));
+    Ok((tab, browser))
 }
