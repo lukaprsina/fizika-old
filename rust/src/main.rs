@@ -1,5 +1,9 @@
 use color_eyre::Result;
-use fizika::{parse_file::parse_file, recurse_node::ALT_COUNTER, utils::ChapterInfo};
+use fizika::{
+    parse_file::parse_file,
+    recurse_node::{ALT_COUNTER, QUESTION_MARK_COUNTER},
+    utils::ChapterInfo,
+};
 
 use std::{
     collections::HashMap,
@@ -99,6 +103,7 @@ fn main() -> Result<()> {
 
     unsafe {
         println!("Missing alt attributes: {}", ALT_COUNTER);
+        println!("Questions marks: {}", QUESTION_MARK_COUNTER);
     }
 
     Ok(())

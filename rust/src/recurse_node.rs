@@ -42,6 +42,9 @@ pub fn recurse_node<W: Write>(
                         let script_child = get_only_element(script_children);
 
                         let mut formula = script_child.as_text().unwrap().to_string();
+                        unsafe {
+                            QUESTION_MARK_COUNTER += formula.matches('?').count() as i32;
+                        }
                         fix_formula(&mut formula);
 
                         let opts = katex::Opts::builder()
@@ -143,6 +146,7 @@ pub fn recurse_node<W: Write>(
 }
 
 pub static mut ALT_COUNTER: i32 = 0;
+pub static mut QUESTION_MARK_COUNTER: i32 = 0;
 
 /* trait WalkNode {
     fn check_if_text(&self) -> bool;
