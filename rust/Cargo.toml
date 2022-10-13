@@ -8,7 +8,9 @@ default-run = "fizika"
 
 [dependencies]
 color-eyre = "0.6.2"
-headless_chrome = "0.9.0"
+# version 0.9 (latest) doesn't use idle browser timeout
+headless_chrome = { path = "../rust-headless-chrome" }
+inquire = "0.4.0"
 itertools = "0.10.5"
 
 #quickjs not supported on windows

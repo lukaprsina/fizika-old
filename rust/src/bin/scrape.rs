@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let dir_name = pages_dir.join(pos.to_string());
         create_dir(&dir_name)?;
         let dir_name = dir_name.canonicalize()?;
-        let chapter_info = process_tab(course_document, dir_name.as_path(), pos)?;
+        let chapter_info = process_tab(&course_document, dir_name.as_path(), pos)?;
 
         chapter_infos.push(chapter_info);
     }

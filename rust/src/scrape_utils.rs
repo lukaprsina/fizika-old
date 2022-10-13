@@ -12,7 +12,6 @@ use std::{
     io::Write,
     path::Path,
     sync::Arc,
-    thread::sleep,
     time::Duration,
 };
 
@@ -21,14 +20,13 @@ use crate::utils::{get_chapter_info, ChapterInfo};
 pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser), Box<dyn Error>> {
     let options = LaunchOptionsBuilder::default()
         .headless(false)
-        .idle_browser_timeout(Duration::from_secs(10 * 60))
+        .idle_browser_timeout(Duration::from_secs(30 * 60))
         .build()?;
 
     let browser = Browser::new(options)?;
     let tab = browser.wait_for_initial_tab()?;
     tab.navigate_to("http://fizika.sc-nm.si/")?;
     tab.wait_until_navigated()?;
-    sleep(Duration::from_secs(1));
     Ok((tab, browser))
 }
 
@@ -113,7 +111,7 @@ pub fn get_links(html: &Document) -> Result<Vec<String>, Box<dyn Error>> {
 }
 
 pub fn process_tab(
-    course_document: Document,
+    course_document: &Document,
     dir_name: &Path,
     course_pos: usize,
 ) -> Result<ChapterInfo, Box<dyn Error>> {

@@ -7,6 +7,25 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug unit tests in library 'fizika'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "fizika",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug executable 'fizika'",
             "cargo": {
                 "args": [
@@ -35,6 +54,43 @@
                 ],
                 "filter": {
                     "name": "fizika",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'scrape_chrome'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=scrape_chrome",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "scrape_chrome",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'scrape_chrome'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=scrape_chrome",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "scrape_chrome",
                     "kind": "bin"
                 }
             },
