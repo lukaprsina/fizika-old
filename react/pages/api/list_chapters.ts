@@ -22,15 +22,18 @@ export default async function handler(
 
   let i = 0;
   let arr: CourseInfo[] = [];
-  const prefix = '../rust/output';
+  const prefix = '';
 
   while (true) {
-    const file_path = `${prefix}/${req.query.course}/pages/page_${i}/config.json`
+    const folder = `../rust/output/${req.query.course}`
 
-    if (fs.existsSync(file_path)) {
-      let file = fs.readFileSync(file_path, 'utf8');
-      const data = JSON.parse(file) as CourseInfo;
-      arr.push(data);
+    if (fs.existsSync(folder)) {
+      const file_path = `../rust/output/${req.query.course}/pages/page_${i}/config.json`
+      if (fs.existsSync(file_path)) {
+        let file = fs.readFileSync(file_path, 'utf8');
+        const data = JSON.parse(file) as CourseInfo;
+        arr.push(data);
+      }
     } else {
       break;
     }
