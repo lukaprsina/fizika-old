@@ -15,17 +15,22 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
 
+  if (typeof req.query.course != 'string') {
+    res.status(400);
+    return;
+  }
+
   let course_number = parseInt(req.query.course)
   if (isNaN(course_number)) {
     res.status(400);
+    return;
   }
 
   let i = 0;
   let arr: CourseInfo[] = [];
-  const prefix = '../rust/output';
 
   while (true) {
-    const file_path = `${prefix}/${req.query.course}/pages/page_${i}/config.json`
+    const file_path = `./courses/${req.query.course}/pages/page_${i}/config.json`
 
     if (fs.existsSync(file_path)) {
       let file = fs.readFileSync(file_path, 'utf8');

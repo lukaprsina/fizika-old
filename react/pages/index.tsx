@@ -1,9 +1,7 @@
-import { Accordion, ActionIcon, AppShell, Button, Header, Navbar, Skeleton } from "@mantine/core";
+import { Accordion, ActionIcon, AppShell, Header, Navbar } from "@mantine/core";
 import { NextPage } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import useSWR, { Fetcher } from "swr";
-import NoSSR from "../components/NoSSR";
 import { server } from '../config';
 import type { Data } from "./api/list_courses";
 import { IconPlayerPlay } from "@tabler/icons"

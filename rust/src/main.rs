@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let courses_dir = Path::new("courses");
-    let output_dir = Path::new("output");
+    let output_dir = Path::new("../react/courses");
 
     if output_dir.exists() {
         remove_dir_all(&output_dir)?;
