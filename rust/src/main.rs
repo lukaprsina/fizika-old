@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let courses_dir = Path::new("courses");
-    let output_dir = Path::new("output");
+    let output_dir = Path::new("../web/courses");
 
     if output_dir.exists() {
         remove_dir_all(&output_dir)?;
@@ -48,6 +48,16 @@ fn main() -> Result<()> {
                 let (number, name) = heading.split_at(3);
 
                 config.heading = name.to_string();
+
+                for text_maybe in [&mut config.author, &mut config.goals] {
+                    if let Some(text) = text_maybe {
+                        let new = text.trim();
+                        *text = uppercase_first_letter(new);
+                    }
+                }
+                let new = config.heading.trim();
+                config.heading = uppercase_first_letter(new);
+
                 let num_char = number.chars().next().unwrap();
                 config.year = Some(char::to_digit(num_char, 10).unwrap());
 
@@ -115,9 +125,17 @@ fn main() -> Result<()> {
     }
 
     fs::write(
-        "../react/chapter_infos.json",
+        "../web/chapter_infos.json",
         serde_json::to_string_pretty(&chapter_info_json)?.as_bytes(),
     )?;
 
     Ok(())
+}
+
+fn uppercase_first_letter(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
 }

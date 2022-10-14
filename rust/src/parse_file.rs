@@ -114,7 +114,7 @@ pub fn parse_file(
             &mut question_mark_course,
         );
 
-        println!("{}", question_mark_course);
+        // println!("{}", question_mark_course);
 
         if !popup {
             *popup_count = new_popups.len();

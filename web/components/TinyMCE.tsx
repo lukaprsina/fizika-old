@@ -3,7 +3,7 @@ import { Editor } from '@tinymce/tinymce-react'
 import dynamic from 'next/dynamic'
 import { useRef } from 'react'
 
-const DynamicEditor = dynamic(() => import('@tinymce/tinymce-react').then(mod => mod.Editor), {
+const DynamicEditor: any = dynamic(() => import('@tinymce/tinymce-react').then(mod => mod.Editor) as any, {
     ssr: false,
 });
 
@@ -59,7 +59,7 @@ const TinyMCE = () => {
 
         }}>Test</Button> */}
         <DynamicEditor
-            onInit={(_, editor) => {
+            onInit={(_: any, editor: any) => {
                 editorRef.current = editor;
             }}
             apiKey={'drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker'}
