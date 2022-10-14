@@ -48,6 +48,16 @@ fn main() -> Result<()> {
                 let (number, name) = heading.split_at(3);
 
                 config.heading = name.to_string();
+
+                for text_maybe in [&mut config.author, &mut config.goals] {
+                    if let Some(text) = text_maybe {
+                        let new = text.trim();
+                        *text = uppercase_first_letter(new);
+                    }
+                }
+                let new = config.heading.trim();
+                config.heading = uppercase_first_letter(new);
+
                 let num_char = number.chars().next().unwrap();
                 config.year = Some(char::to_digit(num_char, 10).unwrap());
 
@@ -120,4 +130,12 @@ fn main() -> Result<()> {
     )?;
 
     Ok(())
+}
+
+fn uppercase_first_letter(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
 }
