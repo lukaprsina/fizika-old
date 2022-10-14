@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let courses_dir = Path::new("courses");
-    let output_dir = Path::new("../react/courses");
+    let output_dir = Path::new("../web/courses");
 
     if output_dir.exists() {
         remove_dir_all(&output_dir)?;
@@ -115,7 +115,7 @@ fn main() -> Result<()> {
     }
 
     fs::write(
-        "../react/chapter_infos.json",
+        "../web/chapter_infos.json",
         serde_json::to_string_pretty(&chapter_info_json)?.as_bytes(),
     )?;
 

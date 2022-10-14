@@ -45,6 +45,7 @@ function CoursesMenu() {
     const router = useRouter()
     let url = router.query.id ? `${server}/api/list_chapters/?course=${router.query.id}` : null
     const { data: chapters } = useSWR(url, fetcher, { suspense: true })
+    console.log(chapters)
 
     return <Accordion defaultValue="">
         {chapters?.map((course_info, i) => (
