@@ -1,1 +1,2 @@
-course 7 in druge niso popolne
+course 7 in druge niso popolne,
+prazne mape

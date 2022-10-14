@@ -1,14 +1,29 @@
-import { AppShell, Button, Header, Navbar } from '@mantine/core'
 import { Editor } from '@tinymce/tinymce-react'
 import dynamic from 'next/dynamic'
-import { useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 const DynamicEditor: any = dynamic(() => import('@tinymce/tinymce-react').then(mod => mod.Editor) as any, {
     ssr: false,
 });
 
-const TinyMCE = () => {
+type TinyMCEType = {
+    html: string | undefined
+}
+
+function TinyMCE({ html }: TinyMCEType) {
     const editorRef = useRef<any | null>(null);
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        console.log(ready, html)
+        if (!html || !ready)
+            return;
+
+        setTimeout(() => {
+            console.log("Setting html")
+            editorRef.current.setContent(html)
+        })
+    }, [html, ready])
 
     const setup = (editorRaw: Editor) => {
         const editorClass: Editor = { editor: editorRaw } as any as Editor;
@@ -21,7 +36,7 @@ const TinyMCE = () => {
             onAction: () => {
                 let elements = editor.contentDocument.querySelectorAll(".popup")
                 let html = '<ul>'
-                elements.forEach(elem => {
+                elements.forEach((elem: any) => {
                     html += '<li>' + elem.tagName + '</li>'
                 })
                 html += '</ul>'
@@ -61,6 +76,8 @@ const TinyMCE = () => {
         <DynamicEditor
             onInit={(_: any, editor: any) => {
                 editorRef.current = editor;
+
+                setReady(true)
             }}
             apiKey={'drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker'}
             initialValue=''

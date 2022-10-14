@@ -1,5 +1,5 @@
 import { Accordion, ActionIcon, AppShell, Header, Navbar } from "@mantine/core";
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import useSWR, { Fetcher } from "swr";
 import { server } from '../config';
@@ -11,6 +11,14 @@ const fetcher: Fetcher<Data, string> = async (...args) => {
     return await res.json();
 }
 
+/* export const getServerSideProps: GetServerSideProps = async (context) => {
+    return {
+        props: {
+
+        }
+    }
+} */
+
 const Homepage: NextPage = () => {
     return (
         <AppShell
@@ -18,13 +26,18 @@ const Homepage: NextPage = () => {
             navbar={<Navbar width={{ base: 300 }} height={500} p="xs">{/* Navbar content */}</Navbar>}
             header={<Header height={60} p="xs">{/* Header content */}</Header>}
         >
-            <CoursesMenu />
+            <CoursesMenu /* courses={courses} */ />
         </AppShell>
     )
 }
 
-function CoursesMenu() {
-    const { data: courses } = useSWR(`${server}/api/list_courses`, fetcher, { suspense: true })
+/* type CoursesMenuProps = {
+    courses: Data
+} */
+
+function CoursesMenu(/* { courses }: CoursesMenuProps */) {
+    // ${server}/
+    const { data: courses } = useSWR(`/api/list_courses`, fetcher)
 
     return <Accordion defaultValue="">
         {courses?.map((chapter_info, index) => (

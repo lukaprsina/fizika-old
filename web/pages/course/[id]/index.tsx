@@ -1,19 +1,36 @@
 import { NextPage } from "next"
-import { Accordion, AppShell, Header, Navbar, Paper, Skeleton } from "@mantine/core";
+import { AppShell, Box, Button, Header, Navbar, Paper, Skeleton, Text } from "@mantine/core";
 import { useRouter } from "next/router"
-import { Data } from "../../api/list_chapters"
-import { server } from '../../../config';
+import { Data as ChapterData } from "../../api/list_chapters"
+import { Data as HtmlData } from "../../api/get_html"
 import useSWR, { Fetcher } from "swr";
 import NoSSR from "../../../components/NoSSR";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import TinyMCE from "../../../components/TinyMCE";
 
-const fetcher: Fetcher<Data, string> = async (...args) => {
+const course_fetcher: Fetcher<ChapterData, string> = async (...args) => {
+    const res = await fetch(...args);
+    return await res.json();
+}
+
+const html_fetcher: Fetcher<HtmlData, string> = async (...args) => {
     const res = await fetch(...args);
     return await res.json();
 }
 
 const Course: NextPage = () => {
+    const router = useRouter()
+    const [page, setPage] = useState(0)
+    const url = router.query.id ? `/api/list_chapters/?course=${router.query.id}` : null
+    const { data: chapters } = useSWR(url, course_fetcher)
+
+    const url2 = router.query.id ? `/api/get_html/?course=${router.query.id}&page=${page}` : null
+    const { data: html } = useSWR(url2, html_fetcher)
+
+    /* const getHtml: () => HtmlData | undefined = () => {
+        return html
+    } */
+
     return (
         <AppShell
             padding="md"
@@ -28,34 +45,45 @@ const Course: NextPage = () => {
 
                     </>
                 }>
-                    <CoursesMenu />
+                    <CoursesMenu setPage={setPage} chapters={chapters} />
                 </ Suspense>
             }</Navbar>}
             header={<Header height={60} p="xs">{/* Header content */}</Header>}
         >
             <NoSSR>
-                <TinyMCE />
+                <TinyMCE html={html?.file} />
             </NoSSR>
         </AppShell>
     )
 }
 
+type CoursesMenuType = {
+    setPage: any;
+    chapters: ChapterData | undefined
+}
 
-function CoursesMenu() {
-    const router = useRouter()
-    let url = router.query.id ? `${server}/api/list_chapters/?course=${router.query.id}` : null
-    const { data: chapters } = useSWR(url, fetcher, { suspense: true })
-    console.log(chapters)
-
-    return <Accordion defaultValue="">
-        {chapters?.map((course_info, i) => (
+function CoursesMenu({ setPage, chapters }: CoursesMenuType) {
+    return <Box
+        sx={{
+            overflow: "auto"
+        }}
+    >
+        {chapters?.map((course_info, index) => (
             <Paper
-                key={i}
+                key={index}
                 shadow="xs"
                 p="md"
-            >{course_info.subheading}</Paper>
-        ))}
-    </Accordion>
+            >
+                <Text variant="link" component="a" onClick={() => {
+                    console.log("Page: ", index)
+                    setPage(index)
+                }}>
+                    {course_info.subheading}
+                </Text>
+            </Paper>
+        ))
+        }
+    </Box >
 }
 
 export default Course
