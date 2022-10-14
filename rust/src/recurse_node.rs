@@ -16,6 +16,7 @@ pub fn recurse_node<W: Write>(
     parents: &mut Vec<Option<String>>,
     popups: &mut HashMap<String, Uuid>,
     writer: &mut EventWriter<W>,
+    question_mark_course: &mut usize,
 ) {
     if node.is(Class("placeholder-for-subslides")) {
         return;
@@ -42,9 +43,12 @@ pub fn recurse_node<W: Write>(
                         let script_child = get_only_element(script_children);
 
                         let mut formula = script_child.as_text().unwrap().to_string();
+
+                        *question_mark_course += 1;
                         unsafe {
                             QUESTION_MARK_COUNTER += formula.matches('?').count() as i32;
                         }
+
                         fix_formula(&mut formula);
 
                         let opts = katex::Opts::builder()
@@ -137,7 +141,13 @@ pub fn recurse_node<W: Write>(
 
         new_parents.push(maybe_name);
 
-        recurse_node(child, &mut new_parents, popups, writer);
+        recurse_node(
+            child,
+            &mut new_parents,
+            popups,
+            writer,
+            question_mark_course,
+        );
     }
 
     if ending_tag {
@@ -147,26 +157,3 @@ pub fn recurse_node<W: Write>(
 
 pub static mut ALT_COUNTER: i32 = 0;
 pub static mut QUESTION_MARK_COUNTER: i32 = 0;
-
-/* trait WalkNode {
-    fn check_if_text(&self) -> bool;
-}
-
-impl WalkNode for Node<'_> {
-    fn check_if_text(&self) -> bool {
-        if self.name().is_some() {
-            return false;
-        }
-
-        for child in self.children() {
-            let is_text = child.check_if_text();
-
-            if is_text {
-                return false;
-            }
-        }
-
-        true
-    }
-}
- */

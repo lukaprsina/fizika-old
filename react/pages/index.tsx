@@ -1,102 +1,56 @@
-import { AppShell, Button, Header, Navbar } from '@mantine/core'
-import { Editor } from '@tinymce/tinymce-react'
-import type { NextPage } from 'next'
-import dynamic from 'next/dynamic'
-import { useRef } from 'react'
+import { Accordion, ActionIcon, AppShell, Button, Header, Navbar, Skeleton } from "@mantine/core";
+import { NextPage } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+import useSWR, { Fetcher } from "swr";
+import NoSSR from "../components/NoSSR";
+import { server } from '../config';
+import type { Data } from "./api/list_courses";
+import { IconPlayerPlay } from "@tabler/icons"
 
-const DynamicEditor = dynamic(() => import('@tinymce/tinymce-react').then(mod => mod.Editor), {
-    ssr: false,
-});
+const fetcher: Fetcher<Data, string> = async (...args) => {
+    const res = await fetch(...args);
+    return await res.json();
+}
 
-const Home: NextPage = () => {
-    const editorRef = useRef<any | null>(null);
-
-    const setup = (editorRaw: Editor) => {
-        const editorClass: Editor = { editor: editorRaw } as any as Editor;
-        const editor = editorClass.editor;
-        if (typeof (editor) === 'undefined')
-            return;
-
-        editor.ui.registry.addButton('addModalButton', {
-            text: 'Modal',
-            onAction: () => {
-                let elements = editor.contentDocument.querySelectorAll(".popup")
-                let html = '<ul>'
-                elements.forEach(elem => {
-                    html += '<li>' + elem.tagName + '</li>'
-                })
-                html += '</ul>'
-
-                editor.windowManager.open({
-                    title: "Add modal",
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {
-                                type: 'htmlpanel',
-                                html
-                            }
-                        ]
-
-                    },
-                    buttons: [
-                        {
-                            type: 'submit',
-                            text: 'OK'
-                        }
-                    ]
-                })
-                // editor.insertContent('<button onclick="openModal()">Test</button>', { format: 'raw' });
-                console.log("Test")
-            },
-        });
-    }
-
+const Homepage: NextPage = () => {
     return (
         <AppShell
             padding="md"
             navbar={<Navbar width={{ base: 300 }} height={500} p="xs">{/* Navbar content */}</Navbar>}
             header={<Header height={60} p="xs">{/* Header content */}</Header>}
         >
-            <Button onClick={() => {
-                const editorClass: Editor = { editor: editorRef.current } as any as Editor;
-                const editor = editorClass.editor;
-                if (typeof (editor) === 'undefined')
-                    return;
-
-            }}>Test</Button>
-            <DynamicEditor
-                onInit={(_, editor) => {
-                    editorRef.current = editor;
-                }}
-                apiKey={'drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker'}
-                initialValue=''
-                init={{
-                    content_css: '/tinymce/styles.css',
-                    height: 500,
-                    external_plugins: {
-                        tiny_mce_wiris: '/tinymce/math_wiris.min.js'
-                    },
-                    setup,
-                    extended_valid_elements: "button[*]",
-                    plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
-                    menubar: 'file edit view insert format tools table help',
-                    toolbar: 'addModalButton | undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
-                    toolbar_sticky: true,
-                    toolbar_mode: 'sliding',
-                    contextmenu: 'link image table',
-                    draggable_modal: true,
-                    autosave_ask_before_unload: true,
-                    autosave_interval: '30s',
-                    autosave_prefix: '{path}{query}-{id}-',
-                    autosave_restore_when_empty: false,
-                    autosave_retention: '2m',
-                    image_advtab: true,
-                    image_caption: true
-                }}
-            />
+            <CoursesMenu />
         </AppShell>
     )
 }
 
-export default Home
+function CoursesMenu() {
+    const { data: courses } = useSWR(`${server}/api/list_courses`, fetcher, { suspense: true })
+
+    return <Accordion defaultValue="">
+        {courses?.map((chapter_info, index) => (
+            <Accordion.Item value={chapter_info.heading} key={chapter_info.heading}>
+                <Accordion.Control>
+                    <h4>{chapter_info.heading}</h4>
+                </Accordion.Control>
+                <Accordion.Panel>
+                    <h5>{chapter_info.author}</h5>
+                    <p>{chapter_info.goals}</p>
+                    <Link
+                        href={{
+                            pathname: '/course/[id]',
+                            query: { id: index }
+                        }}
+                        passHref>
+                        <ActionIcon component="a">
+                            <IconPlayerPlay />
+                        </ActionIcon>
+                    </Link>
+                </Accordion.Panel>
+            </Accordion.Item>
+        ))}
+    </Accordion>
+}
+
+export default Homepage;

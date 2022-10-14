@@ -103,7 +103,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         chapter_infos.push(chapter_info);
     }
 
-    let chapter_info_dir = Path::new("chapter_infos.txt");
+    let chapter_info_dir = Path::new("chapter_infos.json");
     if chapter_info_dir.exists() {
         remove_file(&chapter_info_dir)?
     };

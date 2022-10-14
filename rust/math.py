@@ -1,8 +1,7 @@
-from genericpath import isfile
 import json
 from sys import argv
 
-with open("./chapter_infos.txt") as fp:
+with open("./chapter_infos.json") as fp:
     file = json.load(fp)
 
     print("\n")

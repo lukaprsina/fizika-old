@@ -104,8 +104,17 @@ pub fn parse_file(
         let mut writer = config.create_writer(file);
         let mut parents: Vec<Option<String>> = Vec::new();
         let mut new_popups: HashMap<String, Uuid> = HashMap::new();
+        let mut question_mark_course = 0;
 
-        recurse_node::recurse_node(area, &mut parents, &mut new_popups, &mut writer);
+        recurse_node::recurse_node(
+            area,
+            &mut parents,
+            &mut new_popups,
+            &mut writer,
+            &mut question_mark_course,
+        );
+
+        println!("{}", question_mark_course);
 
         if !popup {
             *popup_count = new_popups.len();

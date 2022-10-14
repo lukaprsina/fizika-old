@@ -67,6 +67,7 @@ pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>
         heading: heading.inner_html().trim().to_string(),
         author: author.map(get_not_span),
         goals: goals.map(get_not_span),
+        year: None,
     })
 }
 
@@ -87,9 +88,10 @@ pub fn get_not_span(x: &Node) -> String {
     result
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ChapterInfo {
     pub heading: String,
     pub author: Option<String>,
     pub goals: Option<String>,
+    pub year: Option<u32>,
 }

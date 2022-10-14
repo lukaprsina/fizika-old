@@ -1,21 +1,21 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
+import fs from 'fs'
 
-export type ChapterInfo = {
+export type CourseInfo = {
   heading: string;
   author: string;
   goals: string;
 }
 
 export type Data = [
-  ChapterInfo
+  CourseInfo
 ]
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const fs = require('fs');
-  const data = JSON.parse(fs.readFileSync('../rust/chapter_infos.txt', 'utf8')) as Data;
+  const data = JSON.parse(fs.readFileSync('./chapter_infos.json', 'utf8')) as Data;
   res.status(200).json(data)
 }

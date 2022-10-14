@@ -23,7 +23,7 @@ fn main() -> Result<()> {
         remove_dir_all(&output_dir)?;
     }
 
-    let chapter_info_json = {
+    let mut chapter_info_json = {
         let chapter_info_path = Path::new("chapter_infos.json");
         let chapter_info_string = fs::read_to_string(chapter_info_path)?;
         serde_json::from_str::<Vec<ChapterInfo>>(&chapter_info_string)?
@@ -42,8 +42,16 @@ fn main() -> Result<()> {
             {
                 let config_path = course_output_dir.join("config.json");
                 let mut config_file = File::create(&config_path)?;
-                let config = &chapter_info_json[i];
-                let config_json = serde_json::to_string_pretty(config)?;
+
+                let mut config = &mut chapter_info_json[i];
+                let heading = &mut config.heading.clone();
+                let (number, name) = heading.split_at(3);
+
+                config.heading = name.to_string();
+                let num_char = number.chars().next().unwrap();
+                config.year = Some(char::to_digit(num_char, 10).unwrap());
+
+                let config_json = serde_json::to_string_pretty(&config)?;
                 config_file.write_all(config_json.as_bytes())?;
             }
 
@@ -105,6 +113,11 @@ fn main() -> Result<()> {
         println!("Missing alt attributes: {}", ALT_COUNTER);
         println!("Questions marks: {}", QUESTION_MARK_COUNTER);
     }
+
+    fs::write(
+        "../react/chapter_infos.json",
+        serde_json::to_string_pretty(&chapter_info_json)?.as_bytes(),
+    )?;
 
     Ok(())
 }

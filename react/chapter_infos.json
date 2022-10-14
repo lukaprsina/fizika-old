@@ -1,242 +1,242 @@
 [
   {
-    "heading": "0. Astronomija",
+    "heading": "Astronomija",
     "author": " Andreja Eršte",
     "goals": null,
-    "year": null
+    "year": 0
   },
   {
-    "heading": "0. Gravitacija, Kepplerjevi zakoni",
+    "heading": "Gravitacija, Kepplerjevi zakoni",
     "author": " Matej Rožič",
     "goals": " Poznavanje in uporaba gravitacijskega zakona.\nPoznavanje  in uporaba Kepperjevih zakonov.",
-    "year": null
+    "year": 0
   },
   {
-    "heading": "1. Kviz o premem gibanju",
+    "heading": "Kviz o premem gibanju",
     "author": " Matej Rožič",
     "goals": " Preverjaje znanja dijakov o premem gibanju.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "2. Plinski zakoni - kviz",
+    "heading": "Plinski zakoni - kviz",
     "author": " Matej Rožič",
     "goals": null,
-    "year": null
+    "year": 2
   },
   {
-    "heading": "1. Merjenje",
+    "heading": "Merjenje",
     "author": " Matej Rožič",
     "goals": " Poznavanje merskih količin, osnovnih enot. Pretvarjanje med enotami. Napake (merske, sistemske, absolutne, relativne...)",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. Fizikalne količine in merske enote",
+    "heading": "Fizikalne količine in merske enote",
     "author": " Andreja Eršte",
     "goals": null,
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. 2D - vodoravni ter poševni met",
+    "heading": "2D - vodoravni ter poševni met",
     "author": " Matej Rožič",
     "goals": " Razumevanje in reševanje nalog iz vodoravnega meta.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. Merjenje sil",
+    "heading": "Merjenje sil",
     "author": " Matej Rožič",
     "goals": " Poznati in razumeti linearno odvisnost deformacije od sile.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. Vleka objektov",
+    "heading": "Vleka objektov",
     "author": " Matej Rožič",
     "goals": " Pri opazovanju vleke pridemo do zanimivih ugotovitev. V nadaljevanju bomo razložili kako se s tem sooča fizika in zakaj so rezultati tekmovanj predvidljivi.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. I. Newton",
+    "heading": "I. Newton",
     "author": " Matej Rožič",
     "goals": " Razstavljanje sil. Reševanje linearnih enačb.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. II. Newtonov zakon",
+    "heading": "II. Newtonov zakon",
     "author": " Matej Rožič",
     "goals": " Delovanje okolice ima za posledico spremembo gibanja opazovanega telesa.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. III. Newtonov zakon",
+    "heading": "III. Newtonov zakon",
     "author": " Andreja Eršte",
     "goals": " Spoznati in upoštevati, da je delovanje teles vzajemno.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. klanec",
+    "heading": "klanec",
     "author": " Matej Rožič",
     "goals": " razumeti potrebne pogoje za mirovanje na klancu.",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. Navor",
+    "heading": "Navor",
     "author": " Matej Rožič",
     "goals": " Razumevanje količine navora in njegove uporabe v življenju. ",
-    "year": null
+    "year": 1
   },
   {
-    "heading": "1. Zgradba snovi",
+    "heading": "Zgradba snovi",
     "author": " Andreja Eršte",
     "goals": null,
-    "year": null
+    "year": 1
   },
   {
-    "heading": "2. Tlak",
+    "heading": "Tlak",
     "author": " Matej Rožič",
     "goals": " Povezovanje tlačnih obremenitev s površino in silo.",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Vzgon",
+    "heading": "Vzgon",
     "author": " Matej Rožič",
     "goals": " Razumet in uporabit povezave med potrebnimi količinami (gostota, tlak, globina, prostornima).",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Pretoki tekočin",
+    "heading": "Pretoki tekočin",
     "author": " Matej Rožič",
     "goals": " Povezati pretoke tekočine z obliko cevi.",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Gibalna količina",
+    "heading": "Gibalna količina",
     "author": " Matej Rožič",
     "goals": " Gibalna količina homogenega telesa, trki, sila curka",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Delo ter moč, delo tlaka",
+    "heading": "Delo ter moč, delo tlaka",
     "author": " Matej Rožič",
     "goals": " Dijaki znajo ločiti med notranjimi in zunanjimi silami na opazovati sistem ter znajo določiti premike posameznih sil ter z njimi povezanim delom.",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Energija sistema ter delo na sistem",
+    "heading": "Energija sistema ter delo na sistem",
     "author": " Matej Rožič",
     "goals": " A, P, W",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Gibanje tekočin - Bernoulli",
+    "heading": "Gibanje tekočin - Bernoulli",
     "author": " Matej Rožič",
     "goals": " Gibanje tekočin,  stabilnost kritine...",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Temperatura in raztezanje snovi",
+    "heading": "Temperatura in raztezanje snovi",
     "author": " Matej Rožič",
     "goals": null,
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Plini",
+    "heading": "Plini",
     "author": " Matej Rožič",
     "goals": " Razumeti povezave med parametri idealnega plina in uporaba v nalogah.",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Toplota - notranja energija",
+    "heading": "Toplota - notranja energija",
     "author": " Matej Rožič",
     "goals": null,
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. pV diagrami in toplotni stroji",
+    "heading": "pV diagrami in toplotni stroji",
     "author": " Matej Rožič",
     "goals": " Risanje pV diagramov ter interpretacija narisanega.",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "2. Sevanje",
+    "heading": "Sevanje",
     "author": " Matej Rožič",
     "goals": " Znanje in uporaba fotoefekta. Uporaba Štefanovega zakona za sevanje črnega telesa. Poznavanje Solarne konstante in energijskega toka.",
-    "year": null
+    "year": 2
   },
   {
-    "heading": "3. elektrostatika 0: naboj, polje, kondenzator",
+    "heading": "elektrostatika 0: naboj, polje, kondenzator",
     "author": " Matej Rožič",
     "goals": " definicija naboja, uporaba opisa električnega polja, kondenzatorji in vezava",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "3. elektrostatika 1:gibanje v E in energija polja",
+    "heading": "elektrostatika 1:gibanje v E in energija polja",
     "author": " Matej Rožič",
     "goals": " Energija kondenzatorja in gibanje delca v E polju.",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "3. električni tok DC",
+    "heading": "električni tok DC",
     "author": " Matej Rožič",
     "goals": " Spoznati pojave povezane z električnim tokom in njihovo uporabo.",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "3. magnetizem",
+    "heading": "magnetizem",
     "author": " Matej Rožič",
     "goals": " magneti, magnetno polje tokovodnika, gibanje delca v magnetnem polju",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "3. magnetizem - indukcija",
+    "heading": "magnetizem - indukcija",
     "author": " Matej Rožič",
     "goals": " Razumeti indukcijo,\ndelovanje transformatorja...",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "3. Prehodni pojavi C in L",
+    "heading": "Prehodni pojavi C in L",
     "author": " Matej Rožič",
     "goals": " Spoznati in upoštevati polnjenje in praznjenje kondenzatorja tuljave.",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "3. transformator",
+    "heading": "transformator",
     "author": " Matej Rožič",
     "goals": " Razumevanje delovanja transformatorja in njegove uporabe.",
-    "year": null
+    "year": 3
   },
   {
-    "heading": "4. Nihanje",
+    "heading": "Nihanje",
     "author": " Matej Rožič",
     "goals": " Razumeti harmonično nihanje, nihajni čas, frekvenca,  dušenje, vsiljeno nihanje, resonanca",
-    "year": null
+    "year": 4
   },
   {
-    "heading": "4. Valovanje",
+    "heading": "Valovanje",
     "author": " Matej Rožič",
     "goals": " valovna fronta, motnja, širjenje valovanja, zvok, svetloba...",
-    "year": null
+    "year": 4
   },
   {
-    "heading": "4. Svetloba, lomni količnik",
+    "heading": "Svetloba, lomni količnik",
     "author": " Matej Rožič",
     "goals": " Znanje valovne optike, energijski spekter vidne svetlobe",
-    "year": null
+    "year": 4
   },
   {
-    "heading": "4. geometrijska optika",
+    "heading": "geometrijska optika",
     "author": " Matej Rožič",
     "goals": " Preslikave zrcal  (ravno zrcalo, ubočeno, izbočeno zrcalo) in leč (zbiralne, razpršilne).\n\nOptični instrumenti (lupa, mikroskop...)",
-    "year": null
+    "year": 4
   },
   {
-    "heading": "4. atom, fotoefekt, rentgen, razpadi",
+    "heading": "atom, fotoefekt, rentgen, razpadi",
     "author": " Matej Rožič",
     "goals": " Zgradba atoma. razporeditev delcev v atomu. Energije posameznih delcev. Fotoefekt. Rentgen.",
-    "year": null
+    "year": 4
   },
   {
-    "heading": "4. Teorija relativnosti",
+    "heading": "Teorija relativnosti",
     "author": " Andreja Eršte",
     "goals": " Spoznati, kaj k fiziki in svetu okoli nas prinašajo ugotovitve Einsteinove splošne in posebne teorije relativnosti.",
-    "year": null
+    "year": 4
   }
 ]
