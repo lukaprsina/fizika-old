@@ -7,8 +7,7 @@ use fizika::{
 
 use std::{
     collections::HashMap,
-    fs::{self, create_dir_all, remove_dir_all, File},
-    io::Write,
+    fs::{self, create_dir_all, remove_dir_all},
     path::{Path, PathBuf},
 };
 use uuid::Uuid;
@@ -17,7 +16,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let courses_dir = Path::new("courses");
-    let output_dir = Path::new("../web/courses");
+    let output_dir = Path::new("courses_output");
 
     if output_dir.exists() {
         remove_dir_all(&output_dir)?;
@@ -41,7 +40,6 @@ fn main() -> Result<()> {
 
             {
                 let config_path = course_output_dir.join("config.json");
-                let mut config_file = File::create(&config_path)?;
 
                 let mut config = &mut chapter_info_json[i];
                 let heading = &mut config.heading.clone();
@@ -62,7 +60,7 @@ fn main() -> Result<()> {
                 config.year = Some(char::to_digit(num_char, 10).unwrap());
 
                 let config_json = serde_json::to_string_pretty(&config)?;
-                config_file.write_all(config_json.as_bytes())?;
+                fs::write(&config_path, config_json.as_bytes())?;
             }
 
             let mut j = 0;
@@ -85,6 +83,10 @@ fn main() -> Result<()> {
                         popup_count = 0;
                         continue;
                     }
+                }
+
+                if i == 2 && j == 2 {
+                    println!("YAY");
                 }
 
                 let exercise_file = course_dir.join(format!("page_{}.html", j));
@@ -125,7 +127,7 @@ fn main() -> Result<()> {
     }
 
     fs::write(
-        "../web/chapter_infos.json",
+        "chapter_infos_output.json",
         serde_json::to_string_pretty(&chapter_info_json)?.as_bytes(),
     )?;
 

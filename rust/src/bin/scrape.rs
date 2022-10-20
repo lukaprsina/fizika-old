@@ -1,11 +1,15 @@
 use color_eyre::Result;
-use fizika::scrape_utils::{fix_courses, get_links, process_tab};
+use fizika::{
+    javascript::execute_js,
+    scrape_utils::{fix_courses, get_links, process_tab},
+};
 use select::document::Document;
 use std::{
     error::Error,
-    fs::{create_dir, remove_dir_all, remove_file, File},
-    io::Write,
+    fs::{self, create_dir, create_dir_all, remove_dir_all, remove_file},
     path::Path,
+    thread::sleep,
+    time::Duration,
 };
 
 #[tokio::main]
@@ -19,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let lines = get_links(&document)?;
 
-    let pages_dir = Path::new("./courses");
+    let pages_dir = Path::new("courses");
 
     if pages_dir.exists() {
         remove_dir_all(&pages_dir)?;
@@ -36,12 +40,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let course_html = course_resp.text().await?;
         let course_document = Document::from(course_html.as_str());
 
-        let dir_name = pages_dir.join(pos.to_string());
-        create_dir(&dir_name)?;
-        let dir_name = dir_name.canonicalize()?;
-        let chapter_info = process_tab(&course_document, dir_name.as_path(), pos)?;
+        let dir_name = pages_dir.join(pos.to_string()).join("exercises");
+        create_dir_all(&dir_name)?;
+        fs::write(&dir_name.join("../index.html"), course_html.as_bytes())?;
+        let mut chapter_info = process_tab(&course_document, &dir_name.as_path(), pos)?;
 
+        execute_js(&mut chapter_info.javascript)?;
         chapter_infos.push(chapter_info);
+
+        sleep(Duration::from_millis(200));
     }
 
     let chapter_info_dir = Path::new("chapter_infos.json");
@@ -49,9 +56,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         remove_file(&chapter_info_dir)?
     };
 
-    let mut chapter_infos_file = File::create(&chapter_info_dir)?;
     let json = serde_json::ser::to_string_pretty(&chapter_infos)?;
-    chapter_infos_file.write_all(json.as_bytes())?;
+    fs::write(&chapter_info_dir, json.as_bytes())?;
 
     fix_courses()?;
 

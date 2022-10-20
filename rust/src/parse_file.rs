@@ -3,8 +3,7 @@ use select::document::Document;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
-    fs::{create_dir_all, File},
-    io::Write,
+    fs::{self, create_dir_all, File},
     path::PathBuf,
     str::FromStr,
 };
@@ -42,6 +41,7 @@ pub fn parse_file(
     config.perform_escaping = false;
     config.write_document_declaration = false;
 
+    // 2 2 is popup, but triggered programmatically
     let (file_maybe, area_maybe) = if popup {
         let popup_dir = last_exercise_dir.join("popups");
         let (html_uuid, area) = process_popup(&document)?;
@@ -79,11 +79,10 @@ pub fn parse_file(
 
                     {
                         let config_path = output_exercise_dir.join("config.json");
-                        let mut config_file = File::create(&config_path)?;
                         let config_json = serde_json::to_string_pretty(&PageConfig {
                             subheading: subheading.text(),
                         })?;
-                        config_file.write_all(config_json.as_bytes())?;
+                        fs::write(&config_path, config_json.as_bytes())?;
                     }
 
                     (Some(index_file), Some(area))

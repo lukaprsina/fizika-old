@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+
+  // docker
   output: 'standalone'
 }
 

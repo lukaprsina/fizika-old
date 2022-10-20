@@ -1,5 +1,5 @@
 import { NextPage } from "next"
-import { AppShell, Box, Button, Header, Navbar, Paper, Skeleton, Text } from "@mantine/core";
+import { AppShell, Box, Header, Navbar, Paper, Skeleton, Text } from "@mantine/core";
 import { useRouter } from "next/router"
 import { Data as ChapterData } from "../../api/list_chapters"
 import { Data as HtmlData } from "../../api/get_html"
@@ -26,10 +26,6 @@ const Course: NextPage = () => {
 
     const url2 = router.query.id ? `/api/get_html/?course=${router.query.id}&page=${page}` : null
     const { data: html } = useSWR(url2, html_fetcher)
-
-    /* const getHtml: () => HtmlData | undefined = () => {
-        return html
-    } */
 
     return (
         <AppShell

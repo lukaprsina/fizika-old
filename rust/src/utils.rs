@@ -68,6 +68,7 @@ pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>
         author: author.map(get_not_span),
         goals: goals.map(get_not_span),
         year: None,
+        javascript: None,
     })
 }
 
@@ -94,4 +95,5 @@ pub struct ChapterInfo {
     pub author: Option<String>,
     pub goals: Option<String>,
     pub year: Option<u32>,
+    pub javascript: Option<String>,
 }
