@@ -1,8 +1,5 @@
 use color_eyre::Result;
-use fizika::{
-    javascript::execute_js,
-    scrape_utils::{fix_courses, get_links, process_tab},
-};
+use fizika::scrape_utils::{fix_courses, get_links, process_tab};
 use select::document::Document;
 use std::{
     error::Error,
@@ -43,9 +40,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let dir_name = pages_dir.join(pos.to_string()).join("exercises");
         create_dir_all(&dir_name)?;
         fs::write(&dir_name.join("../index.html"), course_html.as_bytes())?;
-        let mut chapter_info = process_tab(&course_document, &dir_name.as_path(), pos)?;
+        let chapter_info = process_tab(&course_document, &dir_name.as_path(), pos)?;
 
-        execute_js(&mut chapter_info.javascript)?;
         chapter_infos.push(chapter_info);
 
         sleep(Duration::from_millis(200));

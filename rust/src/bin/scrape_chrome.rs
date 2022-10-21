@@ -1,6 +1,5 @@
 use color_eyre::Result;
 use fizika::{
-    javascript::execute_js,
     scrape_utils::{create_fizika_tab, fix_courses, get_links, process_tab},
     MATH_NOT_RENDERED_COUNTER,
 };
@@ -89,7 +88,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             pos,
         )?;
 
-        execute_js(&mut chapter_info.javascript)?;
         chapter_infos.push(chapter_info);
     }
 

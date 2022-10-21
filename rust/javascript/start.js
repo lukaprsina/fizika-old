@@ -1,3 +1,9 @@
+const fs = require('fs');
+
+let Serialize = {
+    videos: []
+}
+
 const Slides = {
     addSlide: () => { },
     addSpecialGoto: () => { },
@@ -10,7 +16,9 @@ const Flags = {
 }
 
 class VideoClass {
-    constructor() { }
+    constructor(id, obj, rest) {
+        Serialize.videos.push(id);
+    }
 }
 
 const VideoModule = {

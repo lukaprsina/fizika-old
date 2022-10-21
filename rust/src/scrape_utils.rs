@@ -137,7 +137,7 @@ pub fn process_tab(
             temp = temp.next().unwrap();
         }
 
-        // fs::write(dir_name.join("../script.js"), temp.inner_html())?;
+        fs::write(dir_name.join("../script.js"), temp.inner_html())?;
         chapter_info.javascript = Some(temp.inner_html());
     }
 
