@@ -3,9 +3,9 @@ const fs = require('fs');
 let BOOK_COUNT = 0;
 let UNSCRAMBLED_MULTICHOICE_COUNT = 0;
 
-let setMetadata = false;
+let metadata_set = false;
+let score_list_set = false;
 let output = {
-    book_count: 0,
     slides: [],
     videos: [],
     metadata: {},
@@ -14,7 +14,13 @@ let output = {
     math: [],
     special_gotos: [],
     transitions: [],
-    galleries: []
+    galleries: [],
+    books: [],
+    quiz: {
+        multi: [],
+        numeric: [],
+        score_list: {}
+    }
 }
 
 function checkRest(rest) {
@@ -41,11 +47,11 @@ const Slides = {
 const Flags = {
     setMetadata: (metadata, rest) => {
         checkRest(rest);
-        if (setMetadata)
+        if (metadata_set)
             throw "Metadata already set";
 
         output.metadata = metadata;
-        setMetadata = true;
+        metadata_set = true;
     },
     set: (key, value, rest) => {
         checkRest(rest);
@@ -84,7 +90,7 @@ class VideoClass {
 class VirtualBookClass {
     constructor() { }
     static declareBook() {
-        output.book_count += 1;
+        output.books.push("Book")
         BOOK_COUNT += 1;
     }
 }
@@ -140,6 +146,11 @@ const MathElement = {
     }
 }
 
+function assert(lhs, rhs) {
+    if (lhs !== rhs)
+        throw "Assert failed, lhs: " + lhs + ", rhs: " + rhs;
+}
+
 class MultiChoiceClass {
     constructor(name, id, config, rest) {
         checkRest(rest)
@@ -154,18 +165,13 @@ class MultiChoiceClass {
             "columns",
         ]
 
-        const assert = (lhs, rhs) => {
-            if (lhs !== rhs)
-                throw "Assert failed, lhs: " + lhs + ", rhs: " + rhs;
-        }
-
         for (const [key, value] of Object.entries(config)) {
             const index = valid_keys.indexOf(key);
 
             if (index > -1) { // only splice array when item is found
                 valid_keys.splice(index, 1); // 2nd parameter means remove one item only                    
             } else {
-                throw "Video has too few parameters"
+                throw "Multichoice has too few parameters"
             }
 
             switch (key) {
@@ -174,6 +180,9 @@ class MultiChoiceClass {
                     break;
                 case "weight":
                     assert(value, 1)
+                    break;
+                case "buttonsSameHeight":
+                    assert(value, true)
                     break;
                 case "pick":
                     assert(value, null)
@@ -190,15 +199,87 @@ class MultiChoiceClass {
 
         if (valid_keys.length !== 0)
             throw "Multichoice has extra config parameters"
+
+        output.quiz.multi.push({ id, name, title: config.title, answers: config.answers })
     }
 }
 
+/* new NumericQuestion.NumericQuestion('7850286380154c4c9cfe6f9d4a3d9916', 'avtomobilcek', {
+    'toleranceRelative': false,
+    'tolerance': 0,
+    'result': null,
+    'weight': 1,
+    'title': ['Avtomobilček', '534c6bed2041179420c428e6ac4a447f']
+}); */
+
 class NumericQuestionClass {
-    constructor() { }
+    constructor(id, name, config, rest) {
+        checkRest(rest)
+        let valid_keys = [
+            "toleranceRelative",
+            "tolerance",
+            "result",
+            "weight",
+            "title",
+        ]
+
+        for (const [key, value] of Object.entries(config)) {
+            const index = valid_keys.indexOf(key);
+
+            if (index > -1) { // only splice array when item is found
+                valid_keys.splice(index, 1); // 2nd parameter means remove one item only                    
+            } else {
+                throw "Video has too few parameters"
+            }
+
+            switch (key) {
+                case "toleranceRelative":
+                    assert(value, false)
+                    break;
+                case "tolerance":
+                    assert(value, 0)
+                    break;
+                case "result":
+                    assert(value, null)
+                    break;
+                case "weight":
+                    assert(value, 1)
+                    break;
+            }
+        }
+
+        if (valid_keys.length !== 0)
+            throw "Multichoice has extra config parameters"
+
+        output.quiz.multi.push({ id, name, title: config.title })
+    }
 }
 
+/* 
+new ScoreList.ScoreList('99155130a425da05d36cd068bc67fed8', {
+    'all': true,
+    'translations': {
+        'Name': 'Ime',
+        'Weight': 'Utež',
+        'Average': 'Povprečje',
+        'Score': 'Točke',
+        'Penalty': 'Kazen',
+        'Base': 'Osnova',
+        'Average attempted': 'Povprečje izpolnjenih'
+    },
+    'details': false
+});
+*/
+
 class ScoreListClass {
-    constructor() { }
+    constructor(id, config, rest) {
+        checkRest(rest);
+        if (score_list_set)
+            throw "Score list already set";
+
+        score_list_set = true;
+        output.quiz.score_list = { id, config }
+    }
 }
 
 const VirtualBookJS = {
