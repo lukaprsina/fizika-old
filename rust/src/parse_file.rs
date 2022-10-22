@@ -15,6 +15,7 @@ use crate::{
     recurse_node,
 };
 
+#[tracing::instrument]
 pub fn parse_file(
     exercise_file: PathBuf,
     last_exercise_dir: &mut PathBuf,

@@ -12,9 +12,8 @@ use std::{
 };
 use uuid::Uuid;
 
+#[tracing::instrument]
 pub fn extract_html() -> Result<()> {
-    color_eyre::install()?;
-
     let courses_dir = Path::new("courses");
     let output_dir = Path::new("courses_output");
 
@@ -29,7 +28,6 @@ pub fn extract_html() -> Result<()> {
     };
 
     let mut i = 0;
-    // while i < 1 {
     loop {
         let course_dir = courses_dir.join(i.to_string());
         let course_output_dir = output_dir.join(i.to_string());
@@ -85,11 +83,7 @@ pub fn extract_html() -> Result<()> {
                     }
                 }
 
-                if i == 2 && j == 2 {
-                    println!("YAY");
-                }
-
-                let exercise_file = course_dir.join(format!("page_{}.html", j));
+                let exercise_file = course_dir.join(format!("pages/page_{}.html", j));
                 let output_exercise_dir =
                     course_output_dir.join(format!("pages/page_{}", page_num));
                 create_dir_all(&output_exercise_dir)?;

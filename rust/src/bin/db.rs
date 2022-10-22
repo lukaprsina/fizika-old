@@ -1,10 +1,10 @@
 use color_eyre::Result;
-use fizika::{init, scrape::scrape_normal};
+use fizika::{database::add_to_meilisearch, init};
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
     init()?;
-    scrape_normal().await?;
+    add_to_meilisearch().await?;
 
     Ok(())
 }

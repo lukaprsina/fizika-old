@@ -5,34 +5,50 @@ use select::{
     document::Document,
     predicate::{Attr, Child, Class, Descendant, Name},
 };
-use std::{collections::HashMap, error::Error, fs, path::Path, sync::Arc, time::Duration};
+use std::{collections::HashMap, fs, path::Path, sync::Arc, time::Duration};
 
 use crate::utils::{get_chapter_info, get_only_element, ChapterInfo};
 
-pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser), Box<dyn Error>> {
+#[derive(Debug, thiserror::Error)]
+pub enum BrowserError {
+    #[error("Browser builder error: {0}")]
+    Builder(String),
+    #[error("Browser launch error")]
+    Launch,
+    #[error("Browser tab error")]
+    Tab,
+}
+
+#[tracing::instrument]
+pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser)> {
     let options = LaunchOptionsBuilder::default()
         .headless(false)
         .idle_browser_timeout(Duration::from_secs(30 * 60))
-        .build()?;
+        .build()
+        .map_err(|err| BrowserError::Builder(err))?;
 
-    let browser = Browser::new(options)?;
-    let tab = browser.wait_for_initial_tab()?;
-    tab.navigate_to("http://fizika.sc-nm.si/")?;
-    tab.wait_until_navigated()?;
+    let browser = Browser::new(options).map_err(|_| BrowserError::Launch)?;
+    let tab = browser
+        .wait_for_initial_tab()
+        .map_err(|_| BrowserError::Tab)?;
+    tab.navigate_to("http://fizika.sc-nm.si/")
+        .map_err(|_| BrowserError::Tab)?;
+    tab.wait_until_navigated().map_err(|_| BrowserError::Tab)?;
     Ok((tab, browser))
 }
 
+#[tracing::instrument]
 pub fn fix_courses() -> Result<()> {
     let fixes_in_files: HashMap<&str, Vec<(&str, &str)>> = HashMap::from([
         (
-            "./courses/9/exercises/page_19.html",
+            "./courses/9/pages/page_19.html",
             Vec::from([(
                 "href=\"#resevanjeAVTOosi1\"",
                 "href=\"#94c451e0d35ffc9530e5b98660250ae0\"",
             )]),
         ),
         (
-            "./courses/27/exercises/page_103.html",
+            "./courses/27/pages/page_103.html",
             Vec::from([
                 (
                     "href=\"#resevanjevezaveCvec1\"",
@@ -45,21 +61,21 @@ pub fn fix_courses() -> Result<()> {
             ]),
         ),
         (
-            "./courses/27/exercises/page_104.html",
+            "./courses/27/pages/page_104.html",
             Vec::from([(
                 "id=\"16c24c5bcf164994d97e797d0e801727\"",
                 "id=\"897a79036e984377a709c192890cc547\"",
             )]),
         ),
         (
-            "./courses/27/exercises/page_105.html",
+            "./courses/27/pages/page_105.html",
             Vec::from([(
                 "id=\"16c24c5bcf164994d97e797d0e801727\"",
                 "id=\"6fb1b7ccd9db4229a0982b54c02f2898\"",
             )]),
         ),
         (
-            "./courses/29/exercises/page_9.html",
+            "./courses/29/pages/page_9.html",
             Vec::from([(
                 "href=\"#resevanjeMOCvrovalke1\"",
                 "href=\"#4b5c16ef569c72e06c764001bbe69ed4\"",
@@ -79,6 +95,7 @@ pub fn fix_courses() -> Result<()> {
 }
 
 // previously 37 courses, now 39
+#[tracing::instrument]
 pub fn get_links(html: &Document) -> Result<Vec<String>> {
     let mut links = Vec::new();
 
@@ -102,6 +119,7 @@ pub fn get_links(html: &Document) -> Result<Vec<String>> {
     Ok(links)
 }
 
+#[tracing::instrument]
 pub fn process_tab(
     course_document: &Document,
     dir_name: &Path,

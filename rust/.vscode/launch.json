@@ -63,15 +63,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'scrape_chrome'",
+            "name": "Debug executable 'js'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=scrape_chrome",
+                    "--bin=js",
                     "--package=fizika"
                 ],
                 "filter": {
-                    "name": "scrape_chrome",
+                    "name": "js",
                     "kind": "bin"
                 }
             },
@@ -81,16 +81,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'scrape_chrome'",
+            "name": "Debug unit tests in executable 'js'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=scrape_chrome",
+                    "--bin=js",
                     "--package=fizika"
                 ],
                 "filter": {
-                    "name": "scrape_chrome",
+                    "name": "js",
                     "kind": "bin"
                 }
             },
@@ -137,15 +137,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'parse_js'",
+            "name": "Debug executable 'html'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=parse_js",
+                    "--bin=html",
                     "--package=fizika"
                 ],
                 "filter": {
-                    "name": "parse_js",
+                    "name": "html",
                     "kind": "bin"
                 }
             },
@@ -155,16 +155,53 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'parse_js'",
+            "name": "Debug unit tests in executable 'html'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=parse_js",
+                    "--bin=html",
                     "--package=fizika"
                 ],
                 "filter": {
-                    "name": "parse_js",
+                    "name": "html",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'db'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=db",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "db",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'db'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=db",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "db",
                     "kind": "bin"
                 }
             },
