@@ -7,7 +7,6 @@ use select::{
     predicate::{Class, Name},
 };
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 pub fn fix_formula(formula: &mut String) {
     let mut fixed = formula
@@ -49,7 +48,7 @@ pub fn fix_formula(formula: &mut String) {
     *formula = fixed;
 }
 
-pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>> {
+pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo> {
     let html = title_slide.inner_html();
 
     let document = Document::from(html.as_str());

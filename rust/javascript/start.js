@@ -12,7 +12,6 @@ let output = {
     flags: {},
     variables: [],
     math: [],
-    special_gotos: [],
     transitions: [],
     galleries: [],
     books: [],
@@ -36,7 +35,9 @@ const Slides = {
     },
     addSpecialGoto: (name, callback, rest) => {
         checkRest(rest);
-        output.special_gotos.push({ name, callback: callback.toString() })
+        // output.special_gotos.push({ name, callback: callback.toString() })        
+        if (!callback.toString().startsWith("function() { return Hidden.showHidden("))
+            throw "Special goto doesn't hide";
     },
     addTransition: (name, callback, rest) => {
         checkRest(rest);
@@ -251,7 +252,7 @@ class NumericQuestionClass {
         if (valid_keys.length !== 0)
             throw "Multichoice has extra config parameters"
 
-        output.quiz.multi.push({ id, name, title: config.title })
+        output.quiz.numeric.push({ id, name, title: config.title })
     }
 }
 

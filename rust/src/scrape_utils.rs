@@ -79,7 +79,7 @@ pub fn fix_courses() -> Result<()> {
 }
 
 // previously 37 courses, now 39
-pub fn get_links(html: &Document) -> Result<Vec<String>, Box<dyn Error>> {
+pub fn get_links(html: &Document) -> Result<Vec<String>> {
     let mut links = Vec::new();
 
     let arr = html
@@ -106,7 +106,7 @@ pub fn process_tab(
     course_document: &Document,
     dir_name: &Path,
     course_pos: usize,
-) -> Result<ChapterInfo, Box<dyn Error>> {
+) -> Result<ChapterInfo> {
     let pages = course_document
         .find(Child(Attr("id", "container"), Class("eplxSlide")))
         .collect_vec();
