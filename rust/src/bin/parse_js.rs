@@ -26,14 +26,21 @@ fn main() -> Result<()> {
 
             {
                 let mut cmd_builder = Command::new("node");
-                let command = cmd_builder.arg(&tmp_str).current_dir(&course_dir);
+                let command = cmd_builder
+                    .args(["--trace-uncaught", &tmp_str])
+                    .current_dir(&course_dir);
                 let output = command.output()?;
 
-                println!(
-                    "{:#?}: {}",
-                    &course_dir,
-                    String::from_utf8_lossy(&output.stderr)
-                );
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                let stderr = String::from_utf8_lossy(&output.stderr);
+
+                if !stdout.is_empty() || !stderr.is_empty() {
+                    println!(
+                        "{:#?}:\n\tstdout: {}\n\tstderr: {}\n\n",
+                        course_dir, stdout, stderr
+                    );
+                }
+
                 assert!(output.status.success());
             }
         } else {

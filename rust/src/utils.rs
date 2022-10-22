@@ -95,5 +95,6 @@ pub struct ChapterInfo {
     pub author: Option<String>,
     pub goals: Option<String>,
     pub year: Option<u32>,
+    #[serde(skip_serializing)]
     pub javascript: Option<String>,
 }
