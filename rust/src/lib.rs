@@ -20,6 +20,7 @@ pub fn init() -> Result<()> {
 
     let fmt_layer = tracing_subscriber::fmt::layer().with_target(false);
     tracing_subscriber::registry()
+        .with(tracing_subscriber::filter::LevelFilter::INFO)
         .with(tracing_error::ErrorLayer::default())
         .with(fmt_layer)
         .init();

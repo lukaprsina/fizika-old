@@ -12,7 +12,7 @@ dotenv = "0.15.0"
 # version 0.9 (latest) doesn't use idle browser timeout
 headless_chrome = { path = "../rust-headless-chrome" }
 html-escape = "0.2.11"
-# inquire = "0.4.0"
+inquire = "0.4.0"
 itertools = "0.10.5"
 
 #quickjs not supported on windows
