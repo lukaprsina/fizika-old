@@ -1,8 +1,8 @@
 use color_eyre::Result;
-use fizika::scrape::scrape_normal;
+use fizika::javascript::parse_js;
 
 pub fn main() -> Result<()> {
-    scrape_normal()?;
+    parse_js()?;
 
     Ok(())
 }

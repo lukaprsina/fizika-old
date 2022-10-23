@@ -1,8 +1,8 @@
 use color_eyre::Result;
-use fizika::scrape::scrape_normal;
+use fizika::html::extract_html;
 
 pub fn main() -> Result<()> {
-    scrape_normal()?;
+    extract_html()?;
 
     Ok(())
 }

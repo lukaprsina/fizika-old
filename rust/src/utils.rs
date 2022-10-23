@@ -7,7 +7,6 @@ use select::{
     predicate::{Class, Name},
 };
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 pub fn fix_formula(formula: &mut String) {
     let mut fixed = formula
@@ -49,7 +48,7 @@ pub fn fix_formula(formula: &mut String) {
     *formula = fixed;
 }
 
-pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>> {
+pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo> {
     let html = title_slide.inner_html();
 
     let document = Document::from(html.as_str());
@@ -68,6 +67,7 @@ pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo, Box<dyn Error>
         author: author.map(get_not_span),
         goals: goals.map(get_not_span),
         year: None,
+        javascript: None,
     })
 }
 
@@ -94,4 +94,6 @@ pub struct ChapterInfo {
     pub author: Option<String>,
     pub goals: Option<String>,
     pub year: Option<u32>,
+    #[serde(skip_serializing)]
+    pub javascript: Option<String>,
 }

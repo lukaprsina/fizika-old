@@ -1,8 +1,13 @@
+FROM rust:alpine3.16 AS rust
+WORKDIR /rust
+RUN cargo r --release --bin scrape_chrome
+RUN cargo r --release
+
 # Install dependencies only when needed
 FROM node:16-alpine AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
+WORKDIR /web/app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
@@ -16,8 +21,11 @@ RUN \
 
 # Rebuild the source code only when needed
 FROM node:16-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+WORKDIR /web/app
+COPY --from=deps /web/app/node_modules ./node_modules
+COPY --from=deps /web/app/node_modules ./node_modules
+COPY --from=rust /chapter_infos_output.json ./chapter_infos.json
+COPY --from=rust /courses_output ./courses
 COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
@@ -32,7 +40,7 @@ RUN yarn build
 
 # Production image, copy all the files and run next
 FROM node:16-alpine AS runner
-WORKDIR /app
+WORKDIR /web/app
 
 ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
@@ -41,12 +49,12 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+COPY --from=builder /web/app/public ./public
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /web/app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /web/app/.next/static ./.next/static
 
 USER nextjs
 

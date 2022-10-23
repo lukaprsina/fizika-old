@@ -133,6 +133,43 @@
             },
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'parse_js'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=parse_js",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "parse_js",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'parse_js'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=parse_js",
+                    "--package=fizika"
+                ],
+                "filter": {
+                    "name": "parse_js",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

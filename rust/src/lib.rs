@@ -1,6 +1,9 @@
+pub mod html;
+pub mod javascript;
 pub mod parse_file;
 pub mod process_html;
 pub mod recurse_node;
+pub mod scrape;
 pub mod scrape_utils;
 pub mod utils;
 
