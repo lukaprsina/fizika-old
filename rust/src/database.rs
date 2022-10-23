@@ -70,7 +70,8 @@ pub async fn add_to_meilisearch() -> Result<()> {
     let courses_dir = Path::new("courses_output");
 
     let mut i = 0;
-    while i < 1 {
+    // while i < 1 {
+    loop {
         let course_dir = courses_dir.join(i.to_string());
         if course_dir.is_dir() {
             let mut j = 0;
@@ -113,7 +114,7 @@ pub async fn add_to_meilisearch() -> Result<()> {
         i += 1;
     }
 
-    loop {
+    /* loop {
         let message = inquire::Text::new("Search or type document id").prompt()?;
 
         if message.starts_with("id ") {
@@ -135,6 +136,6 @@ pub async fn add_to_meilisearch() -> Result<()> {
                 println!("{}", hit.result);
             }
         }
-    }
-    // Ok(())
+    } */
+    Ok(())
 }
