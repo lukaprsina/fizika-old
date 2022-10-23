@@ -116,6 +116,17 @@ pub fn recurse_node<W: Write>(
                         false
                     }
                 }
+                "p" => {
+                    let mut start = XmlEvent::start_element("p");
+
+                    if node.is(Class("text-centered")) {
+                        start = start.attr("style", "text-align: center");
+                    }
+
+                    let event: XmlEvent = start.into();
+                    writer.write(event).unwrap();
+                    true
+                }
                 name => default_tag(name),
             }
         }
