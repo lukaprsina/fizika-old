@@ -1,4 +1,4 @@
-use std::{fmt::Display, fs, path::Path, str::FromStr, time::Instant};
+use std::{fmt::Display, fs, path::Path, str::FromStr};
 
 use color_eyre::Result;
 use meilisearch_sdk::Client;
@@ -47,7 +47,6 @@ pub async fn add_to_meilisearch() -> Result<()> {
     info!("{}, {}", url, master_password);
     let client = Client::new(url, master_password);
 
-    // client.delete_index("courses").await.unwrap();
     let courses = client.index("courses");
 
     {

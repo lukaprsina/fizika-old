@@ -1,24 +1,42 @@
-use crate::{
-    parse_file::parse_file,
-    recurse_node::{ALT_COUNTER, QUESTION_MARK_COUNTER},
-    utils::{uppercase_first_letter, ChapterInfo},
-};
-use color_eyre::Result;
-
 use std::{
     collections::HashMap,
-    fs::{self, create_dir_all, remove_dir_all},
+    fs,
     path::{Path, PathBuf},
 };
+
+use color_eyre::Result;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::utils::{uppercase_first_letter, ChapterInfo};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Script {
+    pub slides: Vec<Slide>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Slide {
+    pub skip: bool,
+    #[serde(rename = "type")]
+    pub slide_type: String,
+    pub namespace: String,
+    pub id: String,
+    pub name: String,
+
+    // unused
+    pub next: Option<String>,
+    pub prev: Option<String>,
+    pub navigation: Option<String>,
+}
+
 #[tracing::instrument]
-pub fn extract_html() -> Result<()> {
+pub fn extract_html2() -> Result<()> {
     let courses_dir = Path::new("courses");
     let output_dir = Path::new("courses_output");
 
     if output_dir.exists() {
-        remove_dir_all(&output_dir)?;
+        fs::remove_dir_all(&output_dir)?;
     }
 
     let mut chapter_info_json = {
@@ -31,10 +49,9 @@ pub fn extract_html() -> Result<()> {
     loop {
         let course_dir = courses_dir.join(i.to_string());
         let course_output_dir = output_dir.join(i.to_string());
-        let mut page_num = 0;
 
         if course_dir.is_dir() {
-            create_dir_all(&course_output_dir)?;
+            fs::create_dir_all(&course_output_dir)?;
 
             {
                 let config_path = course_output_dir.join("config.json");
@@ -61,43 +78,26 @@ pub fn extract_html() -> Result<()> {
                 fs::write(&config_path, config_json.as_bytes())?;
             }
 
-            let mut j = 0;
-            let mut popup_count = 0;
+            // TODO
+            let id_to_file: HashMap<Uuid, PathBuf> = HashMap::new();
+            {
+                let script = fs::read_to_string(course_dir.join("output.json"))?;
+                let script_rs = serde_json::from_str::<Script>(&script)?;
 
-            let mut last_exercise_dir = PathBuf::new();
-            let mut popups: HashMap<String, Uuid> = HashMap::new();
-            loop {
-                let popup = if popup_count == 0 {
-                    false
-                } else {
-                    popup_count -= 1;
-                    true
-                };
-
-                if i == 21 {
-                    if j > 34 && j < 38 {
-                        j = 38;
-                        popups.clear();
-                        popup_count = 0;
-                        continue;
-                    }
+                for slide in script_rs.slides {
+                    println!("{}", slide.slide_type);
                 }
+            }
+            /* let mut j = 0;
+            let mut page_num = 0;
+            loop {
+                let page_path = course_dir.join(format!("pages/page_{}.html", j));
+                let output_page_dir = course_output_dir.join(format!("pages/page_{}", page_num));
+                fs::create_dir_all(&output_page_dir)?;
 
-                let exercise_file = course_dir.join(format!("pages/page_{}.html", j));
-                let output_exercise_dir =
-                    course_output_dir.join(format!("pages/page_{}", page_num));
-                create_dir_all(&output_exercise_dir)?;
-
-                if exercise_file.is_file() {
-                    parse_file(
-                        exercise_file,
-                        &mut last_exercise_dir,
-                        course_output_dir.clone(),
-                        output_exercise_dir,
-                        popup,
-                        &mut popup_count,
-                        &mut popups,
-                    )?;
+                if page_path.is_file() {
+                    let mut popup;
+                    parse_doc(&course_dir, &mut popup);
 
                     if !popup {
                         page_num += 1;
@@ -107,23 +107,13 @@ pub fn extract_html() -> Result<()> {
                 }
 
                 j += 1;
-            }
+            } */
         } else {
             break;
         }
 
         i += 1;
     }
-
-    unsafe {
-        println!("Missing alt attributes: {}", ALT_COUNTER);
-        println!("Questions marks: {}", QUESTION_MARK_COUNTER);
-    }
-
-    fs::write(
-        "chapter_infos_output.json",
-        serde_json::to_string_pretty(&chapter_info_json)?.as_bytes(),
-    )?;
 
     Ok(())
 }
