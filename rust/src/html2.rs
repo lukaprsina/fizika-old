@@ -2,13 +2,15 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 use color_eyre::Result;
+use itertools::Itertools;
+use select::{document::Document, predicate};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
-use crate::utils::{uppercase_first_letter, ChapterInfo};
+use crate::utils::{get_only_element, uppercase_first_letter, ChapterInfo};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Script {
@@ -78,16 +80,71 @@ pub fn extract_html2() -> Result<()> {
                 fs::write(&config_path, config_json.as_bytes())?;
             }
 
-            // TODO
-            let id_to_file: HashMap<Uuid, PathBuf> = HashMap::new();
+            let mut pages: HashMap<String, (Document, PathBuf)> = HashMap::new();
+            let mut j = 0;
+
+            loop {
+                let page_path = course_dir.join(format!("pages/page_{}.html", j));
+
+                if !page_path.exists() {
+                    break;
+                }
+
+                println!("{}\n{:#?}", "-".repeat(50), page_path);
+
+                let content = std::fs::read_to_string(&page_path)?;
+                let document = Document::from(tendril::StrTendril::from_str(&content).unwrap());
+
+                let outer_divs = document.find(predicate::Class("eplxSlide")).collect_vec();
+                let outer_div = get_only_element(outer_divs);
+
+                assert!(outer_div.is(predicate::Name("div")));
+                let html_id = outer_div.attr("id").expect("Page has no id");
+
+                pages.insert(html_id.to_string(), (document, page_path));
+
+                j += 1;
+            }
+
             {
                 let script = fs::read_to_string(course_dir.join("output.json"))?;
                 let script_rs = serde_json::from_str::<Script>(&script)?;
 
-                for slide in script_rs.slides {
-                    println!("{}", slide.slide_type);
+                let length = script_rs.slides.len();
+                for (pos, slide) in script_rs.slides.iter().enumerate() {
+                    if pos == 0 || pos == length - 2 {
+                        continue;
+                    }
+
+                    let (document, page_path) = pages
+                        .remove(&slide.id)
+                        .expect("Page is defined in slide, but does not exist");
+
+                    println!("{}\n{:#?}", "-".repeat(50), page_path);
+
+                    let outer_divs = document.find(predicate::Class("eplxSlide")).collect_vec();
+                    let outer_div = get_only_element(outer_divs);
+
+                    let html_name = outer_div.attr("name").expect("Page has no name");
+                    assert_eq!(html_name, slide.name);
+
+                    let html_is_popup = outer_div.is(predicate::Class("popupImpl"));
+                    match slide.slide_type.as_str() {
+                        "popup" => assert!(html_is_popup),
+                        "slide" => assert!(!html_is_popup),
+                        _ => panic!("Type {} missing", slide.slide_type),
+                    }
                 }
+
+                // end slide
+                assert_eq!(
+                    pages.len(),
+                    1,
+                    "There are more html pages than slides in js"
+                );
             }
+
+            // TODO
             /* let mut j = 0;
             let mut page_num = 0;
             loop {
