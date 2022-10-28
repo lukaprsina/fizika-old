@@ -18,6 +18,7 @@ pub fn parse_js() -> Result<()> {
 
             let mut node_file = String::new();
             node_file.push_str(&start_js);
+            node_file.push_str(&format!("let FS_PATH = {}", i));
             node_file.push_str(&file_js);
             node_file.push_str(&end_js);
             node_file = html_escape::decode_html_entities(&node_file).to_string();
