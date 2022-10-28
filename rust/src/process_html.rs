@@ -9,6 +9,7 @@ use thiserror::Error;
 
 use crate::utils::get_only_element;
 
+#[tracing::instrument]
 pub fn process_popup<'a, 'b>(document: &'a Document) -> Result<(String, Node<'b>)>
 where
     'a: 'b,

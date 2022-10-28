@@ -1,7 +1,8 @@
 use std::{fs, path::Path, process::Command};
 
-use color_eyre::Result;
+use color_eyre::{eyre::Context, Result};
 
+#[tracing::instrument]
 pub fn parse_js() -> Result<()> {
     let start_js = fs::read_to_string("javascript/start.js")?;
     let end_js = fs::read_to_string("javascript/end.js")?;
@@ -12,7 +13,8 @@ pub fn parse_js() -> Result<()> {
         let course_dir = courses_dir.join(i.to_string());
 
         if course_dir.is_dir() {
-            let file_js = fs::read_to_string(course_dir.join("script.js"))?;
+            let file_js = fs::read_to_string(course_dir.join("script.js"))
+                .wrap_err("Unable to read script")?;
 
             let mut node_file = String::new();
             node_file.push_str(&start_js);

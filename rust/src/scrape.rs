@@ -4,7 +4,6 @@ use itertools::Itertools;
 use reqwest::Url;
 use select::document::Document;
 use std::{
-    error::Error,
     fs::{self, create_dir, create_dir_all, remove_dir_all, remove_file},
     path::Path,
     sync::Arc,
@@ -13,16 +12,18 @@ use std::{
 };
 
 use crate::{
-    scrape_utils::{create_fizika_tab, fix_courses, get_links, process_tab},
+    scrape_utils::{create_fizika_tab, fix_courses, get_links, process_tab, BrowserError},
     MATH_NOT_RENDERED_COUNTER,
 };
 
-pub fn scrape_normal() -> Result<()> {
+#[tracing::instrument]
+pub async fn scrape_normal() -> Result<()> {
     let url_str = "http://fizika.sc-nm.si";
     let url = url::Url::parse(url_str)?;
 
-    let resp = reqwest::blocking::get(url.clone())?;
-    let html = resp.text()?;
+    let resp = reqwest::get(url.clone()).await?;
+
+    let html = resp.text().await?;
     let document = Document::from(html.as_str());
 
     let lines = get_links(&document)?;
@@ -40,11 +41,11 @@ pub fn scrape_normal() -> Result<()> {
 
     for (pos, line) in lines.into_iter().enumerate() {
         let new_address = url.clone().join(&line)?;
-        let course_resp = reqwest::blocking::get(new_address)?;
-        let course_html = course_resp.text()?;
+        let course_resp = reqwest::get(new_address).await?;
+        let course_html = course_resp.text().await?;
         let course_document = Document::from(course_html.as_str());
 
-        let dir_name = pages_dir.join(pos.to_string()).join("exercises");
+        let dir_name = pages_dir.join(pos.to_string()).join("pages");
         create_dir_all(&dir_name)?;
         fs::write(&dir_name.join("../index.html"), course_html.as_bytes())?;
         let chapter_info = process_tab(&course_document, &dir_name.as_path(), pos)?;
@@ -67,7 +68,8 @@ pub fn scrape_normal() -> Result<()> {
     Ok(())
 }
 
-pub fn scrape_chrome() -> Result<(), Box<dyn Error>> {
+#[tracing::instrument]
+pub fn scrape_chrome() -> Result<()> {
     let (tab, _browser) = create_fizika_tab()?;
 
     let document = get_html_from_element(&get_element_from_tab(&tab));
@@ -96,13 +98,14 @@ pub fn scrape_chrome() -> Result<(), Box<dyn Error>> {
 
     for (pos, line) in lines.into_iter().skip(0).enumerate() {
         let new_address = url.join(&line)?;
-        tab.navigate_to(&new_address.to_string())?;
+        tab.navigate_to(&new_address.to_string())
+            .map_err(|_| BrowserError::Tab)?;
         tab.wait_until_navigated().unwrap();
 
         let document_element = get_element_from_tab(&tab);
         let document_html = get_html_from_element(&document_element);
 
-        let dir_name = pages_dir.join(pos.to_string()).join("exercises");
+        let dir_name = pages_dir.join(pos.to_string()).join("pages");
         create_dir_all(&dir_name)?;
 
         let chapter_info = process_tab(

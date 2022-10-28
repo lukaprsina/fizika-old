@@ -2,4 +2,6 @@
 /courses/
 /courses_output/
 /gradivo/
+.dotenv
+/data.ms
 /__pycache__
