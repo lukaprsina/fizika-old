@@ -125,6 +125,7 @@ pub fn parse_file(
     Ok(())
 }
 
+/*
 #[tracing::instrument]
 pub fn parse_file2(
     exercise_file: PathBuf,
@@ -226,6 +227,7 @@ pub fn parse_file2(
 
     Ok(())
 }
+ */
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PageConfig {

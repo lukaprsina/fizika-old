@@ -25,6 +25,7 @@ pub struct Slide {
     pub namespace: String,
     pub id: String,
     pub name: String,
+    pub title: Option<String>,
 
     // unused
     pub next: Option<String>,
@@ -55,80 +56,99 @@ pub fn extract_html2() -> Result<()> {
             continue;
         }
 
+        let mut missing_fs_html_count = 0;
+        let mut missing_fs_html_string = String::new();
+
         let course_dir = courses_dir.join(i.to_string());
         let course_output_dir = output_dir.join(i.to_string());
 
-        if course_dir.is_dir() {
-            fs::create_dir_all(&course_output_dir)?;
-
-            let config_path = course_output_dir.join("config.json");
-            write_config(&mut chapter_info_json, &config_path, i)?;
-
-            let mut pages: HashMap<String, (Document, PathBuf, usize)> = HashMap::new();
-            let mut j = 0;
-
-            loop {
-                if !read_pages_fs(&mut pages, &course_dir, j) {
-                    break;
-                }
-
-                j += 1;
-            }
-
-            {
-                let script = fs::read_to_string(course_dir.join("output.json"))?;
-                let script_rs = serde_json::from_str::<Script>(&script)?;
-
-                let length = script_rs.slides.len();
-                for (pos, slide) in script_rs.slides.iter().enumerate() {
-                    if pos == 0 || pos == length - 2 {
-                        continue;
-                    }
-
-                    /* let (document, page_path) = pages
-                    .remove(&slide.id)
-                    .expect("Page is defined in slide, but does not exist in fs"); */
-
-                    match pages.remove(&slide.id) {
-                        Some((document, page_path, page_num)) => {
-                            println!("{}\n{:#?}", "-".repeat(50), page_path);
-                            parse_page_js_and_fs(&slide, &document, &page_path);
-                        }
-                        None => println!(
-                            "Slide defined in js, but does not exist in fs: {:#?}",
-                            slide
-                        ),
-                    }
-                }
-
-                // end slide
-                if pages.len() != 1 {
-                    if let Some(page) = pages.get("courses/8/pages/page_91.html") {
-                        panic!(
-                            "There are more html pages than slides in js: {:#?}, {}",
-                            page.1, page.2
-                        );
-                    }
-                }
-            }
-
-            let mut j = 0;
-            let mut page_num = 0;
-            loop {
-                let page_path = course_dir.join(format!("pages/page_{}.html", j));
-                let output_page_dir = course_output_dir.join(format!("pages/page_{}", page_num));
-                fs::create_dir_all(&output_page_dir)?;
-
-                if page_path.is_file() {
-                    parse_doc(&course_dir);
-                } else {
-                    break;
-                }
-
-                j += 1;
-            }
-        } else {
+        if !course_dir.is_dir() {
             break;
+        }
+
+        fs::create_dir_all(&course_output_dir)?;
+        println!("{course_dir:#?}");
+
+        let config_path = course_output_dir.join("config.json");
+        write_config(&mut chapter_info_json, &config_path, i)?;
+
+        let mut pages: HashMap<String, (Document, PathBuf, usize)> = HashMap::new();
+        let mut j = 0;
+
+        loop {
+            if !read_pages_fs(&mut pages, &course_dir, j) {
+                break;
+            }
+
+            j += 1;
+        }
+
+        let mut missing_slides = Vec::new();
+
+        let script = fs::read_to_string(course_dir.join("output.json"))?;
+        let script_rs = serde_json::from_str::<Script>(&script)?;
+
+        let length = script_rs.slides.len();
+        for (pos, slide) in script_rs.slides.iter().enumerate() {
+            if pos == 0 || pos == length - 2 {
+                continue;
+            }
+
+            match pages.remove(&slide.id) {
+                Some((document, page_path, page_num)) => {
+                    parse_page_js_and_fs(&slide, &document, &page_path);
+                    let page_path = course_dir.join(format!("pages/page_{}.html", page_num));
+
+                    let output_page_dir = course_output_dir.join("pages");
+                    let output_page_path = output_page_dir.join(format!("page_{}", page_num));
+
+                    fs::create_dir_all(&output_page_dir)?;
+
+                    if output_page_path.is_file() {
+                        panic!("{:#?} already exists", output_page_path);
+                    } else if page_path.is_file() {
+                        // parse_doc(&course_dir);
+                        fs::write(&output_page_path, "contents".as_bytes())?;
+                    } else {
+                        panic!("{:#?} is not a file", page_path);
+                    }
+                }
+                None => {
+                    missing_fs_html_count += 1;
+                    missing_fs_html_string += &format!("{} - {}\n", slide.name, slide.id);
+                    if slide.name != "endslide" {
+                        missing_slides.push(slide);
+                    }
+                }
+            }
+        }
+
+        // end slide
+        if pages.len() != 0 {
+            if let Some(page) = pages.get("courses/8/pages/page_91.html") {
+                panic!(
+                    "There are more html pages than slides in js: {:#?}, {}",
+                    page.1, page.2
+                );
+            }
+        }
+
+        dbg!(missing_fs_html_count);
+        fs::write(
+            course_dir.join("missing.txt"),
+            missing_fs_html_string.as_bytes(),
+        )?;
+
+        if i != 24 {
+            for missing_slide in missing_slides {
+                let js_type = missing_slide.slide_type.clone();
+                match js_type.as_str() {
+                    "transition" => {
+                        // TODO: transitions not handled
+                    }
+                    _ => panic!("{js_type}"),
+                }
+            }
         }
 
         i += 1;
@@ -172,11 +192,7 @@ fn read_pages_fs(
     page_num: usize,
 ) -> bool {
     let page_path = course_dir.join(format!("pages/page_{}.html", page_num));
-    println!("{}\n{:#?}", "-".repeat(50), page_path);
-
-    if page_num == 113 {
-        println!("WTF");
-    }
+    // println!("{}\n{:#?}", "-".repeat(50), page_path);
 
     if !page_path.exists() {
         return false;
