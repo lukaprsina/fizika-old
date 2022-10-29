@@ -1,3 +1,5 @@
+#![feature(file_create_new)]
+
 use color_eyre::Result;
 
 pub mod database;

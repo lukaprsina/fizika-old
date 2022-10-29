@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    fs,
+    fs::{self, File},
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -9,8 +9,15 @@ use color_eyre::Result;
 use itertools::Itertools;
 use select::{document::Document, predicate};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use xml::EmitterConfig;
 
-use crate::utils::{get_only_element, uppercase_first_letter, ChapterInfo};
+use crate::{
+    parse_file::PageConfig,
+    process_html::{process_exercise, process_popup, ExerciseError},
+    recurse_node::recurse_node,
+    utils::{get_only_element, uppercase_first_letter, ChapterInfo},
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Script {
@@ -56,102 +63,178 @@ pub fn extract_html2() -> Result<()> {
             continue;
         }
 
-        let mut missing_fs_html_count = 0;
-        let mut missing_fs_html_string = String::new();
-
-        let course_dir = courses_dir.join(i.to_string());
-        let course_output_dir = output_dir.join(i.to_string());
-
-        if !course_dir.is_dir() {
+        if !process_chapter(i, courses_dir, output_dir, &mut chapter_info_json)? {
             break;
         }
 
-        fs::create_dir_all(&course_output_dir)?;
-        println!("{course_dir:#?}");
-
-        let config_path = course_output_dir.join("config.json");
-        write_config(&mut chapter_info_json, &config_path, i)?;
-
-        let mut pages: HashMap<String, (Document, PathBuf, usize)> = HashMap::new();
-        let mut j = 0;
-
-        loop {
-            if !read_pages_fs(&mut pages, &course_dir, j) {
-                break;
-            }
-
-            j += 1;
-        }
-
-        let mut missing_slides = Vec::new();
-
-        let script = fs::read_to_string(course_dir.join("output.json"))?;
-        let script_rs = serde_json::from_str::<Script>(&script)?;
-
-        let length = script_rs.slides.len();
-        for (pos, slide) in script_rs.slides.iter().enumerate() {
-            if pos == 0 || pos == length - 2 {
-                continue;
-            }
-
-            match pages.remove(&slide.id) {
-                Some((document, page_path, page_num)) => {
-                    parse_page_js_and_fs(&slide, &document, &page_path);
-                    let page_path = course_dir.join(format!("pages/page_{}.html", page_num));
-
-                    let output_page_dir = course_output_dir.join("pages");
-                    let output_page_path = output_page_dir.join(format!("page_{}", page_num));
-
-                    fs::create_dir_all(&output_page_dir)?;
-
-                    if output_page_path.is_file() {
-                        panic!("{:#?} already exists", output_page_path);
-                    } else if page_path.is_file() {
-                        // parse_doc(&course_dir);
-                        fs::write(&output_page_path, "contents".as_bytes())?;
-                    } else {
-                        panic!("{:#?} is not a file", page_path);
-                    }
-                }
-                None => {
-                    missing_fs_html_count += 1;
-                    missing_fs_html_string += &format!("{} - {}\n", slide.name, slide.id);
-                    if slide.name != "endslide" {
-                        missing_slides.push(slide);
-                    }
-                }
-            }
-        }
-
-        // end slide
-        if pages.len() != 0 {
-            if let Some(page) = pages.get("courses/8/pages/page_91.html") {
-                panic!(
-                    "There are more html pages than slides in js: {:#?}, {}",
-                    page.1, page.2
-                );
-            }
-        }
-
-        dbg!(missing_fs_html_count);
-        fs::write(
-            course_dir.join("missing.txt"),
-            missing_fs_html_string.as_bytes(),
-        )?;
-
-        if i != 24 {
-            for missing_slide in missing_slides {
-                let js_type = missing_slide.slide_type.clone();
-                match js_type.as_str() {
-                    "transition" => {
-                        // TODO: transitions not handled
-                    }
-                    _ => panic!("{js_type}"),
-                }
-            }
-        }
-
         i += 1;
+    }
+
+    Ok(())
+}
+
+fn process_chapter(
+    i: usize,
+    courses_dir: &Path,
+    output_dir: &Path,
+    chapter_info_json: &mut Vec<ChapterInfo>,
+) -> Result<bool> {
+    let mut missing_fs_html_count = 0;
+    let mut missing_fs_html_string = String::new();
+
+    let course_dir = courses_dir.join(i.to_string());
+    let course_output_dir = output_dir.join(i.to_string());
+
+    if !course_dir.is_dir() {
+        return Ok(false);
+    }
+
+    fs::create_dir_all(&course_output_dir)?;
+    println!("{course_dir:#?}");
+
+    let config_path = course_output_dir.join("config.json");
+    write_config(chapter_info_json, &config_path, i)?;
+
+    let mut pages: HashMap<String, (Document, PathBuf, usize)> = HashMap::new();
+    let mut j = 0;
+
+    loop {
+        if !read_pages_fs(&mut pages, &course_dir, j) {
+            break;
+        }
+
+        j += 1;
+    }
+
+    let mut missing_slides = Vec::new();
+
+    let script = fs::read_to_string(course_dir.join("output.json"))?;
+    let script_rs = serde_json::from_str::<Script>(&script)?;
+
+    let length = script_rs.slides.len();
+    for (pos, slide) in script_rs.slides.iter().enumerate() {
+        if pos == 0 || pos == length - 2 {
+            continue;
+        }
+
+        match pages.remove(&slide.id) {
+            Some((document, page_path_js, page_num)) => {
+                parse_page_js_and_fs(&slide, &document);
+                let input_page_path = course_dir.join(format!("pages/page_{}.html", page_num));
+
+                assert_eq!(input_page_path, page_path_js);
+
+                let output_page_dir = course_output_dir.join("pages");
+                let output_page_path = output_page_dir.join(format!("page_{}", page_num));
+
+                fs::create_dir_all(&output_page_path)?;
+                if input_page_path.is_file() {
+                    parse_exercise(&document, &output_page_path, &slide)?;
+                } else {
+                    panic!("{:#?} is not a file", input_page_path);
+                }
+            }
+            None => {
+                missing_fs_html_count += 1;
+                missing_fs_html_string += &format!("{} - {}\n", slide.name, slide.id);
+                if slide.name != "endslide" {
+                    missing_slides.push(slide);
+                }
+            }
+        }
+    }
+
+    // end slide
+    if pages.len() != 0 {
+        if let Some(page) = pages.get("courses/8/pages/page_91.html") {
+            panic!(
+                "There are more html pages than slides in js: {:#?}, {}",
+                page.1, page.2
+            );
+        }
+    }
+
+    dbg!(missing_fs_html_count);
+    fs::write(
+        course_dir.join("missing.txt"),
+        missing_fs_html_string.as_bytes(),
+    )?;
+
+    if i != 24 {
+        for missing_slide in missing_slides {
+            let js_type = missing_slide.slide_type.clone();
+            match js_type.as_str() {
+                "transition" => {
+                    // TODO: transitions not handled
+                }
+                _ => panic!("{js_type}"),
+            }
+        }
+    }
+
+    Ok(true)
+}
+
+fn parse_exercise(document: &Document, output_page_path: &Path, slide: &Slide) -> Result<()> {
+    let mut config = EmitterConfig::new().perform_indent(true);
+    config.perform_escaping = false;
+    config.write_document_declaration = false;
+
+    let result = match slide.slide_type.as_str() {
+        "popup" => {
+            let popup_dir = output_page_path.join("popups");
+            let (html_uuid, area) = process_popup(&document)?;
+            fs::create_dir_all(&popup_dir)?;
+
+            let file = File::create_new(popup_dir.join(&html_uuid))?;
+
+            Some((file, area))
+        }
+        "slide" => {
+            match process_exercise(&document) {
+                Ok(result) => {
+                    if let Some((area, subheading)) = result {
+                        let index_path = output_page_path.join("index.html");
+                        println!("{output_page_path:#?}");
+                        let index_file = File::create_new(&index_path)?;
+
+                        {
+                            let config_path = output_page_path.join("config.json");
+                            let config_json = serde_json::to_string_pretty(&PageConfig {
+                                subheading: subheading.text(),
+                            })?;
+                            fs::write(&config_path, config_json.as_bytes())?;
+                        }
+
+                        Some((index_file, area))
+                    } else {
+                        None
+                    }
+                }
+                Err(err) => {
+                    if err == ExerciseError::HiddenExercise {
+                        // TODO: popup_count += 1;
+                    }
+                    None
+                }
+            }
+        }
+        _ => panic!("Type {} missing", slide.slide_type),
+    };
+
+    if let Some((file, area)) = result {
+        let mut writer = config.create_writer(file);
+        let mut parents: Vec<Option<String>> = Vec::new();
+        let mut new_popups: HashMap<String, Uuid> = HashMap::new();
+        let mut question_mark_course = 0;
+
+        recurse_node(
+            area,
+            &mut parents,
+            &mut new_popups,
+            &mut writer,
+            &mut question_mark_course,
+        );
     }
 
     Ok(())
@@ -212,7 +295,7 @@ fn read_pages_fs(
     return true;
 }
 
-fn parse_page_js_and_fs(slide: &Slide, document: &Document, page_path: &Path) {
+fn parse_page_js_and_fs(slide: &Slide, document: &Document) {
     let outer_divs = document.find(predicate::Class("eplxSlide")).collect_vec();
     let outer_div = get_only_element(outer_divs);
 
