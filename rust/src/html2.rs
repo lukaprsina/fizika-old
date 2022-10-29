@@ -24,7 +24,7 @@ pub struct Script {
     pub slides: Vec<Slide>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Slide {
     pub skip: bool,
     #[serde(rename = "type")]
@@ -112,6 +112,8 @@ fn process_chapter(
     let script_rs = serde_json::from_str::<Script>(&script)?;
 
     let length = script_rs.slides.len();
+    let mut exercises: Vec<Exercise> = vec![];
+
     for (pos, slide) in script_rs.slides.iter().enumerate() {
         if pos == 0 || pos == length - 2 {
             continue;
@@ -119,18 +121,12 @@ fn process_chapter(
 
         match pages.remove(&slide.id) {
             Some((document, page_path_js, page_num)) => {
-                parse_page_js_and_fs(&slide, &document);
+                parse_page_js_and_fs(&slide, &document, &mut exercises);
                 let input_page_path = course_dir.join(format!("pages/page_{}.html", page_num));
-
                 assert_eq!(input_page_path, page_path_js);
 
-                let output_page_dir = course_output_dir.join("pages");
-                let output_page_path = output_page_dir.join(format!("page_{}", page_num));
-
-                fs::create_dir_all(&output_page_path)?;
-                if input_page_path.is_file() {
-                    parse_exercise(&document, &output_page_path, &slide)?;
-                } else {
+                // parse_exercise(&document, &output_page_path, &slide)?;
+                if !input_page_path.is_file() {
                     panic!("{:#?} is not a file", input_page_path);
                 }
             }
@@ -172,72 +168,81 @@ fn process_chapter(
         }
     }
 
+    println!("{}", exercises.len());
+    for (page_num, exercise) in exercises.into_iter().enumerate() {
+        let output_page_dir = course_output_dir.join("pages");
+        let output_page_path = output_page_dir.join(format!("page_{}", page_num));
+        fs::create_dir_all(&output_page_path)?;
+        parse_exercise2(exercise, &output_page_path)?;
+    }
+
     Ok(true)
 }
 
-fn parse_exercise(document: &Document, output_page_path: &Path, slide: &Slide) -> Result<()> {
-    let mut config = EmitterConfig::new().perform_indent(true);
-    config.perform_escaping = false;
-    config.write_document_declaration = false;
+fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
+    match process_exercise(&exercise.document) {
+        Ok(result) => {
+            if let Some((area, subheading)) = result {
+                let index_path = output_page_path.join("index.html");
+                println!("{output_page_path:#?}");
+                let index_file = File::create_new(&index_path)?;
 
-    let result = match slide.slide_type.as_str() {
-        "popup" => {
-            let popup_dir = output_page_path.join("popups");
-            let (html_uuid, area) = process_popup(&document)?;
-            fs::create_dir_all(&popup_dir)?;
-
-            let file = File::create_new(popup_dir.join(&html_uuid))?;
-
-            Some((file, area))
-        }
-        "slide" => {
-            match process_exercise(&document) {
-                Ok(result) => {
-                    if let Some((area, subheading)) = result {
-                        let index_path = output_page_path.join("index.html");
-                        println!("{output_page_path:#?}");
-                        let index_file = File::create_new(&index_path)?;
-
-                        {
-                            let config_path = output_page_path.join("config.json");
-                            let config_json = serde_json::to_string_pretty(&PageConfig {
-                                subheading: subheading.text(),
-                            })?;
-                            fs::write(&config_path, config_json.as_bytes())?;
-                        }
-
-                        Some((index_file, area))
-                    } else {
-                        None
-                    }
+                {
+                    let config_path = output_page_path.join("config.json");
+                    let config_json = serde_json::to_string_pretty(&PageConfig {
+                        subheading: subheading.text(),
+                    })?;
+                    fs::write(&config_path, config_json.as_bytes())?;
                 }
-                Err(err) => {
-                    if err == ExerciseError::HiddenExercise {
-                        // TODO: popup_count += 1;
-                    }
-                    None
-                }
+
+                let mut config = EmitterConfig::new().perform_indent(true);
+                config.perform_escaping = false;
+                config.write_document_declaration = false;
+
+                write_node_to_file(index_file, area, config);
             }
         }
-        _ => panic!("Type {} missing", slide.slide_type),
+        Err(err) => {
+            if err == ExerciseError::HiddenExercise {
+                // TODO: popup_count += 1;
+            }
+        }
     };
 
-    if let Some((file, area)) = result {
-        let mut writer = config.create_writer(file);
-        let mut parents: Vec<Option<String>> = Vec::new();
-        let mut new_popups: HashMap<String, Uuid> = HashMap::new();
-        let mut question_mark_course = 0;
+    let popups_dir = output_page_path.join("popups");
+    if !exercise.popups.is_empty() {
+        fs::create_dir_all(&popups_dir)?;
+    }
 
-        recurse_node(
-            area,
-            &mut parents,
-            &mut new_popups,
-            &mut writer,
-            &mut question_mark_course,
-        );
+    for popup in exercise.popups {
+        let (html_uuid, area) = process_popup(&popup.document)?;
+        assert_eq!(html_uuid, popup.slide.id);
+        let popup_dir = popups_dir.join(format!("{}.html", popup.slide.id));
+        let file = File::create_new(&popup_dir)?;
+
+        let mut config = EmitterConfig::new().perform_indent(true);
+        config.perform_escaping = false;
+        config.write_document_declaration = false;
+
+        write_node_to_file(file, area, config);
     }
 
     Ok(())
+}
+
+fn write_node_to_file(file: File, area: select::node::Node, config: EmitterConfig) {
+    let mut writer = config.create_writer(file);
+    let mut parents: Vec<Option<String>> = Vec::new();
+    let mut new_popups: HashMap<String, Uuid> = HashMap::new();
+    let mut question_mark_course = 0;
+
+    recurse_node(
+        area,
+        &mut parents,
+        &mut new_popups,
+        &mut writer,
+        &mut question_mark_course,
+    );
 }
 
 fn write_config(
@@ -295,7 +300,7 @@ fn read_pages_fs(
     return true;
 }
 
-fn parse_page_js_and_fs(slide: &Slide, document: &Document) {
+fn parse_page_js_and_fs(slide: &Slide, document: &Document, exercises: &mut Vec<Exercise>) {
     let outer_divs = document.find(predicate::Class("eplxSlide")).collect_vec();
     let outer_div = get_only_element(outer_divs);
 
@@ -304,8 +309,36 @@ fn parse_page_js_and_fs(slide: &Slide, document: &Document) {
 
     let html_is_popup = outer_div.is(predicate::Class("popupImpl"));
     match slide.slide_type.as_str() {
-        "popup" => assert!(html_is_popup),
-        "slide" => assert!(!html_is_popup),
+        "popup" => {
+            assert!(html_is_popup);
+            exercises
+                .last_mut()
+                .expect("Popup without a slide")
+                .popups
+                .push(Popup {
+                    slide: slide.clone(),
+                    document: document.clone(),
+                });
+        }
+        "slide" => {
+            assert!(!html_is_popup);
+            exercises.push(Exercise {
+                popups: vec![],
+                slide: slide.clone(),
+                document: document.clone(),
+            });
+        }
         _ => panic!("Type {} missing", slide.slide_type),
     }
+}
+
+pub struct Exercise {
+    pub popups: Vec<Popup>,
+    pub slide: Slide,
+    pub document: Document,
+}
+
+pub struct Popup {
+    pub slide: Slide,
+    pub document: Document,
 }

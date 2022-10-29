@@ -11,12 +11,21 @@ pub struct Page {
     id: String,
     html: String,
     text: String,
+    popups: Vec<Popup>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Popup {
+    id: String,
+    html: String,
+    text: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PageDisplay {
     html: String,
     text: String,
+    popups: Vec<Popup>,
 }
 
 impl Display for Page {
@@ -52,7 +61,7 @@ pub async fn add_to_meilisearch() -> Result<()> {
     {
         let displayed_attributes = ["text", "html"];
         let ranking_rules = ["words", "typo", "attribute", "exactness", "cost:asc"];
-        let searchable_attributes = ["text"];
+        let searchable_attributes = ["text", "popups"];
 
         let settings = meilisearch_sdk::settings::Settings::new()
             .with_ranking_rules(ranking_rules)
@@ -71,13 +80,47 @@ pub async fn add_to_meilisearch() -> Result<()> {
     let mut i = 0;
     // while i < 1 {
     loop {
-        let course_dir = courses_dir.join(i.to_string());
-        if course_dir.is_dir() {
-            let mut j = 0;
+        if i == 2 || i == 3 {
+            i += 1;
+            continue;
+        }
 
+        let course_dir = courses_dir.join(i.to_string());
+        let mut j = 0;
+
+        if course_dir.is_dir() {
             loop {
-                let exercise_file = course_dir.join(format!("pages/page_{}/index.html", j));
+                let exercise_dir = course_dir.join(format!("pages/page_{}", j));
+                let exercise_file = exercise_dir.join("index.html");
                 println!("{:#?}", exercise_file);
+
+                let mut popups = vec![];
+                let popups_dir = exercise_dir.join("popups");
+
+                if popups_dir.exists() {
+                    for popup_path_entry in fs::read_dir(popups_dir)? {
+                        let popup_path_entry = popup_path_entry?;
+                        let uuid = popup_path_entry.file_name().to_str().unwrap().to_string();
+                        let popup_path = popup_path_entry.path();
+
+                        let file = fs::read_to_string(&popup_path)?;
+
+                        let document =
+                            Document::from(tendril::StrTendril::from_str(&file).unwrap());
+                        let text = document
+                            .nth(0)
+                            .expect("Can't get div for text")
+                            .text()
+                            .trim()
+                            .to_string();
+
+                        popups.push(Popup {
+                            html: file,
+                            text,
+                            id: format!("popup_{}_{}_{}", i, j, uuid),
+                        })
+                    }
+                }
 
                 if exercise_file.is_file() {
                     let file = fs::read_to_string(&exercise_file)?;
@@ -96,6 +139,7 @@ pub async fn add_to_meilisearch() -> Result<()> {
                                 html: file,
                                 text,
                                 id: format!("{}_{}", i, j),
+                                popups,
                             }],
                             Some("id"),
                         )
