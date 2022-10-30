@@ -60,8 +60,8 @@ pub async fn add_to_meilisearch() -> Result<()> {
 
     {
         let displayed_attributes = ["text", "html"];
-        let ranking_rules = ["words", "typo", "attribute", "exactness", "cost:asc"];
-        let searchable_attributes = ["text", "popups"];
+        let ranking_rules = ["words", "typo", "attribute", "exactness", "id:asc"];
+        let searchable_attributes = ["text", "popups.text"];
 
         let settings = meilisearch_sdk::settings::Settings::new()
             .with_ranking_rules(ranking_rules)
