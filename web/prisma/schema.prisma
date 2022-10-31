@@ -15,47 +15,100 @@ model Course {
   id     Int     @id @default(autoincrement())
   title  String
   topics Topic[]
-  modals Modal[]
+
+  metadata   Metadata @relation(fields: [metadataId], references: [id])
+  metadataId Int      @unique
+
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  resourceId Int      @unique
 }
 
 model Topic {
-  id       Int      @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   year     String
   title    String
   subtitle String?
-  authors  Author[]
   pages    Page[]
-  modals   Modal[]
-  course   Course?  @relation(fields: [courseId], references: [id])
-  courseId Int?
-}
+  authors  User[]
 
-model Author {
-  id      Int    @id @default(autoincrement())
-  name    String
-  topic   Topic? @relation(fields: [topicId], references: [id])
-  topicId Int?
+  course   Course? @relation(fields: [courseId], references: [id])
+  courseId Int?
+
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  resourceId Int      @unique
+
+  metadata   Metadata @relation(fields: [metadataId], references: [id])
+  metadataId Int      @unique
 }
 
 model Page {
-  id      Int     @id @default(autoincrement())
-  title   String?
-  html    String
-  text    String
-  topic   Topic?  @relation(fields: [topicId], references: [id])
+  id    Int     @id @default(autoincrement())
+  title String?
+  html  String
+  text  String
+
+  topic   Topic? @relation(fields: [topicId], references: [id])
   topicId Int?
-  modals  Modal[]
+
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  resourceId Int      @unique
+
+  metadata   Metadata @relation(fields: [metadataId], references: [id])
+  metadataId Int      @unique
+}
+
+model Resource {
+  id        Int        @id @default(autoincrement())
+  modals    Modal[]
+  variables Variable[]
+
+  course Course?
+  topic  Topic?
+  page   Page?
 }
 
 model Modal {
-  id       Int     @id @default(autoincrement())
-  heading  String?
-  html     String
-  text     String
-  course   Course? @relation(fields: [courseId], references: [id])
-  courseId Int?
-  topic    Topic?  @relation(fields: [topicId], references: [id])
-  topicId  Int?
-  page     Page?   @relation(fields: [pageId], references: [id])
-  pageId   Int?
+  id      Int     @id @default(autoincrement())
+  heading String?
+  html    String
+  text    String
+
+  resource   Resource? @relation(fields: [resourceId], references: [id])
+  resourceId Int?
+}
+
+model Metadata {
+  id          Int       @id @default(autoincrement())
+  description String?
+  keywords    Keyword[]
+  createdAt   DateTime  @default(now())
+  modifiedAt  DateTime  @default(now())
+
+  course Course?
+  topic  Topic?
+  page   Page?
+}
+
+model Keyword {
+  id   Int    @id @default(autoincrement())
+  text String
+
+  metadata   Metadata? @relation(fields: [metadataId], references: [id])
+  metadataId Int?
+}
+
+model Variable {
+  id         Int       @id @default(autoincrement())
+  from       Int
+  to         Int
+  resource   Resource? @relation(fields: [resourceId], references: [id])
+  resourceId Int?
+}
+
+model User {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  topic   Topic? @relation(fields: [topicId], references: [id])
+  topicId Int?
 }
