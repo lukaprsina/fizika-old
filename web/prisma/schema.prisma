@@ -25,9 +25,9 @@ model Course {
 
 model Topic {
   id       Int     @id @default(autoincrement())
-  year     String
   title    String
   subtitle String?
+  year     String
   pages    Page[]
   authors  User[]
 

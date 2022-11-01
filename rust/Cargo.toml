@@ -11,6 +11,7 @@ color-eyre = { version = "0.6.2", default-features = false }
 dotenv = "0.15.0"
 # version 0.9 (latest) doesn't use idle browser timeout
 headless_chrome = { path = "../rust-headless-chrome" }
+prisma-client-rust = { path = "../prisma-client-rust" }
 html-escape = "0.2.11"
 inquire = "0.4.0"
 itertools = "0.10.5"
