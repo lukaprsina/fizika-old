@@ -19,7 +19,6 @@ pub fn init() -> Result<()> {
     use tracing_subscriber::prelude::*;
 
     color_eyre::install()?;
-    dotenv::dotenv()?;
 
     let fmt_layer = tracing_subscriber::fmt::layer().with_target(false);
     tracing_subscriber::registry()

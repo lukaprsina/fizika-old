@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 /courses/
-
+prisma/dev.db
+web/prisma/dev.db
 
 # dependencies
 /node_modules
