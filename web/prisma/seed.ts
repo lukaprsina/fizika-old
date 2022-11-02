@@ -87,6 +87,23 @@ async function main() {
                     }
                 }
 
+
+                const array = ["1", "2", "a", "b"];
+
+                let arr = []
+                const num = Math.floor(Math.random() * 4);
+                for (let i = 0; i < num; i++) {
+                    const randomElement = array[Math.floor(Math.random() * array.length)];
+                    arr.push(randomElement)
+                }
+
+                const keywords = arr.map((keyword: string) => {
+                    return {
+                        create: { value: keyword },
+                        where: { value: keyword }
+                    }
+                })
+
                 if (fs.existsSync(exercise_file)) {
                     await prisma.page.create({
                         data: {
@@ -105,9 +122,7 @@ async function main() {
                                 create: {
                                     description: "Page description",
                                     keywords: {
-                                        create: [
-                                            { text: "Page keyword" }
-                                        ]
+                                        connectOrCreate: keywords,
                                     }
                                 }
                             }

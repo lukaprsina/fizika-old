@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import Head from "next/head"
+import EmotionRootStyleRegistry from "./EmotionRootStyleRegistry";
 
 async function RootLayout({
   children,
@@ -13,7 +14,9 @@ async function RootLayout({
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <body>
-        {children}
+        <EmotionRootStyleRegistry>
+          {children}
+        </EmotionRootStyleRegistry>
       </body>
     </html>
   )

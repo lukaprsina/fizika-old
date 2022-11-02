@@ -92,7 +92,8 @@ model Metadata {
 model Keyword {
   value String @id // @default(uuid())
 
-  metadata Metadata[]
+  metadata   Metadata? @relation(fields: [metadataId], references: [id])
+  metadataId Int?
 }
 
 model Variable {
