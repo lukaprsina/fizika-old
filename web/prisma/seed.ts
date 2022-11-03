@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { PrismaClient } from "@prisma/client";
 import path from 'path';
+import { assert } from 'console';
 
 const prisma = new PrismaClient()
 
@@ -34,21 +35,46 @@ async function main() {
         let j = 0;
         console.log("course", course_dir)
 
+        const config_path = path.join(course_dir, "config.json")
+        const config_file = fs.readFileSync(config_path).toString();
+        const config_json = JSON.parse(config_file);
+
+        const script_path = path.join(course_dir, "script.json")
+        const script_file = fs.readFileSync(script_path).toString();
+        const script_json = JSON.parse(script_file);
+
+        const script_title = script_json.metadata.title.substring(3)
+        assert(config_json.heading == script_title)
+        assert(config_json.goals == script_json.metadata.goals)
+
+        const authors = script_json.metadata.author.map((author: string) => ({
+            create: { name: author },
+            where: { name: author }
+        }))
+
+        const keywords = script_json.metadata.keyword.map((keyword: string) => ({
+            create: { value: keyword },
+            where: { value: keyword }
+        }))
+
         if (fs.existsSync(course_dir)) {
             const topic = await prisma.topic.create({
                 data: {
-                    title: "Elektrika",
-                    subtitle: "Elektrika subtitle",
-                    year: "2. letnik",
+                    id: i,
+                    title: config_json.heading,
+                    year: config_json.year,
                     authors: {
-                        create: [
-                            { name: "Luka Pršina" }
-                        ]
+                        connectOrCreate: authors
                     },
                     course: { connect: { id: fizika_course.id } },
                     metadata: {
                         create: {
-                            description: "Topic metadata desciption"
+                            description: script_json.metadata.description,
+                            goals: script_json.metadata.goals,
+                            license: script_json.metadata.license,
+                            keywords: {
+                                connectOrCreate: keywords
+                            }
                         },
                     },
                     resource: {
@@ -87,29 +113,17 @@ async function main() {
                     }
                 }
 
-
-                const array = ["1", "2", "a", "b"];
-
-                let arr = []
-                const num = Math.floor(Math.random() * 4);
-                for (let i = 0; i < num; i++) {
-                    const randomElement = array[Math.floor(Math.random() * array.length)];
-                    arr.push(randomElement)
-                }
-
-                const keywords = arr.map((keyword: string) => {
-                    return {
-                        create: { value: keyword },
-                        where: { value: keyword }
-                    }
-                })
+                const page_path = path.join(exercise_dir, "config.json")
+                const page_file = fs.readFileSync(page_path).toString();
+                const page_json = JSON.parse(page_file);
 
                 if (fs.existsSync(exercise_file)) {
                     await prisma.page.create({
                         data: {
+                            id: j,
                             html: fs.readFileSync(exercise_file).toString(),
                             text: "Page text",
-                            title: "Page title",
+                            title: page_json.subheading,
                             topic: { connect: { id: topic.id } },
                             resource: {
                                 create: {
@@ -118,14 +132,7 @@ async function main() {
                                     }
                                 }
                             },
-                            metadata: {
-                                create: {
-                                    description: "Page description",
-                                    keywords: {
-                                        connectOrCreate: keywords,
-                                    }
-                                }
-                            }
+                            metadata: { create: {} }
                         }
                     })
                 } else {

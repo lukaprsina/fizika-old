@@ -46,6 +46,8 @@ where
     let area = if exercise.is(Class("popupImpl")) {
         return Err(ExerciseError::HiddenExercise);
     } else if exercise.is(Class("eplxLastSlide")) {
+        // TODO: pages are not in correct order from slides
+        println!("{:#?}", exercise.attr("class"));
         None
     } else {
         let subheadings = exercise.find(Class("subheading")).collect_vec();

@@ -92,6 +92,11 @@ fn process_chapter(
     fs::create_dir_all(&course_output_dir)?;
     println!("{course_dir:#?}");
 
+    fs::copy(
+        course_dir.join("output.json"),
+        course_output_dir.join("script.json"),
+    )?;
+
     let config_path = course_output_dir.join("config.json");
     write_config(chapter_info_json, &config_path, i)?;
 
@@ -170,6 +175,10 @@ fn process_chapter(
 
     println!("{}", exercises.len());
     for (page_num, exercise) in exercises.into_iter().enumerate() {
+        if page_num == 57 {
+            dbg!("sheisen");
+        }
+
         let output_page_dir = course_output_dir.join("pages");
         let output_page_path = output_page_dir.join(format!("page_{}", page_num));
         fs::create_dir_all(&output_page_path)?;

@@ -24,12 +24,11 @@ model Course {
 }
 
 model Topic {
-  id       Int     @id @default(autoincrement())
-  title    String
-  subtitle String?
-  year     String
-  pages    Page[]
-  authors  User[]
+  id      Int    @id @unique
+  title   String @unique
+  year    Int
+  pages   Page[]
+  authors User[]
 
   course   Course? @relation(fields: [courseId], references: [id])
   courseId Int?
@@ -42,19 +41,21 @@ model Topic {
 }
 
 model Page {
-  id    Int     @id @default(autoincrement())
+  id    Int
   title String?
   html  String
   text  String
 
-  topic   Topic? @relation(fields: [topicId], references: [id])
-  topicId Int?
+  topic   Topic @relation(fields: [topicId], references: [id])
+  topicId Int
 
   resource   Resource @relation(fields: [resourceId], references: [id])
   resourceId Int      @unique
 
   metadata   Metadata @relation(fields: [metadataId], references: [id])
   metadataId Int      @unique
+
+  @@id([topicId, id])
 }
 
 model Resource {
@@ -81,6 +82,8 @@ model Metadata {
   id          Int       @id @default(autoincrement())
   description String?
   keywords    Keyword[]
+  goals       String?
+  license     String?
   createdAt   DateTime  @default(now())
   modifiedAt  DateTime  @default(now())
 
@@ -90,7 +93,7 @@ model Metadata {
 }
 
 model Keyword {
-  value String @id // @default(uuid())
+  value String @id
 
   metadata Metadata[]
 }
@@ -104,9 +107,7 @@ model Variable {
 }
 
 model User {
-  id   Int    @id @default(autoincrement())
-  name String
+  name String @id
 
-  topic   Topic? @relation(fields: [topicId], references: [id])
-  topicId Int?
+  topics Topic[]
 }
