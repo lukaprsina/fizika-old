@@ -1,6 +1,7 @@
-import { Paper } from '@mantine/core';
+import { Button } from '@mantine/core';
 import { Page } from '@prisma/client';
 import { GetServerSideProps, NextPage } from 'next'
+import { useRouter } from 'next/router';
 import { prisma } from '../../../../components/Prisma'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -33,12 +34,42 @@ type PageProps = {
 }
 
 const Page: NextPage<PageProps> = ({ page }) => {
+    const router = useRouter()
+
     if (!page) {
         console.log("Not ready")
         return <p>Not ready</p>
     }
 
+    if (typeof router.query.page_id !== 'string')
+        return <p>Not ready</p>
+
+    let page_id = parseInt(router.query.page_id);
+
+    if (isNaN(page_id))
+        return <p>Not ready</p>
+
+    const can_next = true;
+    const can_prev = page_id > 0;
+
     return <>
+        {can_prev ? (
+            <Button
+                onClick={() => {
+                    router.push(`/course/${router.query.topic_id}/page/${page_id - 1}`)
+                }}>
+                Previous
+            </Button>
+        ) : null}
+        {can_next ? (
+            <Button
+                onClick={() => {
+                    router.push(`/course/${router.query.topic_id}/page/${page_id + 1}`)
+                }}
+            >
+                Next
+            </Button>
+        ) : null}
         <div
             dangerouslySetInnerHTML={{ __html: page.html }}
         ></div>
