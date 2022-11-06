@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "web"
+		},
+		{
+			"path": "t3"
 		}
 	],
 	"settings": {}
