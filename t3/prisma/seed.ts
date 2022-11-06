@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import path from 'path';
 import { assert } from 'console';
 
@@ -50,10 +50,25 @@ async function main() {
         assert(config_json.heading == script_title)
         assert(config_json.goals == script_json.metadata.goals)
 
-        const authors = script_json.metadata.author.map((author: string) => ({
-            create: { name: author },
-            where: { name: author }
-        }))
+        const authors = script_json.metadata.author.map((author: string) => {
+            let email: string;
+            switch (author) {
+                case "Andreja Eršte":
+                    email = "andreja.erste@gmail.com"
+                    break;
+                case "Matej Rožič":
+                    email = "matej.rozic@gmail.com"
+                    break;
+                default:
+                    email = "";
+                    throw new Error("Neznan avtor")
+            }
+
+            return {
+                create: { name: author },
+                where: { email }
+            }
+        })
 
         const keywords = script_json.metadata.keyword.map((keyword: string) => ({
             create: { value: keyword },
@@ -96,7 +111,7 @@ async function main() {
                 break;
 
             const popups_dir = path.join(exercise_dir, "popups");
-            let popup_ids = []
+            const popup_ids = []
             console.log("\tpage dir", exercise_dir)
 
             if (fs.existsSync(popups_dir)) {
