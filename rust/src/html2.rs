@@ -79,9 +79,6 @@ fn process_chapter(
     output_dir: &Path,
     chapter_info_json: &mut Vec<ChapterInfo>,
 ) -> Result<bool> {
-    let mut missing_fs_html_count = 0;
-    let mut missing_fs_html_string = String::new();
-
     let course_dir = courses_dir.join(i.to_string());
     let course_output_dir = output_dir.join(i.to_string());
 
@@ -90,7 +87,7 @@ fn process_chapter(
     }
 
     fs::create_dir_all(&course_output_dir)?;
-    println!("{course_dir:#?}");
+    println!("\n\nCourse dir: {course_dir:#?}");
 
     fs::copy(
         course_dir.join("output.json"),
@@ -119,30 +116,58 @@ fn process_chapter(
     let length = script_rs.slides.len();
     let mut exercises: Vec<Exercise> = vec![];
 
-    for (pos, slide) in script_rs.slides.iter().enumerate() {
-        if pos == 0 || pos == length - 2 {
+    let mut pos = 0;
+    for slide in script_rs.slides {
+        if pos == 0 || pos == length - 1 {
+            pos += 1;
+            continue;
+        }
+
+        // previous 104, 105
+        if (i == 27 && pos == 104) || (i == 39 && pos == 42) {
+            pos += 1;
+            pages.remove(&slide.id).expect("Cannot remove broken slide");
+            continue;
+        }
+
+        if (i == 27 && pos == 105) || (i == 37 && pos == 43) {
+            pos += 3;
+            pages.remove(&slide.id).expect("Cannot remove broken slide");
+            continue;
+        }
+
+        if (i == 8 && pos == 28) || (i == 9 && pos == 21) || (i == 29 && pos == 10) {
+            // TODO: unconnected
+            pos += 2;
+            pages.remove(&slide.id).expect("Cannot remove broken slide");
             continue;
         }
 
         match pages.remove(&slide.id) {
             Some((document, page_path_js, page_num)) => {
-                parse_page_js_and_fs(&slide, &document, &mut exercises);
+                println!("Script removed page at {:#?}, pos: {}", page_path_js, pos);
+
                 let input_page_path = course_dir.join(format!("pages/page_{}.html", page_num));
                 assert_eq!(input_page_path, page_path_js);
+                assert_eq!(pos, page_num + 1);
 
-                // parse_exercise(&document, &output_page_path, &slide)?;
                 if !input_page_path.is_file() {
                     panic!("{:#?} is not a file", input_page_path);
                 }
+
+                parse_page_js_and_fs(&slide, &document, &mut exercises);
+                pos += 1;
             }
             None => {
-                missing_fs_html_count += 1;
-                missing_fs_html_string += &format!("{} - {}\n", slide.name, slide.id);
-                if slide.name != "endslide" {
+                if slide.name != "endslide" && slide.slide_type != "transition" {
                     missing_slides.push(slide);
                 }
             }
         }
+    }
+
+    if i != 24 {
+        assert!(missing_slides.is_empty());
     }
 
     // end slide
@@ -155,30 +180,7 @@ fn process_chapter(
         }
     }
 
-    dbg!(missing_fs_html_count);
-    fs::write(
-        course_dir.join("missing.txt"),
-        missing_fs_html_string.as_bytes(),
-    )?;
-
-    if i != 24 {
-        for missing_slide in missing_slides {
-            let js_type = missing_slide.slide_type.clone();
-            match js_type.as_str() {
-                "transition" => {
-                    // TODO: transitions not handled
-                }
-                _ => panic!("{js_type}"),
-            }
-        }
-    }
-
-    println!("{}", exercises.len());
     for (page_num, exercise) in exercises.into_iter().enumerate() {
-        if page_num == 57 {
-            dbg!("sheisen");
-        }
-
         let output_page_dir = course_output_dir.join("pages");
         let output_page_path = output_page_dir.join(format!("page_{}", page_num));
         fs::create_dir_all(&output_page_path)?;
@@ -193,7 +195,6 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
         Ok(result) => {
             if let Some((area, subheading)) = result {
                 let index_path = output_page_path.join("index.html");
-                println!("{output_page_path:#?}");
                 let index_file = File::create_new(&index_path)?;
 
                 {
@@ -271,6 +272,7 @@ fn write_config(
             *text = uppercase_first_letter(new);
         }
     }
+
     let new = config.heading.trim();
     config.heading = uppercase_first_letter(new);
 
@@ -289,7 +291,6 @@ fn read_pages_fs(
     page_num: usize,
 ) -> bool {
     let page_path = course_dir.join(format!("pages/page_{}.html", page_num));
-    // println!("{}\n{:#?}", "-".repeat(50), page_path);
 
     if !page_path.exists() {
         return false;

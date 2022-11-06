@@ -29,7 +29,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "prisma/seed.ts",
+    "../t3/prisma/seed.ts",
     "node_modules/.prisma/client/*.d.ts"
   ],
   "exclude": [
