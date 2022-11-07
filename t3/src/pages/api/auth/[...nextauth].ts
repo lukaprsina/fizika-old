@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
     },
     signIn: async function signIn(config) {
       const user = await prisma.user.findUnique({ where: { email: config.profile?.email } })
-
+      // TODO: add proper check for user
       console.log("User", user)
       if (user !== null) {
         return true

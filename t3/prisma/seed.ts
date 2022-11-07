@@ -50,23 +50,31 @@ async function main() {
         assert(config_json.heading == script_title)
         assert(config_json.goals == script_json.metadata.goals)
 
-        const authors = script_json.metadata.author.map((author: string) => {
-            let email: string;
+        const rozic = await prisma.user.create({
+            data: {
+                name: "Matej Rožič",
+            }
+        })
+
+        const erste = await prisma.user.create({
+            data: {
+                name: "Andreja Eršte",
+            }
+        })
+
+        const authors_raw = script_json.metadata.author as string[]
+        const authors = authors_raw.map((author: string) => {
             switch (author) {
                 case "Andreja Eršte":
-                    email = "andreja.erste@gmail.com"
-                    break;
+                    return {
+                        id: erste.id
+                    }
                 case "Matej Rožič":
-                    email = "matej.rozic@gmail.com"
-                    break;
+                    return {
+                        id: rozic.id,
+                    }
                 default:
-                    email = "";
                     throw new Error("Neznan avtor")
-            }
-
-            return {
-                create: { name: author },
-                where: { email }
             }
         })
 
@@ -81,7 +89,7 @@ async function main() {
                 title: config_json.heading,
                 year: config_json.year,
                 authors: {
-                    connectOrCreate: authors
+                    connect: authors
                 },
                 course: { connect: { id: fizika_course.id } },
                 metadata: {
