@@ -70,7 +70,6 @@ const AuthShowcase: React.FC = () => {
     undefined, // no input
     { enabled: sessionData?.user !== undefined },
   );
-  console.log({ secretMessage, sessionData })
 
   return (
     <div className="flex flex-col items-center justify-center gap-2">

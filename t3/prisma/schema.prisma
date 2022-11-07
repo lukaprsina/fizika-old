@@ -65,7 +65,7 @@ model VerificationToken {
 
 model Course {
   id     Int     @id @default(autoincrement())
-  title  String
+  title  String  @unique
   topics Topic[]
 
   metadata   Metadata @relation(fields: [metadataId], references: [id])

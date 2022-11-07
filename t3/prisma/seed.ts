@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import path from 'path';
 import { assert } from 'console';
 
@@ -7,7 +7,6 @@ const prisma = new PrismaClient()
 
 async function main() {
     const courses_dir = "../rust/courses_output";
-    let i = 0;
 
     const fizika_course = await prisma.course.create({
         data: {
@@ -25,6 +24,19 @@ async function main() {
         }
     })
 
+    const rozic = await prisma.user.create({
+        data: {
+            name: "Matej Rožič",
+        }
+    })
+
+    const erste = await prisma.user.create({
+        data: {
+            name: "Andreja Eršte",
+        }
+    })
+
+    let i = 0;
     while (true) {
         if (i == 2 || i == 3) {
             i++;
@@ -49,18 +61,6 @@ async function main() {
         const script_title = script_json.metadata.title.substring(3)
         assert(config_json.heading == script_title)
         assert(config_json.goals == script_json.metadata.goals)
-
-        const rozic = await prisma.user.create({
-            data: {
-                name: "Matej Rožič",
-            }
-        })
-
-        const erste = await prisma.user.create({
-            data: {
-                name: "Andreja Eršte",
-            }
-        })
 
         const authors_raw = script_json.metadata.author as string[]
         const authors = authors_raw.map((author: string) => {
