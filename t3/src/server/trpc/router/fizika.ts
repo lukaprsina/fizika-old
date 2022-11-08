@@ -14,5 +14,16 @@ export const fizikaRouter = router({
             orderBy: { year: "asc" },
         });
     }),
-
+    get_chapters: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+        return ctx.prisma.page.findMany({
+            where: {
+                topicId: input
+            },
+            select: {
+                title: true,
+                metadataId: true,
+                resourceId: true
+            }
+        })
+    })
 });
