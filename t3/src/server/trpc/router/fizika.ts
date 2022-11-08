@@ -9,10 +9,9 @@ export const fizikaRouter = router({
                 course: { title: input }
             },
             include: {
-                authors: {
-
-                }
-            }
+                authors: {}
+            },
+            orderBy: { year: "asc" },
         });
     }),
 
