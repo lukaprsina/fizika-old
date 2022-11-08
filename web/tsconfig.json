@@ -30,7 +30,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "../t3/prisma/seed.ts",
-    "node_modules/.prisma/client/*.d.ts"
+    "node_modules/.prisma/client/*.d.ts",
+    "../t3/src/app/page.tsx",
+    "../t3/src/app/page.tsx",
+    "../t3/src/pages/tiny.tsx"
   ],
   "exclude": [
     "node_modules"
