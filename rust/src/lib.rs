@@ -1,9 +1,6 @@
-#![feature(file_create_new)]
-
 use color_eyre::Result;
 
 pub mod database;
-pub mod html;
 pub mod html2;
 pub mod javascript;
 pub mod parse_file;

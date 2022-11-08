@@ -1,11 +1,10 @@
 use color_eyre::Result;
-use headless_chrome::{Browser, LaunchOptionsBuilder, Tab};
 use itertools::Itertools;
 use select::{
     document::Document,
     predicate::{Attr, Child, Class, Descendant, Name},
 };
-use std::{collections::HashMap, fs, path::Path, sync::Arc, time::Duration};
+use std::{collections::HashMap, fs, path::Path};
 
 use crate::utils::{get_chapter_info, get_only_element, ChapterInfo};
 
@@ -17,24 +16,6 @@ pub enum BrowserError {
     Launch,
     #[error("Browser tab error")]
     Tab,
-}
-
-#[tracing::instrument]
-pub fn create_fizika_tab() -> Result<(Arc<Tab>, Browser)> {
-    let options = LaunchOptionsBuilder::default()
-        .headless(false)
-        .idle_browser_timeout(Duration::from_secs(30 * 60))
-        .build()
-        .map_err(|err| BrowserError::Builder(err))?;
-
-    let browser = Browser::new(options).map_err(|_| BrowserError::Launch)?;
-    let tab = browser
-        .wait_for_initial_tab()
-        .map_err(|_| BrowserError::Tab)?;
-    tab.navigate_to("http://fizika.sc-nm.si/")
-        .map_err(|_| BrowserError::Tab)?;
-    tab.wait_until_navigated().map_err(|_| BrowserError::Tab)?;
-    Ok((tab, browser))
 }
 
 #[tracing::instrument]

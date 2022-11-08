@@ -7,7 +7,13 @@ export const fizikaRouter = router({
         return ctx.prisma.topic.findMany({
             where: {
                 course: { title: input }
+            },
+            include: {
+                authors: {
+
+                }
             }
         });
-    })
+    }),
+
 });

@@ -145,7 +145,7 @@ fn process_chapter(
 
         match pages.remove(&slide.id) {
             Some((document, page_path_js, page_num)) => {
-                println!("Script removed page at {:#?}, pos: {}", page_path_js, pos);
+                // println!("Script removed page at {:#?}, pos: {}", page_path_js, pos);
 
                 let input_page_path = course_dir.join(format!("pages/page_{}.html", page_num));
                 assert_eq!(input_page_path, page_path_js);
@@ -195,7 +195,7 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
         Ok(result) => {
             if let Some((area, subheading)) = result {
                 let index_path = output_page_path.join("index.html");
-                let index_file = File::create_new(&index_path)?;
+                let index_file = File::create(&index_path)?;
 
                 {
                     let config_path = output_page_path.join("config.json");
@@ -228,7 +228,7 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
         let (html_uuid, area) = process_popup(&popup.document)?;
         assert_eq!(html_uuid, popup.slide.id);
         let popup_dir = popups_dir.join(format!("{}.html", popup.slide.id));
-        let file = File::create_new(&popup_dir)?;
+        let file = File::create(&popup_dir)?;
 
         let mut config = EmitterConfig::new().perform_indent(true);
         config.perform_escaping = false;
