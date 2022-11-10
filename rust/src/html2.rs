@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fs::{self, File},
     path::{Path, PathBuf},
     str::FromStr,
@@ -7,6 +7,7 @@ use std::{
 
 use color_eyre::Result;
 use itertools::Itertools;
+use once_cell::sync::Lazy;
 use select::{document::Document, predicate};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -18,6 +19,8 @@ use crate::{
     recurse_node::recurse_node,
     utils::{get_only_element, uppercase_first_letter, ChapterInfo},
 };
+
+pub static mut CLASSES: Lazy<HashSet<String>> = Lazy::new(|| HashSet::new());
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Script {
@@ -68,6 +71,12 @@ pub fn extract_html2() -> Result<()> {
         }
 
         i += 1;
+    }
+
+    unsafe {
+        for class in CLASSES.iter() {
+            println!("{}", class);
+        }
     }
 
     Ok(())

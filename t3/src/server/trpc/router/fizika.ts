@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, ZodNumber } from "zod";
 
 import { router, publicProcedure } from "../trpc";
 
@@ -23,6 +23,20 @@ export const fizikaRouter = router({
                 title: true,
                 metadataId: true,
                 resourceId: true
+            }
+        })
+    }),
+    get_page: publicProcedure.input(z.object({ topic_id: z.number(), page_id: z.number() })).query(({ ctx, input }) => {
+        return ctx.prisma.page.findFirst({
+            select: {
+                title: true,
+                metadataId: true,
+                resourceId: true,
+                html: true,
+            },
+            where: {
+                topicId: input.topic_id,
+                id: input.page_id
             }
         })
     })
