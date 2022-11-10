@@ -13,7 +13,13 @@ const Home: NextPage = () => {
     const chapters = trpc.fizika.get_chapters.useQuery(topic_id);
     console.log(chapters.data)
 
-    return <p>Loaded</p>
+    return <div>
+        {chapters.data?.map((chapter, index) => {
+            return (
+                <div key={index}>{chapter.title}</div>
+            )
+        })}
+    </div>
 }
 
 export default Home

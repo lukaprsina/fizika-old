@@ -1,5 +1,6 @@
 import { type User, type Topic } from "@prisma/client";
 import { type NextPage } from "next";
+import Link from "next/link";
 import React from "react";
 import { trpc } from "../utils/trpc";
 
@@ -32,11 +33,14 @@ const Home: NextPage = () => {
             <div
               className="first:mt-0 last:mb-0 bg-black border border-[rgba(255,255,255,0.12)] rounded-sm p-10 shadow-lg"
               key={j}
+
             >
-              <p>{topic.title}</p>
-              {topic.authors.map(author => (
-                <p key={author.id}>{author.name}</p>
-              ))}
+              <Link href={`${topic.id}`}>
+                <p>{topic.title}</p>
+                {topic.authors.map(author => (
+                  <p key={author.id}>{author.name}</p>
+                ))}
+              </Link>
             </div>
           )
         })
