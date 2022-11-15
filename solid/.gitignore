@@ -1,3 +1,5 @@
+#prisma
+prisma/db.sqlite
 
 dist
 .solid
