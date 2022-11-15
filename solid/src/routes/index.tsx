@@ -55,7 +55,7 @@ const TopicButton: Component<TopicProps> = ({ topic, margin }) => {
         <div
             class={clsx("border border-sky-500", margin ? "my-3" : "my-0")}
         >
-            <A href={topic.id.toString()}>
+            <A href={encodeURIComponent(topic.title)}>
                 <p>{topic.title}</p>
                 <p>Avtor:</p>
                 <For each={topic.authors}>{(author, i) =>
