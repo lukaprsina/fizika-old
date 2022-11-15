@@ -9,7 +9,10 @@ use select::{
 use uuid::Uuid;
 use xml::{writer::XmlEvent, EventWriter};
 
-use crate::utils::{fix_formula, get_only_element};
+use crate::{
+    html2::CLASSES,
+    utils::{fix_formula, get_only_element},
+};
 
 pub fn recurse_node<W: Write>(
     node: Node,
@@ -133,14 +136,24 @@ pub fn recurse_node<W: Write>(
         None => {
             if !node.is(Comment) {
                 let html = node.html();
+
                 let event: XmlEvent = XmlEvent::characters(&html).into();
                 writer.write(event).unwrap();
-                // if node.check_if_text() {}
             }
 
             false
         }
     };
+
+    // println!("{:#?}", node.attrs().collect_vec());
+
+    if let Some(classes) = node.attr("class") {
+        for class in classes.split_whitespace() {
+            unsafe {
+                CLASSES.insert(class.to_string());
+            }
+        }
+    }
 
     for child in node.children() {
         let mut new_parents = parents.clone();

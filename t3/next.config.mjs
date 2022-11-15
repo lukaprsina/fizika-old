@@ -9,12 +9,5 @@
 const config = {
   reactStrictMode: true,
   swcMinify: true,
-  i18n: {
-    locales: ["en", "si"],
-    defaultLocale: "si",
-  },
-  experimental: {
-    appDir: true
-  }
 };
 export default config;
