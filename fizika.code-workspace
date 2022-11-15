@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "t3"
+		},
+		{
+			"path": "solid"
 		}
 	],
 	"settings": {}
