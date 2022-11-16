@@ -6,8 +6,8 @@ import {
   createServerData$,
   redirect,
 } from "solid-start/server";
-import { db } from "~/db";
-import { createUserSession, getUser, login, register } from "~/db/session";
+import { db } from "~/db.old";
+import { createUserSession, getUser, login, register } from "~/db.old/session";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {

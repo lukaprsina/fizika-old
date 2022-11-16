@@ -1,13 +1,12 @@
-import { PrismaClient, Topic, User } from "@prisma/client";
+import { Topic, User } from "@prisma/client";
 import { For, Component } from "solid-js";
 import { A, useRouteData } from "solid-start"
 import { createServerData$ } from "solid-start/server";
-import clsx from 'clsx';
+import { prisma } from "~/server/db/client"
 
 export function routeData() {
     return createServerData$(async (_, { request }) => {
-        const db = new PrismaClient();
-        const topics = await db.topic.findMany({
+        const topics = await prisma.topic.findMany({
             where: {
                 course: { title: "Fizika" }
             },
@@ -50,15 +49,19 @@ type TopicProps = {
     margin: boolean;
 }
 
-const TopicButton: Component<TopicProps> = ({ topic, margin }) => {
+const TopicButton: Component<TopicProps> = (props) => {
     return (
         <div
-            class={clsx("border border-sky-500", margin ? "my-3" : "my-0")}
+            classList={{
+                "border border-sky-500": true,
+                "my-3": props.margin,
+                "my-0": !props.margin,
+            }}
         >
-            <A href={encodeURIComponent(topic.title)}>
-                <p>{topic.title}</p>
+            <A href={encodeURIComponent(props.topic.title)}>
+                <p>{props.topic.title}</p>
                 <p>Avtor:</p>
-                <For each={topic.authors}>{(author, i) =>
+                <For each={props.topic.authors}>{(author, i) =>
                     <p>{author.name}</p>
                 }
                 </For>

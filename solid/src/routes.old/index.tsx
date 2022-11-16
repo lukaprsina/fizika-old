@@ -1,7 +1,7 @@
 import { refetchRouteData, useRouteData } from "solid-start";
 import { createServerAction$ } from "solid-start/server";
-import { logout } from "~/db/session";
-import { useUser } from "../db/useUser";
+import { logout } from "~/db.old/session";
+import { useUser } from "../db.old/useUser";
 
 export function routeData() {
   return useUser();
