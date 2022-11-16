@@ -1,7 +1,8 @@
 import { Topic } from "@prisma/client";
 import { Component, createEffect, For } from "solid-js"
-import { RouteDataArgs, useParams, useRouteData } from "solid-start"
+import { A, RouteDataArgs, useParams, useRouteData } from "solid-start"
 import { createServerData$ } from "solid-start/server";
+import { Navbar, NavbarItem } from "~/components/Navbar";
 import { prisma } from "~/server/db/client"
 
 /* export function routeData2({ params }: RouteDataArgs) {
@@ -12,7 +13,7 @@ import { prisma } from "~/server/db/client"
 } */
 
 export function routeData({ params }: RouteDataArgs) {
-    return createServerData$(async ([a, topic_name]) => {
+    return createServerData$(async ([_, topic_name]) => {
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topic_name
@@ -24,40 +25,31 @@ export function routeData({ params }: RouteDataArgs) {
                 topicId: topic.id
             },
             select: {
-                title: true
+                title: true,
+                id: true
             }
         });
 
         return pages;
     }, {
-        key: () => ["page", params.topic]
+        key: () => ["topic", params.topic]
     })
 }
 
-const Navbar: Component = () => {
+const TopicNavbar: Component = () => {
     const topics = useRouteData<typeof routeData>();
     const params = useParams();
-
-    createEffect(() => console.log(topics()))
 
     return <>
         <p>{params.topic}</p>
         <hr />
-        <div>
+        <Navbar>
             <For each={topics()}>{(topic, i) =>
-                <NavbarItem topic={topic} />
+                <NavbarItem text={topic.title} href={topic.id.toString()} />
             }
             </For>
-        </div>
+        </Navbar>
     </>
 }
 
-type NavbarItemType = {
-    topic: { title: string };
-}
-
-const NavbarItem: Component<NavbarItemType> = (props) => {
-    return <p>{props.topic.title}</p>
-}
-
-export default Navbar
+export default TopicNavbar
