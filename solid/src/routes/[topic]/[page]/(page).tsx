@@ -1,24 +1,24 @@
-import { Component } from "solid-js"
-import { RouteDataArgs, useParams, useRouteData } from "solid-start"
+import { Component } from "solid-js";
+import { RouteDataArgs, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import { prisma } from "~/server/db/client"
+import { prisma } from "~/server/db/client";
 
 export function routeData({ params }: RouteDataArgs) {
-    return createServerData$(async ([_, args]) => {
-        console.log(args)
-        if (typeof args === "string") throw "Args is string";
-
+    return createServerData$(async ([_, topicArg, pageArg]) => {
+        console.log({ topicArg, pageArg })
         const topic = await prisma.topic.findUnique({
             where: {
-                title: args.topic
+                title: topicArg
             }
         });
 
-        const page_id = parseInt(args.page);
+        const page_id = parseInt(pageArg);
 
+        console.log({ page_id })
         if (isNaN(page_id)) throw "Page ID is NaN";
+        console.log("After pageID")
 
-        const pages = await prisma.page.findUnique({
+        const page = await prisma.page.findUnique({
             where: {
                 topicId_id: {
                     id: page_id,
@@ -27,9 +27,11 @@ export function routeData({ params }: RouteDataArgs) {
             }
         });
 
-        return pages;
+        console.log("Page:", page.title)
+
+        return page;
     }, {
-        key: () => ["page", { topic: params.topic, page: params.page }]
+        key: () => ["page", params.topic, params.page]
     })
 }
 

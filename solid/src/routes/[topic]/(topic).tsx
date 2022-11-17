@@ -1,16 +1,8 @@
-import { Topic } from "@prisma/client";
-import { Component, createEffect, For } from "solid-js"
-import { A, RouteDataArgs, useParams, useRouteData } from "solid-start"
+import { Component, For } from "solid-js";
+import { RouteDataArgs, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { Navbar, NavbarItem } from "~/components/Navbar";
-import { prisma } from "~/server/db/client"
-
-/* export function routeData2({ params }: RouteDataArgs) {
-    return createServerData$(
-        ([, id]) => prisma.students.findUnique({ where: { id } }),
-        { key: () => ["students", params.id] }
-    );
-} */
+import { prisma } from "~/server/db/client";
 
 export function routeData({ params }: RouteDataArgs) {
     return createServerData$(async ([_, topic_name]) => {
