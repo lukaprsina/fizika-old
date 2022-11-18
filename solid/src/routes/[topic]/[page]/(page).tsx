@@ -1,11 +1,13 @@
-import { Component } from "solid-js";
+import { Component, createEffect, Show, Suspense } from "solid-js";
 import { RouteDataArgs, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import Content from "~/components/Content";
+import Navbar from "~/components/Navbar";
+import { EditToggleProvider } from "~/routes/(home)";
 import { prisma } from "~/server/db/client";
 
 export function routeData({ params }: RouteDataArgs) {
     return createServerData$(async ([_, topicArg, pageArg]) => {
-        console.log({ topicArg, pageArg })
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topicArg
@@ -14,9 +16,8 @@ export function routeData({ params }: RouteDataArgs) {
 
         const page_id = parseInt(pageArg);
 
-        console.log({ page_id })
-        if (isNaN(page_id)) throw "Page ID is NaN";
-        console.log("After pageID")
+        if (typeof topic === "undefined") return null;// throw new Error("Topic doesn't exist");
+        if (isNaN(page_id)) return null;// throw new Error("Page ID is NaN");
 
         const page = await prisma.page.findUnique({
             where: {
@@ -26,8 +27,6 @@ export function routeData({ params }: RouteDataArgs) {
                 }
             }
         });
-
-        console.log("Page:", page.title)
 
         return page;
     }, {
@@ -39,15 +38,17 @@ const PageNavbar: Component = () => {
     const page = useRouteData<typeof routeData>();
     const params = useParams();
 
-    if (typeof page() === "undefined") {
-        return <p>What</p>
-    }
+    return (
+        <EditToggleProvider initial={false}>
+            <Navbar topic={params.topic} />
+            <Content>
+                <Show when={page()}>
+                    <div innerHTML={page().html}></div>
+                </Show>
+            </Content>
+        </EditToggleProvider>
+    )
 
-    return <>
-        <p>{params.topic}</p>
-        <hr />
-        <div innerHTML={page().html}></div>
-    </>
 }
 
 export default PageNavbar

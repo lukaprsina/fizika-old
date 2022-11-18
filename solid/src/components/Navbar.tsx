@@ -1,20 +1,43 @@
-import { Component, ParentComponent } from "solid-js";
+import { Component, createEffect, Show } from "solid-js";
 import { A } from "solid-start";
+import { useEditToggle } from "~/routes/(home)";
 
-export const Navbar: ParentComponent = (props) => {
-    return <div>{props.children}</div>
+
+type NavbarType = {
+    topic?: string;
 }
 
-type NavbarItemType = {
-    text: string;
-    href?: string;
-}
+const Navbar: Component<NavbarType> = (props) => {
+    const editToggle = useEditToggle();
 
-export const NavbarItem: Component<NavbarItemType> = (props) => {
+    createEffect(() => console.log(editToggle.edit()))
     return (
-        <A class="block" href={props.href ?? props.text}>
-            {props.text}
-        </A>
+        <div
+            class="w-full h-16 flex justify-between items-center px-4"
+        >
+            <A href="/" class="m-2">
+                <div class="flex items-center h-16">
+                    <img
+                        src="/images/scnm-logo.jpg"
+                        alt="Logo šolskega centra Novo mesto"
+                        class="h-3/4 mr-4"
+                    />
+                    <span>Fizika</span>
+                </div>
+            </A>
+            <Show when={props.topic}>
+                <A href={encodeURI("/" + props.topic)}>{props.topic}</A>
+            </Show>
+            <div>
+                <input
+                    type="checkbox"
+                    class="mr-3"
+                    onChange={() => editToggle.change(!editToggle.edit())}
+                />
+                <label>Edit</label>
+            </div>
+        </div>
     )
-
 }
+
+export default Navbar;
