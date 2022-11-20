@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import vercel from "solid-start-vercel";
 
 export default defineConfig({
-  plugins: [solid({ adapter: vercel({ edge: true }) })],
+  plugins: [solid({ adapter: vercel() })],
   build: {
     minify: "terser",
   },
