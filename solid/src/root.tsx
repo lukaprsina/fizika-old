@@ -6,6 +6,7 @@ import {
   FileRoutes,
   Head,
   Html,
+  Link,
   Meta,
   Routes,
   Scripts,
@@ -20,10 +21,12 @@ export default function Root() {
         <Title>Fizka</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta name="description" content="Razlaga in vaje za srednješolski nivo fizike. Narejeno v šolskem centru Novo mesto." />
+        <Link rel="manifest" href="/manifest.webmanifest" />
       </Head>
       <Body>
         <ErrorBoundary>
-          <Suspense fallback={<div>Loading</div>}>
+          <Suspense fallback={<div>Nalagam ...</div>}>
             <Routes>
               <FileRoutes />
             </Routes>
