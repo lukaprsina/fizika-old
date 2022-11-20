@@ -6,6 +6,7 @@ module.exports = {
   theme: {
   },
   plugins: [],
+  darkMode: 'class'
 }
 
 const b4 = {

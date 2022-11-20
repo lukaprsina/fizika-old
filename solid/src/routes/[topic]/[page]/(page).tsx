@@ -95,10 +95,10 @@ const PageNavbar: Component = () => {
                         </div>
                     </AppShellContent>
                     <AppShellFooter>
-                        <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 box-border h-9">
+                        <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
                             <For each={tabs}>{(tab, i) => (
                                 <Tab
-                                    class="flex flex-grow relative mb-[-2px] hover:bg-slate-50 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2"
+                                    class="flex flex-grow relative mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2"
                                     classList={{
                                         "border-sky-500": isSelected(tab.name)
                                     }}

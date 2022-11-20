@@ -23,17 +23,6 @@ export function routeData() {
     })
 }
 
-export const [EditToggleProvider, useEditToggle] = createContextProvider(
-    (props: { initial: boolean }) => {
-        const [edit, setEdit] = createSignal(props.initial);
-
-        return {
-            edit,
-            change: setEdit
-        };
-    }
-);
-
 const Home: Component = () => {
     const topics = useRouteData<typeof routeData>();
 
