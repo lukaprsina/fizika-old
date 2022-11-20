@@ -1,11 +1,10 @@
 import { Component, For, Show } from "solid-js";
-import { RouteDataArgs, useParams, useRouteData } from "solid-start";
+import { RouteDataArgs, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import Content from "~/components/Content";
-import Navbar from "~/components/Navbar";
-import { Sidebar, SidebarItem } from "~/components/Sidebar";
+import AppShell, { AppShellContent, AppShellHeader } from "~/components/AppShell";
+import Header from "~/components/layout/Header";
+import { Sidebar, SidebarItem } from "~/components/layout/Sidebar";
 import { prisma } from "~/server/db/client";
-import { EditToggleProvider } from "../(home)";
 
 export function routeData({ params }: RouteDataArgs) {
     return createServerData$(async ([_, topic_name]) => {
@@ -15,7 +14,7 @@ export function routeData({ params }: RouteDataArgs) {
             }
         });
 
-        if (!topic) return null;//throw new Error("Topic \"" + topic_name + "\" doesn't exist")
+        if (!topic) return null;
 
         const pages = await prisma.page.findMany({
             where: {
@@ -35,12 +34,13 @@ export function routeData({ params }: RouteDataArgs) {
 
 const TopicNavbar: Component = () => {
     const topics = useRouteData<typeof routeData>();
-    const params = useParams();
 
     return (
-        <EditToggleProvider initial={false}>
-            <Navbar topic={params.topic} />
-            <Content>
+        <AppShell>
+            <AppShellHeader>
+                <Header />
+            </AppShellHeader>
+            <AppShellContent>
                 <Sidebar>
                     <Show when={topics()}>
                         <For each={topics()}>{(topic, i) =>
@@ -49,8 +49,8 @@ const TopicNavbar: Component = () => {
                         </For>
                     </Show>
                 </Sidebar>
-            </Content>
-        </EditToggleProvider>
+            </AppShellContent>
+        </AppShell>
     )
 }
 

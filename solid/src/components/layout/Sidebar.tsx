@@ -12,7 +12,7 @@ type NavbarItemType = {
 
 export const SidebarItem: Component<NavbarItemType> = (props) => {
     return (
-        <A class="block p-3 hover:bg-[#f8f9fa] rounded-md" href={props.href ?? props.text}>
+        <A class="block p-3 hover:bg-slate-50 rounded-md" href={props.href ?? props.text}>
             {props.text}
         </A>
     )

@@ -1,19 +1,18 @@
-import { Component, createEffect, Show } from "solid-js";
+import { Component, Show } from "solid-js";
 import { A } from "solid-start";
 import { useEditToggle } from "~/routes/(home)";
 
 
-type NavbarType = {
+type HeaderType = {
     topic?: string;
 }
 
-const Navbar: Component<NavbarType> = (props) => {
+const Header: Component<HeaderType> = (props) => {
     const editToggle = useEditToggle();
 
-    createEffect(() => console.log(editToggle.edit()))
     return (
         <div
-            class="w-full h-16 flex justify-between items-center px-4"
+            class="flex justify-between items-center h-16 w-full px-4"
         >
             <A href="/" class="m-2">
                 <div class="flex items-center h-16">
@@ -40,4 +39,4 @@ const Navbar: Component<NavbarType> = (props) => {
     )
 }
 
-export default Navbar;
+export default Header;

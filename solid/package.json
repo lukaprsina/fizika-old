@@ -18,9 +18,12 @@
   "dependencies": {
     "@prisma/client": "^4.5.0",
     "@solid-primitives/context": "^0.1.2",
+    "@solid-primitives/keyboard": "^1.0.5",
     "@solidjs/meta": "^0.28.0",
     "@solidjs/router": "^0.5.0",
     "prisma": "^4.5.0",
+    "solid-headless": "^0.13.0",
+    "solid-icons": "^1.0.4",
     "solid-js": "^1.6.0",
     "solid-start": "^0.2.0",
     "zod": "^3.19.1"

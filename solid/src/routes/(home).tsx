@@ -2,9 +2,9 @@ import { createContextProvider } from "@solid-primitives/context";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import Content from "~/components/Content";
-import Navbar from "~/components/Navbar";
-import { Sidebar, SidebarItem } from "~/components/Sidebar";
+import AppShell, { AppShellContent, AppShellHeader } from "~/components/AppShell";
+import Header from "~/components/layout/Header";
+import { Sidebar, SidebarItem } from "~/components/layout/Sidebar";
 import { prisma } from "~/server/db/client";
 
 export function routeData() {
@@ -38,23 +38,23 @@ const Home: Component = () => {
     const topics = useRouteData<typeof routeData>();
 
     return (
-        <EditToggleProvider initial={false}>
-            <main class="w-screen">
-                <Navbar />
-                <Content>
-                    <Show when={topics()}>
-                        <Sidebar>
-                            <For each={topics()}>{(topic, i) =>
-                                <SidebarItem
-                                    text={topic.title}
-                                />
-                            }
-                            </For>
-                        </Sidebar>
-                    </Show>
-                </Content>
-            </main>
-        </EditToggleProvider>
+        <AppShell>
+            <AppShellHeader>
+                <Header />
+            </AppShellHeader>
+            <AppShellContent>
+                <Show when={topics()}>
+                    <Sidebar>
+                        <For each={topics()}>{(topic, i) =>
+                            <SidebarItem
+                                text={topic.title}
+                            />
+                        }
+                        </For>
+                    </Sidebar>
+                </Show>
+            </AppShellContent>
+        </AppShell>
     )
 }
 
