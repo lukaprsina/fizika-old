@@ -78,8 +78,10 @@ pub fn recurse_node<W: Write>(
                     None => default_tag("div"),
                 },
                 "img" => {
-                    let src = node.attr("src").unwrap();
-                    let mut start_event = XmlEvent::start_element("img").attr("src", src);
+                    let mut src = node.attr("src").unwrap().to_string();
+
+                    src.insert_str(0, "images/");
+                    let mut start_event = XmlEvent::start_element("img").attr("src", &src);
 
                     match node.attr("alt") {
                         Some(alt) => {

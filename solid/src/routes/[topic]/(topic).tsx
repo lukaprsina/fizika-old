@@ -1,7 +1,7 @@
 import { Component, For, Show } from "solid-js";
 import { RouteDataArgs, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import AppShell, { AppShellContent, AppShellHeader } from "~/components/AppShell";
+import { AppShellContent, AppShellHeader } from "~/root";
 import Header from "~/components/layout/Header";
 import { Sidebar, SidebarItem } from "~/components/layout/Sidebar";
 import { prisma } from "~/server/db/client";
@@ -35,23 +35,21 @@ export function routeData({ params }: RouteDataArgs) {
 const TopicNavbar: Component = () => {
     const topics = useRouteData<typeof routeData>();
 
-    return (
-        <AppShell>
-            <AppShellHeader>
-                <Header />
-            </AppShellHeader>
-            <AppShellContent>
-                <Sidebar>
-                    <Show when={topics()}>
-                        <For each={topics()}>{(topic, i) =>
-                            <SidebarItem text={topic.title} href={topic.id.toString()} />
-                        }
-                        </For>
-                    </Show>
-                </Sidebar>
-            </AppShellContent>
-        </AppShell>
-    )
+    return <>
+        <AppShellHeader>
+            <Header />
+        </AppShellHeader>
+        <AppShellContent>
+            <Sidebar>
+                <Show when={topics()}>
+                    <For each={topics()}>{(topic, i) =>
+                        <SidebarItem text={topic.title} href={topic.id.toString()} />
+                    }
+                    </For>
+                </Show>
+            </Sidebar>
+        </AppShellContent>
+    </>
 }
 
 export default TopicNavbar
