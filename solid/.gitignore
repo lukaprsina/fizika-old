@@ -1,6 +1,6 @@
 #prisma
 # prisma/db.sqlite
-/public/gradivo/
+/gradivo/
 
 dist/
 .solid

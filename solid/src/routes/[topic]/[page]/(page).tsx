@@ -9,9 +9,10 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import { Component, createEffect, createSignal, For, ParentComponent, Show } from "solid-js";
 import { A, RouteDataArgs, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import { AppShellContent, AppShellFooter, AppShellHeader } from "~/root";
+import { AppShellContent, AppShellFooter, AppShellHeader, useEditToggle } from "~/root";
 import Header from '~/components/layout/Header';
 import { prisma } from "~/server/db/client";
+import Editor from "~/components/TinyMCE";
 
 export function routeData({ params }: RouteDataArgs) {
     return createServerData$(async ([_, topicArg, pageArg]) => {
@@ -55,6 +56,7 @@ type ParamsType = {
 const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
+    const editToggle = useEditToggle();
 
     const tabs = [
         {
@@ -66,6 +68,9 @@ const PageNavbar: Component = () => {
                 <Show when={page_data() && page_data().page}>
                     <div innerHTML={page_data().page.html}></div>
                     <NavButtons page_count={page_data().page_count} />
+                    <Show when={editToggle.edit()}>
+                        <Editor />
+                    </Show>
                 </Show>
             )
         },
