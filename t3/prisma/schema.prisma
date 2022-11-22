@@ -82,6 +82,8 @@ model Topic {
   pages   Page[]
   authors User[]
 
+  originalName String
+
   course   Course? @relation(fields: [courseId], references: [id])
   courseId Int?
 

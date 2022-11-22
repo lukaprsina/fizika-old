@@ -41,7 +41,8 @@ pub async fn scrape_normal() -> Result<()> {
         let dir_name = pages_dir.join(pos.to_string()).join("pages");
         create_dir_all(&dir_name)?;
         fs::write(&dir_name.join("../index.html"), course_html.as_bytes())?;
-        let chapter_info = process_tab(&course_document, &dir_name.as_path(), pos)?;
+        let mut chapter_info = process_tab(&course_document, &dir_name.as_path(), pos)?;
+        chapter_info.original_name = Some(line);
 
         chapter_infos.push(chapter_info);
 

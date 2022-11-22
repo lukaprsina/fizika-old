@@ -1,6 +1,6 @@
 import { Component, Show } from "solid-js";
 import { A } from "solid-start";
-import { useThemeToggle, useEditToggle } from "../AppShell";
+import { useThemeToggle, useEditToggle } from "~/root";
 
 
 type HeaderType = {

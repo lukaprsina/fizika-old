@@ -88,6 +88,7 @@ async function main() {
                 id: i,
                 title: config_json.heading,
                 year: config_json.year,
+                original_name: config_json.original_name,
                 authors: {
                     connect: authors
                 },

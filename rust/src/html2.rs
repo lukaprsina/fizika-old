@@ -14,13 +14,18 @@ use uuid::Uuid;
 use xml::EmitterConfig;
 
 use crate::{
-    parse_file::PageConfig,
+    // parse_file::PageConfig,
     process_html::{process_exercise, process_popup, ExerciseError},
     recurse_node::recurse_node,
     utils::{get_only_element, uppercase_first_letter, ChapterInfo},
 };
 
 pub static mut CLASSES: Lazy<HashSet<String>> = Lazy::new(|| HashSet::new());
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PageConfig {
+    pub subheading: String,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Script {
@@ -189,17 +194,19 @@ fn process_chapter(
         }
     }
 
+    let course_name = chapter_info_json[i].original_name.clone().unwrap();
+
     for (page_num, exercise) in exercises.into_iter().enumerate() {
         let output_page_dir = course_output_dir.join("pages");
         let output_page_path = output_page_dir.join(format!("page_{}", page_num));
         fs::create_dir_all(&output_page_path)?;
-        parse_exercise2(exercise, &output_page_path)?;
+        parse_exercise2(exercise, &output_page_path, course_name.clone())?;
     }
 
     Ok(true)
 }
 
-fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
+fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: String) -> Result<()> {
     match process_exercise(&exercise.document) {
         Ok(result) => {
             if let Some((area, subheading)) = result {
@@ -218,7 +225,7 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
                 config.perform_escaping = false;
                 config.write_document_declaration = false;
 
-                write_node_to_file(index_file, area, config);
+                write_node_to_file(index_file, area, course_name.clone(), config);
             }
         }
         Err(err) => {
@@ -243,13 +250,18 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path) -> Result<()> {
         config.perform_escaping = false;
         config.write_document_declaration = false;
 
-        write_node_to_file(file, area, config);
+        write_node_to_file(file, area, course_name.clone(), config);
     }
 
     Ok(())
 }
 
-fn write_node_to_file(file: File, area: select::node::Node, config: EmitterConfig) {
+fn write_node_to_file(
+    file: File,
+    area: select::node::Node,
+    course_name: String,
+    config: EmitterConfig,
+) {
     let mut writer = config.create_writer(file);
     let mut parents: Vec<Option<String>> = Vec::new();
     let mut new_popups: HashMap<String, Uuid> = HashMap::new();
@@ -257,6 +269,7 @@ fn write_node_to_file(file: File, area: select::node::Node, config: EmitterConfi
 
     recurse_node(
         area,
+        course_name,
         &mut parents,
         &mut new_popups,
         &mut writer,
