@@ -82,8 +82,10 @@ pub fn recurse_node<W: Write>(
                     let mut src = node.attr("src").unwrap().to_string();
 
                     let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
-                    let name = course_name.replace("/index.html", "");
-                    url = url.join(&format!("{}/", name)).unwrap();
+                    let split = course_name.split_once("/index.html");
+                    url = url
+                        .join(&format!("{}/", split.expect("No indexes??").0))
+                        .unwrap();
 
                     src.insert_str(0, url.as_str());
                     let mut start_event = XmlEvent::start_element("img").attr("src", &src);
