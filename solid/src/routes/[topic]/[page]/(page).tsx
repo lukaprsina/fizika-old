@@ -57,7 +57,7 @@ const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
     const editToggle = useEditToggle();
-
+// a
     const tabs = [
         {
             name: "Navbar",
@@ -102,7 +102,7 @@ const PageNavbar: Component = () => {
                     <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
                         <For each={tabs}>{(tab, i) => (
                             <Tab
-                                class="flex flex-grow relative mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
+                                class="flex sticky flex-grow relative mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
                                 classList={{
                                     "border-sky-500": isSelected(tab.name)
                                 }}

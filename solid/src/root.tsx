@@ -8,6 +8,7 @@ import {
   Html,
   Link,
   Meta,
+  Route,
   Routes,
   Scripts,
   Title,
@@ -17,6 +18,7 @@ import { createContextProvider } from "@solid-primitives/context";
 import { createEffect, createSignal, onMount, ParentComponent } from "solid-js";
 import { usePrefersDark } from "@solid-primitives/media";
 import { CookieOptions, cookieStorage, createStorage, StorageSetter, StorageWithOptions } from "@solid-primitives/storage"
+import Home from "./routes/(home)";
 
 export const AppShellHeader: ParentComponent = (props) => {
   return (
