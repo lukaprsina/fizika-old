@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "solid"
+		},
+		{
+			"path": "web"
 		}
 	]
 }

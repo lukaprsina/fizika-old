@@ -1,4 +1,5 @@
 // @refresh reload
+import "./root.css";
 import { Suspense } from "solid-js";
 import {
   Body,
@@ -11,24 +12,23 @@ import {
   Scripts,
   Title,
 } from "solid-start";
-import "./root.css";
 
 export default function Root() {
   return (
     <Html lang="en">
       <Head>
-        <Title>SolidStart - With Auth</Title>
+        <Title>Create JD App</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Body>
-        <ErrorBoundary>
-          <Suspense fallback={<div>Loading</div>}>
+        <Suspense>
+          <ErrorBoundary>
             <Routes>
               <FileRoutes />
             </Routes>
-          </Suspense>
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </Suspense>
         <Scripts />
       </Body>
     </Html>

@@ -1,0 +1,110 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id          String  @id
+    displayName String
+    avatar      String?
+    topic       Topic[]
+}
+
+model Course {
+    id     Int     @id @default(autoincrement())
+    title  String  @unique
+    topics Topic[]
+
+    metadata   Metadata @relation(fields: [metadataId], references: [id])
+    metadataId Int      @unique
+
+    resource   Resource @relation(fields: [resourceId], references: [id])
+    resourceId Int      @unique
+}
+
+model Topic {
+    id      Int    @id @unique
+    title   String @unique
+    year    Int
+    pages   Page[]
+    authors User[]
+
+    course   Course? @relation(fields: [courseId], references: [id])
+    courseId Int?
+
+    resource   Resource @relation(fields: [resourceId], references: [id])
+    resourceId Int      @unique
+
+    metadata   Metadata @relation(fields: [metadataId], references: [id])
+    metadataId Int      @unique
+}
+
+model Page {
+    id    Int
+    title String?
+    html  String
+    text  String
+
+    topic   Topic @relation(fields: [topicId], references: [id])
+    topicId Int
+
+    resource   Resource @relation(fields: [resourceId], references: [id])
+    resourceId Int      @unique
+
+    metadata   Metadata @relation(fields: [metadataId], references: [id])
+    metadataId Int      @unique
+
+    @@id([topicId, id])
+}
+
+model Resource {
+    id        Int        @id @default(autoincrement())
+    modals    Modal[]
+    variables Variable[]
+
+    course Course?
+    topic  Topic?
+    page   Page?
+}
+
+model Modal {
+    id      Int     @id @default(autoincrement())
+    heading String?
+    html    String
+    text    String
+
+    resource   Resource? @relation(fields: [resourceId], references: [id])
+    resourceId Int?
+}
+
+model Metadata {
+    id          Int       @id @default(autoincrement())
+    description String?
+    keywords    Keyword[]
+    goals       String?
+    license     String?
+    createdAt   DateTime  @default(now())
+    modifiedAt  DateTime  @default(now())
+
+    course Course?
+    topic  Topic?
+    page   Page?
+}
+
+model Keyword {
+    value String @id
+
+    metadata Metadata[]
+}
+
+model Variable {
+    id         Int       @id @default(autoincrement())
+    from       Int
+    to         Int
+    resource   Resource? @relation(fields: [resourceId], references: [id])
+    resourceId Int?
+}
