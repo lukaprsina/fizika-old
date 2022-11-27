@@ -8,9 +8,8 @@ datasource db {
 }
 
 model User {
-    id          String  @id
+    id          String  @id @default(uuid())
     displayName String
-    avatar      String?
     topic       Topic[]
 }
 
