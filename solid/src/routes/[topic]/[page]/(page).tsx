@@ -9,9 +9,10 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import { Component, createEffect, createSignal, For, ParentComponent, Show } from "solid-js";
 import { A, RouteDataArgs, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import AppShell, { AppShellContent, AppShellFooter, AppShellHeader } from "~/components/AppShell";
+import { AppShellContent, AppShellFooter, AppShellHeader, useEditToggle } from "~/root";
 import Header from '~/components/layout/Header';
 import { prisma } from "~/server/db/client";
+import Editor from "~/components/TinyMCE";
 
 export function routeData({ params }: RouteDataArgs) {
     return createServerData$(async ([_, topicArg, pageArg]) => {
@@ -55,7 +56,8 @@ type ParamsType = {
 const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
-
+    const editToggle = useEditToggle();
+// a
     const tabs = [
         {
             name: "Navbar",
@@ -66,6 +68,9 @@ const PageNavbar: Component = () => {
                 <Show when={page_data() && page_data().page}>
                     <div innerHTML={page_data().page.html}></div>
                     <NavButtons page_count={page_data().page_count} />
+                    <Show when={editToggle.edit()}>
+                        <Editor />
+                    </Show>
                 </Show>
             )
         },
@@ -78,36 +83,34 @@ const PageNavbar: Component = () => {
         <TabGroup
             horizontal={true}
             defaultValue="Page"
-            class="h-full">
+            class="min-h-screen flex flex-col">
             {({ isActive, isSelected }) => <>
-                <AppShell>
-                    <AppShellHeader>
-                        <Header topic={params.topic} />
-                    </AppShellHeader>
-                    <AppShellContent>
-                        <div class="flex-grow hover:cursor-pointer">
-                            <For each={tabs}>{(tab, i) => (
-                                <TabPanel value={tab.name}>
-                                    {tab.content ?? tab.name}
-                                </TabPanel>
-                            )}
-                            </For>
-                        </div>
-                    </AppShellContent>
-                    <AppShellFooter>
-                        <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 box-border h-8">
-                            <For each={tabs}>{(tab, i) => (
-                                <Tab
-                                    class="flex flex-grow relative mb-[-2px] hover:bg-slate-50 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2"
-                                    classList={{
-                                        "border-sky-500": isSelected(tab.name)
-                                    }}
-                                    value={tab.name}
-                                >{tab.name}</Tab>
-                            )}</For>
-                        </TabList>
-                    </AppShellFooter>
-                </AppShell>
+                <AppShellHeader>
+                    <Header topic={params.topic} />
+                </AppShellHeader>
+                <AppShellContent>
+                    <div class="flex-grow">
+                        <For each={tabs}>{(tab, i) => (
+                            <TabPanel value={tab.name}>
+                                {tab.content ?? tab.name}
+                            </TabPanel>
+                        )}
+                        </For>
+                    </div>
+                </AppShellContent>
+                <AppShellFooter>
+                    <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
+                        <For each={tabs}>{(tab, i) => (
+                            <Tab
+                                class="flex sticky flex-grow relative mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
+                                classList={{
+                                    "border-sky-500": isSelected(tab.name)
+                                }}
+                                value={tab.name}
+                            >{tab.name}</Tab>
+                        )}</For>
+                    </TabList>
+                </AppShellFooter>
             </>}
         </TabGroup>
     )

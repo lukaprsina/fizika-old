@@ -16,6 +16,7 @@ use crate::{
 
 pub fn recurse_node<W: Write>(
     node: Node,
+    course_name: String,
     parents: &mut Vec<Option<String>>,
     popups: &mut HashMap<String, Uuid>,
     writer: &mut EventWriter<W>,
@@ -78,8 +79,16 @@ pub fn recurse_node<W: Write>(
                     None => default_tag("div"),
                 },
                 "img" => {
-                    let src = node.attr("src").unwrap();
-                    let mut start_event = XmlEvent::start_element("img").attr("src", src);
+                    let mut src = node.attr("src").unwrap().to_string();
+
+                    let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
+                    let split = course_name.split_once("/index.html");
+                    url = url
+                        .join(&format!("{}/", split.expect("No indexes??").0))
+                        .unwrap();
+
+                    src.insert_str(0, url.as_str());
+                    let mut start_event = XmlEvent::start_element("img").attr("src", &src);
 
                     match node.attr("alt") {
                         Some(alt) => {
@@ -167,6 +176,7 @@ pub fn recurse_node<W: Write>(
 
         recurse_node(
             child,
+            course_name.clone(),
             &mut new_parents,
             popups,
             writer,
