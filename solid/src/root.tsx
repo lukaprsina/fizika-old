@@ -1,5 +1,8 @@
 // @refresh reload
-import { Suspense } from "solid-js";
+import { createContextProvider } from "@solid-primitives/context";
+import { usePrefersDark } from "@solid-primitives/media";
+import { CookieOptions, cookieStorage, createStorage, StorageSetter } from "@solid-primitives/storage";
+import { createEffect, createSignal, ParentComponent, Suspense } from "solid-js";
 import {
   Body,
   ErrorBoundary,
@@ -7,18 +10,11 @@ import {
   Head,
   Html,
   Link,
-  Meta,
-  Route,
-  Routes,
+  Meta, Routes,
   Scripts,
-  Title,
+  Title
 } from "solid-start";
 import "./index.css";
-import { createContextProvider } from "@solid-primitives/context";
-import { createEffect, createSignal, onMount, ParentComponent } from "solid-js";
-import { usePrefersDark } from "@solid-primitives/media";
-import { CookieOptions, cookieStorage, createStorage, StorageSetter, StorageWithOptions } from "@solid-primitives/storage"
-import Home from "./routes/(home)";
 
 export const AppShellHeader: ParentComponent = (props) => {
   return (

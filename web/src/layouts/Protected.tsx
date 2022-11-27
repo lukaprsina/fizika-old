@@ -21,7 +21,7 @@ export const withProtected = (Component: ProtectedRouter) => {
       return (
         <Switch fallback={<Component {...(current() as User)} />}>
           <Match when={current.loading || current() instanceof Response}>
-            <h1>Loading...</h1>
+            <h1>Nalagam...</h1>
           </Match>
         </Switch>
       );

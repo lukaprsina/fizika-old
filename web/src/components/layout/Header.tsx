@@ -1,7 +1,7 @@
-import { Component, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { Show } from "solid-js";
 import { A } from "solid-start";
-import { useEditToggle } from "~/routes/(home)";
-
+import { useEditToggle, useThemeToggle } from "~/layouts/Providers";
 
 type HeaderType = {
     topic?: string;
@@ -9,6 +9,7 @@ type HeaderType = {
 
 const Header: Component<HeaderType> = (props) => {
     const editToggle = useEditToggle();
+    const darkToggle = useThemeToggle();
 
     return (
         <div
@@ -27,13 +28,25 @@ const Header: Component<HeaderType> = (props) => {
             <Show when={props.topic}>
                 <A href={encodeURI("/" + props.topic)}>{props.topic}</A>
             </Show>
-            <div>
-                <input
-                    type="checkbox"
-                    class="mr-3"
-                    onChange={() => editToggle.change(!editToggle.edit())}
-                />
-                <label>Edit</label>
+            <div class="flex">
+                <div class="mx-3">
+                    <input
+                        type="checkbox"
+                        class="mr-2"
+                        checked={darkToggle.dark()}
+                        onChange={() => darkToggle.setDark(!darkToggle.dark())}
+                    />
+                    <label>Dark</label>
+                </div>
+                <div class="mx-3">
+                    <input
+                        type="checkbox"
+                        class="mr-2"
+                        checked={editToggle.edit()}
+                        onChange={() => editToggle.change(!editToggle.edit())}
+                    />
+                    <label>Edit</label>
+                </div>
             </div>
         </div>
     )
