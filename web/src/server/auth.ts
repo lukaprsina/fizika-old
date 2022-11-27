@@ -31,5 +31,4 @@ export const authenticator = new Authenticator<User>(sessionStorage).use(new Git
 
     return user;
   }
-)
-)
+))

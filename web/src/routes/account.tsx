@@ -1,6 +1,8 @@
 import { Match, Switch } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import Header from "~/components/layout/Header";
+import { AppShellHeader, AppShellContent } from "~/layouts/Providers";
 
 import { authenticator } from "~/server/auth";
 import { authClient } from "~/utils/auth";
@@ -9,6 +11,7 @@ export const routeData = () => {
     return {
         user: createServerData$(async (_, { request }) => {
             const user = await authenticator.isAuthenticated(request);
+            console.log("User from routeData", user)
             return user;
         }),
     };
@@ -17,8 +20,11 @@ export const routeData = () => {
 export default function Account() {
     const { user } = useRouteData<typeof routeData>();
 
-    return (
-        <>
+    return <>
+        <AppShellHeader>
+            <Header />
+        </AppShellHeader>
+        <AppShellContent>
             <Switch
                 fallback={<>
                     <p>
@@ -50,6 +56,7 @@ export default function Account() {
                     </div>
                 </Match>
             </Switch>
-        </>
-    );
+        </AppShellContent>
+    </>
+
 }

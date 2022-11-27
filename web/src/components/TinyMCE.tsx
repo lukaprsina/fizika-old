@@ -1,7 +1,8 @@
+import type { Component } from "solid-js";
 import { onMount } from "solid-js";
 import { withProtected } from "~/layouts/Protected";
 
-const Editor = withProtected((user) => {
+const Editor: Component = withProtected((user) => {
     onMount(async () => {
         await tinymce.init({
             selector: "textarea#tinymce-editor",
