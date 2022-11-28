@@ -12,9 +12,7 @@ export const routeData = () => {
 };
 
 const Home: ParentComponent = () => {
-  const res = useRouteData<typeof routeData>();
-
-  createEffect(() => console.log(res()))
+  const data = useRouteData<typeof routeData>();
 
   return <>
     <Title>Home</Title>
@@ -24,7 +22,7 @@ const Home: ParentComponent = () => {
           <div class="font-bold text-2xl text-gray-500">Loading...</div>
         }
       >
-        <Match when={!res()}>
+        <Match when={!data()}>
           <p>Please login</p>
         </Match>
       </Switch>
@@ -43,7 +41,7 @@ const Home: ParentComponent = () => {
           </button>
         }
       >
-        <Match when={res()}>
+        <Match when={data()}>
           <button
             onClick={() =>
               authClient.logout({

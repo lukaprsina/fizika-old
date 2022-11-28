@@ -64,10 +64,6 @@ const PageNavbar: Component = () => {
     const params = useParams<ParamsType>();
     const editToggle = useEditToggle();
 
-    createEffect(() => {
-        console.log(editToggle)
-    })
-
     const tabs = [
         {
             name: "Navbar",
@@ -76,6 +72,7 @@ const PageNavbar: Component = () => {
             name: "Page",
             content: (
                 <Show when={page_data() !== null && typeof page_data() !== "undefined" && page_data()}>
+                    {/* eslint-disable-next-line solid/no-innerhtml */}
                     <div innerHTML={page_data().page.html} />
                     <NavButtons page_count={page_data().page_count} />
                     <Show when={editToggle && editToggle.edit()}>

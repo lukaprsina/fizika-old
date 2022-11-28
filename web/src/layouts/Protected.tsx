@@ -9,7 +9,10 @@ export const withProtected = (Component: ProtectedRouter) => {
     return createServerData$(async (_, { request }) => {
       const user = await authenticator.isAuthenticated(request);
       if (!user) {
+        console.log("Not logged in")
         throw redirect("/failure");
+      } else {
+        console.log("Logged in", user.displayName)
       }
       return user;
     });

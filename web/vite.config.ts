@@ -6,5 +6,8 @@ export default defineConfig(() => {
   dotenv.config();
   return {
     plugins: [solid({ ssr: true })],
+    ssr: {
+      external: ['@prisma/client'],
+    },
   };
 });
