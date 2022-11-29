@@ -1,19 +1,7 @@
-import { createEffect, createSignal, onMount, Show } from "solid-js";
-import { useRouteData } from "solid-start";
-import { withProtected } from "~/layouts/Protected";
+import type { Component } from "solid-js";
+import { onMount } from "solid-js";
 
-export const { routeData, Page } = withProtected((user) => {
-    const data = useRouteData<typeof routeData>();
-
-    const [show, setShow] = createSignal(false);
-    createEffect(() => {
-        console.log("User", user.id, user.displayName)
-        console.log("User Data", data().id, data().displayName)
-        if (user.id) {
-            setShow(true)
-        }
-    })
-
+const TinyMCE: Component = () => {
     onMount(async () => {
         await tinymce.init({
             selector: "textarea#tinymce-editor",
@@ -37,11 +25,9 @@ export const { routeData, Page } = withProtected((user) => {
     })
 
     return (
-        <Show when={show()}>
-            <textarea id="tinymce-editor" />
-        </Show>
+        <textarea id="tinymce-editor" />
     )
 
-})
+}
 
-export default Page;
+export default TinyMCE;

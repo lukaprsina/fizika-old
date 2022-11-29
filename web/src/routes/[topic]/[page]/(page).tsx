@@ -13,10 +13,11 @@ import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Header from '~/components/layout/Header';
 import { AppShellContent, AppShellFooter, AppShellHeader, useEditToggle } from "~/layouts/Providers";
+import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 
 export function routeData({ params }: RouteDataArgs) {
-    return createServerData$(async ([_, topicArg, pageArg]) => {
+    return createServerData$(async ([, topicArg, pageArg], { request }) => {
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topicArg
@@ -43,7 +44,9 @@ export function routeData({ params }: RouteDataArgs) {
             }
         })
 
-        return { page, page_count };
+        const user = await authenticator.isAuthenticated(request);
+
+        return { page, user, page_count };
     }, {
         key: () => ["page", params.topic, params.page]
     })
@@ -71,11 +74,11 @@ const PageNavbar: Component = () => {
         {
             name: "Page",
             content: (
-                <Show when={page_data() !== null && typeof page_data() !== "undefined" && page_data()}>
+                <Show when={page_data() !== null && typeof page_data() !== "undefined"}>
                     {/* eslint-disable-next-line solid/no-innerhtml */}
-                    <div innerHTML={page_data().page.html} />
-                    <NavButtons page_count={page_data().page_count} />
-                    <Show when={editToggle && editToggle.edit()}>
+                    <div innerHTML={page_data()?.page?.html ?? ""} />
+                    <NavButtons page_count={page_data()?.page_count ?? 0} />
+                    <Show when={page_data()?.user && editToggle && editToggle.edit()}>
                         <LazyEditor />
                     </Show>
                 </Show>
@@ -91,13 +94,13 @@ const PageNavbar: Component = () => {
             horizontal={true}
             defaultValue="Page"
             class="min-h-screen flex flex-col">
-            {({ isActive, isSelected }) => <>
+            {({ isSelected }) => <>
                 <AppShellHeader>
-                    <Header topic={params.topic} />
+                    <Header topic={params.topic} showEditToggle={typeof page_data()?.user?.id !== "undefined"} />
                 </AppShellHeader>
                 <AppShellContent>
                     <div class="flex-grow">
-                        <For each={tabs}>{(tab, i) => (
+                        <For each={tabs}>{(tab) => (
                             <TabPanel value={tab.name}>
                                 {tab.content ?? tab.name}
                             </TabPanel>
@@ -107,7 +110,7 @@ const PageNavbar: Component = () => {
                 </AppShellContent>
                 <AppShellFooter>
                     <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
-                        <For each={tabs}>{(tab, i) => (
+                        <For each={tabs}>{(tab) => (
                             <Tab
                                 class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
                                 classList={{

@@ -1,5 +1,6 @@
 import { type User } from "@prisma/client";
-import { Authenticator, GitHubStrategy } from "solidjs-auth";
+import { Authenticator } from "@solid-auth/core";
+import { GitHubStrategy } from "@solid-auth/socials";
 import { serverEnv } from "~/env/server";
 import { sessionStorage } from "~/utils/auth";
 import { prisma } from "./db/client";

@@ -5,6 +5,7 @@ import { useEditToggle, useThemeToggle } from "~/layouts/Providers";
 
 type HeaderType = {
     topic?: string;
+    showEditToggle?: boolean;
 }
 
 const Header: Component<HeaderType> = (props) => {
@@ -33,19 +34,21 @@ const Header: Component<HeaderType> = (props) => {
                     <input
                         type="checkbox"
                         class="mr-2"
-                        checked={darkToggle.dark()}
-                        onChange={() => darkToggle.setDark(!darkToggle.dark())}
+                        checked={darkToggle?.dark()}
+                        onChange={() => darkToggle?.setDark(!darkToggle.dark())}
                     />
                     <label>Dark</label>
                 </div>
                 <div class="mx-3">
-                    <input
-                        type="checkbox"
-                        class="mr-2"
-                        checked={editToggle.edit()}
-                        onChange={() => editToggle.change(!editToggle.edit())}
-                    />
-                    <label>Edit</label>
+                    <Show when={props.showEditToggle}>
+                        <input
+                            type="checkbox"
+                            class="mr-2"
+                            checked={editToggle?.edit()}
+                            onChange={() => editToggle?.change(!editToggle.edit())}
+                        />
+                        <label>Edit</label>
+                    </Show>
                 </div>
             </div>
         </div>
