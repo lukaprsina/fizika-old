@@ -9,8 +9,7 @@ import { AppShellContent, AppShellFooter, AppShellHeader } from "~/layouts/Provi
 import { prisma } from "~/server/db/client";
 
 export function routeData() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return createServerData$(async (_, { }) => {
+    return createServerData$(async () => {
         const topics = await prisma.topic.findMany({
             where: {
                 course: { title: "Fizika" }

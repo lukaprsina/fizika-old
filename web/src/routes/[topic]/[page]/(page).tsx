@@ -11,6 +11,7 @@ import { Component, createEffect, createSignal, For, JSX, lazy, Match, ParentCom
 import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import Footer from "~/components/layout/Footer";
 import Header from '~/components/layout/Header';
 import { AppShellContent, AppShellFooter, AppShellHeader, useEditToggle } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
@@ -119,33 +120,34 @@ const PageNavbar: Component = () => {
         <TabGroup
             horizontal={true}
             defaultValue="Page"
-            class="min-h-screen flex flex-col">
+            class="min-h-screen flex flex-col bg-inherit">
             {({ isSelected }) => <>
                 <AppShellHeader>
                     <Header topic={params.topic} user={page_data()?.user} />
                 </AppShellHeader>
                 <AppShellContent>
-                    <div class="flex-grow">
+                    <div class="flex-grow bg-inherit">
                         <For each={tabs()}>{(tab) => (
-                            <TabPanel value={tab.name}>
+                            <TabPanel value={tab.name} class="bg-inherit">
                                 {tab.content ?? tab.name}
                             </TabPanel>
                         )}
                         </For>
                     </div>
                 </AppShellContent>
+                <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
+                    <For each={tabs()}>{(tab) => (
+                        <Tab
+                            class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
+                            classList={{
+                                "border-sky-500": isSelected(tab.name ?? "Page")
+                            }}
+                            value={tab.name}
+                        >{tab.name}</Tab>
+                    )}</For>
+                </TabList>
                 <AppShellFooter>
-                    <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
-                        <For each={tabs()}>{(tab) => (
-                            <Tab
-                                class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
-                                classList={{
-                                    "border-sky-500": isSelected(tab.name ?? "Page")
-                                }}
-                                value={tab.name}
-                            >{tab.name}</Tab>
-                        )}</For>
-                    </TabList>
+                    <Footer />
                 </AppShellFooter>
             </>}
         </TabGroup>
