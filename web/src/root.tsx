@@ -18,8 +18,6 @@ import "./root.css";
 export const [loadTinyMCE, setLoadTinyMCE] = createSignal(false);
 
 export default function Root() {
-  const tinymce_key = "drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker";
-  createEffect(() => console.log("loadTinyMCE", loadTinyMCE()))
   return (
     <Html lang="en">
       <Head>
@@ -28,14 +26,6 @@ export default function Root() {
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta name="description" content="Razlaga in vaje za srednješolski nivo fizike. Narejeno v šolskem centru Novo mesto." />
         <Link rel="manifest" href="/manifest.webmanifest" />
-        <Show when={loadTinyMCE()}>
-          {"Test"}
-          <script
-            onLoad={() => console.log("Loaded script")}
-            src={"https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js"}
-            referrerpolicy="origin"
-          />
-        </Show>
       </Head>
       <Body>
         <Suspense>

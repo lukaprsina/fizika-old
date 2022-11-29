@@ -7,12 +7,13 @@ import {
     TabPanel
 } from 'solid-headless';
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
-import { Component, createEffect, createSignal, For, JSX, lazy, Match, ParentComponent, Show, Switch } from "solid-js";
+import { Component, createEffect, createSignal, For, JSX, Match, ParentComponent, Show, Switch } from "solid-js";
 import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Footer from "~/components/layout/Footer";
 import Header from '~/components/layout/Header';
+import TinyMCE from "~/components/TinyMCE";
 import { AppShellContent, AppShellFooter, AppShellHeader, useEditToggle } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
@@ -63,10 +64,6 @@ type TabType = {
     content?: JSX.Element;
 }
 
-const LazyEditor = lazy(async () => {
-    return import("~/components/TinyMCE")
-});
-
 const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
@@ -99,7 +96,7 @@ const PageNavbar: Component = () => {
                             }
                         >
                             <Match when={showEditor()}>
-                                <LazyEditor show={showEditor()} />
+                                <TinyMCE show={showEditor()} />
                             </Match>
                         </Switch>
                         <NavButtons page_count={page_data()?.page_count ?? 0} />
