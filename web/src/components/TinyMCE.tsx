@@ -1,8 +1,20 @@
 import type { Component } from "solid-js";
 import { onMount } from "solid-js";
 
-const TinyMCE: Component = () => {
+
+export type EditorProps = {
+    show: boolean;
+}
+
+const TinyMCE: Component<EditorProps> = (props) => {
     onMount(async () => {
+        if (!props.show) {
+
+            console.log("TinyMCE hidden")
+            return;
+        }
+
+        console.log("Init TinyMCE")
         await tinymce.init({
             selector: "textarea#tinymce-editor",
             // base_url: "/tinymce",

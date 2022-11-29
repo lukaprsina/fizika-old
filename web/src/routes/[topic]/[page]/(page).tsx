@@ -7,7 +7,7 @@ import {
     TabPanel
 } from 'solid-headless';
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
-import { Component, createEffect, createSignal, For, lazy, ParentComponent, Show } from "solid-js";
+import { Component, createEffect, createSignal, For, JSX, lazy, Match, ParentComponent, Show, Switch } from "solid-js";
 import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
@@ -57,6 +57,10 @@ type ParamsType = {
     page: string;
 }
 
+type TabType = {
+    name?: string;
+    content?: JSX.Element;
+}
 
 const LazyEditor = lazy(async () => {
     return import("~/components/TinyMCE")
@@ -66,28 +70,50 @@ const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
     const editToggle = useEditToggle();
+    const [showEditor, setShowEditor] = createSignal(false);
+    const [tabs, setTabs] = createSignal<TabType[]>([]);
 
-    const tabs = [
-        {
-            name: "Navbar",
-        },
-        {
-            name: "Page",
-            content: (
-                <Show when={page_data() !== null && typeof page_data() !== "undefined"}>
-                    {/* eslint-disable-next-line solid/no-innerhtml */}
-                    <div innerHTML={page_data()?.page?.html ?? ""} />
-                    <NavButtons page_count={page_data()?.page_count ?? 0} />
-                    <Show when={page_data()?.user && editToggle && editToggle.edit()}>
-                        <LazyEditor />
-                    </Show>
-                </Show>
-            )
-        },
-        {
-            name: "Explanation"
+    createEffect(() => {
+        if (page_data()?.user && editToggle?.edit()) {
+            console.log("Show editor")
+            setShowEditor(true);
+        } else {
+            setShowEditor(false);
         }
-    ]
+    })
+
+    createEffect(() => {
+        const temp = [
+            {
+                name: "Navbar",
+            },
+            {
+                name: "Page",
+                content: (
+                    <Show when={page_data()}>
+                        <Switch
+                            fallback={
+                                // eslint-disable-next-line solid/no-innerhtml
+                                <div innerHTML={page_data()?.page?.html ?? ""} />
+                            }
+                        >
+                            <Match when={showEditor()}>
+                                <LazyEditor show={showEditor()} />
+                            </Match>
+                        </Switch>
+                        <NavButtons page_count={page_data()?.page_count ?? 0} />
+                    </Show>
+                )
+            },
+            {
+                name: "Explanation"
+            }
+        ];
+
+        console.log("Setting tabs", showEditor())
+
+        setTabs(temp)
+    })
 
     return (
         <TabGroup
@@ -96,11 +122,11 @@ const PageNavbar: Component = () => {
             class="min-h-screen flex flex-col">
             {({ isSelected }) => <>
                 <AppShellHeader>
-                    <Header topic={params.topic} showEditToggle={typeof page_data()?.user?.id !== "undefined"} />
+                    <Header topic={params.topic} user={page_data()?.user} />
                 </AppShellHeader>
                 <AppShellContent>
                     <div class="flex-grow">
-                        <For each={tabs}>{(tab) => (
+                        <For each={tabs()}>{(tab) => (
                             <TabPanel value={tab.name}>
                                 {tab.content ?? tab.name}
                             </TabPanel>
@@ -110,11 +136,11 @@ const PageNavbar: Component = () => {
                 </AppShellContent>
                 <AppShellFooter>
                     <TabList class="flex flex-1 flex-wrap justify-center w-full border-b-2 border-slate-300 dark:border-slate-700 box-border h-9">
-                        <For each={tabs}>{(tab) => (
+                        <For each={tabs()}>{(tab) => (
                             <Tab
                                 class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
                                 classList={{
-                                    "border-sky-500": isSelected(tab.name)
+                                    "border-sky-500": isSelected(tab.name ?? "Page")
                                 }}
                                 value={tab.name}
                             >{tab.name}</Tab>

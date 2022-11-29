@@ -22,7 +22,7 @@ type ContentType = {
 
 export const AppShellContent: ParentComponent<ContentType> = (props) => {
     return (
-        <div class="flex-grow max-w-5xl px-6 mx-auto" classList={{
+        <div class="z-30 bg-inherit flex justify-center flex-grow w-full px-6 relative" classList={{
             "w-full": props.fullWidth,
         }}>
             {props.children}
@@ -31,12 +31,15 @@ export const AppShellContent: ParentComponent<ContentType> = (props) => {
 }
 
 export const AppShellFooter: ParentComponent = (props) => {
-    return (
-        <footer
+    {/* <footer
             class="w-full"
         >
             {props.children}
-        </footer>
+        </footer> */}
+    return (
+        <>
+            {props.children}
+        </>
     )
 }
 

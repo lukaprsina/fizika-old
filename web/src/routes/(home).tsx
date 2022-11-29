@@ -1,13 +1,15 @@
-import { createContextProvider } from "@solid-primitives/context";
-import { Component, createSignal, For, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { For, Show } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import Footer from "~/components/layout/Footer";
 import Header from "~/components/layout/Header";
 import { Sidebar, SidebarItem } from "~/components/layout/Sidebar";
-import { AppShellHeader, AppShellContent } from "~/layouts/Providers";
+import { AppShellContent, AppShellFooter, AppShellHeader } from "~/layouts/Providers";
 import { prisma } from "~/server/db/client";
 
 export function routeData() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return createServerData$(async (_, { }) => {
         const topics = await prisma.topic.findMany({
             where: {
@@ -33,7 +35,7 @@ const Home: Component = () => {
         <AppShellContent>
             <Show when={topics()}>
                 <Sidebar>
-                    <For each={topics()}>{(topic, i) =>
+                    <For each={topics()}>{(topic) =>
                         <SidebarItem
                             text={topic.title}
                         />
@@ -42,6 +44,9 @@ const Home: Component = () => {
                 </Sidebar>
             </Show>
         </AppShellContent>
+        <AppShellFooter>
+            <Footer />
+        </AppShellFooter>
     </>
 }
 
