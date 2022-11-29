@@ -1,25 +1,24 @@
 import type { Component } from "solid-js";
 import { onMount } from "solid-js";
-import { setLoadTinyMCE } from "~/root";
-
 
 export type EditorProps = {
     show: boolean;
 }
 
 const TinyMCE: Component<EditorProps> = (props) => {
-    setLoadTinyMCE(true);
     const tinymce_key = "drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker";
-    console.log("test")
+    console.log("Whole")
+    onMount(() => {
+        console.log("Sync Mount")
+    })
     onMount(async () => {
-
         if (!props.show) {
             console.log("TinyMCE hidden")
             return;
         } else
             console.log("Init TinyMCE")
 
-        await import("https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js")
+        await import(/* @vite-ignore */"https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js")
         await tinymce.init({
             selector: "textarea#tinymce-editor",
             // base_url: "/tinymce",

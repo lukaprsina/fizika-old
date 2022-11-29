@@ -1,5 +1,5 @@
 // @refresh reload
-import { createEffect, createSignal, Show, Suspense } from "solid-js";
+import { Suspense } from "solid-js";
 import {
   Body,
   ErrorBoundary,
@@ -14,8 +14,6 @@ import {
 } from "solid-start";
 import Providers from "./layouts/Providers";
 import "./root.css";
-
-export const [loadTinyMCE, setLoadTinyMCE] = createSignal(false);
 
 export default function Root() {
   return (
