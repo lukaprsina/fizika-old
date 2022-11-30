@@ -1,25 +1,22 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import { createShortcut } from "@solid-primitives/keyboard";
 import {
-    Button, Tab,
-    TabGroup,
-    TabList,
-    TabPanel
+    Button
 } from 'solid-headless';
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import { Component, createEffect, createSignal, For, JSX, Match, ParentComponent, Show, Switch } from "solid-js";
 import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import Footer from "~/components/layout/Footer";
 import Header from '~/components/layout/Header';
 import TinyMCE from "~/components/TinyMCE";
-import { AppShellContent, AppShellFooter, AppShellHeader, useEditToggle } from "~/layouts/Providers";
+import { AppShellContent, AppShellHeader, useEditToggle } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 
 export function routeData({ params }: RouteDataArgs) {
-    return createServerData$(async ([_, topicArg, pageArg], { request }) => {
+    return createServerData$(async ([, topicArg, pageArg], { request }) => {
+        // what even is typescript
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topicArg
@@ -80,7 +77,7 @@ const PageNavbar: Component = () => {
         }
     })
 
-    const tabs = [
+    const tabs: TabType[] = [
         {
             name: "Navbar",
         },
@@ -114,14 +111,31 @@ const PageNavbar: Component = () => {
     return <>
         <div class="bottom-0 bg-inherit text-white left-0 right-0 fixed z-40 flex justify-around">
             <For each={tabs}>{(tab, i) => (
-                <Button onClick={() => setActiveTab(i)}>{tab.name}</Button>
+                <Button
+                    onClick={() => setActiveTab(i)}
+                    class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
+                    classList={{
+                        "border-sky-500": activeTab() == i()
+                    }}
+                >
+                    {tab.name}
+                </Button>
             )}</For>
         </div>
         <AppShellHeader>
             <Header topic={params.topic} user={page_data()?.user} />
         </AppShellHeader>
         <AppShellContent>
-            {tabs[1].content}
+            <div class="mb-10 w-full h-full relative bg-inherit">
+                <For each={tabs}>{(tab, i) => (
+                    <div
+                        style={"z-index: " + i() + ";"}
+                        class="w-full h-full absolute top-0 left-0 bg-inherit"
+                    >
+                        {tab.content ?? tab.name}
+                    </div>
+                )}</For>
+            </div>
         </AppShellContent>
     </>
 
