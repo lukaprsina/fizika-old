@@ -11,6 +11,7 @@ const TinyMCE: Component<EditorProps> = (props) => {
     onMount(() => {
         console.log("Sync Mount")
     })
+
     onMount(async () => {
         if (!props.show) {
             console.log("TinyMCE hidden")

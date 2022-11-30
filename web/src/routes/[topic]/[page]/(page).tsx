@@ -19,7 +19,7 @@ import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 
 export function routeData({ params }: RouteDataArgs) {
-    return createServerData$(async ([, topicArg, pageArg], { request }) => {
+    return createServerData$(async ([_, topicArg, pageArg], { request }) => {
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topicArg
@@ -68,8 +68,8 @@ const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
     const editToggle = useEditToggle();
+    const [activeTab, setActiveTab] = createSignal()
     const [showEditor, setShowEditor] = createSignal(false);
-    const [tabs, setTabs] = createSignal<TabType[]>([]);
 
     createEffect(() => {
         if (page_data()?.user && editToggle?.edit()) {
@@ -80,15 +80,15 @@ const PageNavbar: Component = () => {
         }
     })
 
-    createEffect(() => {
-        const temp = [
-            {
-                name: "Navbar",
-            },
-            {
-                name: "Page",
-                content: (
-                    <Show when={page_data()}>
+    const tabs = [
+        {
+            name: "Navbar",
+        },
+        {
+            name: "Page",
+            content: (
+                <Show when={page_data()}>
+                    <div>
                         <Switch
                             fallback={
                                 // eslint-disable-next-line solid/no-innerhtml
@@ -100,20 +100,32 @@ const PageNavbar: Component = () => {
                             </Match>
                         </Switch>
                         <NavButtons page_count={page_data()?.page_count ?? 0} />
-                    </Show>
-                )
-            },
-            {
-                name: "Explanation"
-            }
-        ];
+                    </div>
+                </Show>
+            )
+        },
+        {
+            name: "Explanation"
+        }
+    ];
 
-        console.log("Setting tabs", showEditor())
+    createEffect(() => console.log(activeTab()))
 
-        setTabs(temp)
-    })
+    return <>
+        <div class="bottom-0 bg-inherit text-white left-0 right-0 fixed z-40 flex justify-around">
+            <For each={tabs}>{(tab, i) => (
+                <Button onClick={() => setActiveTab(i)}>{tab.name}</Button>
+            )}</For>
+        </div>
+        <AppShellHeader>
+            <Header topic={params.topic} user={page_data()?.user} />
+        </AppShellHeader>
+        <AppShellContent>
+            {tabs[1].content}
+        </AppShellContent>
+    </>
 
-    return (
+    /* return (
         <TabGroup
             horizontal={true}
             defaultValue="Page"
@@ -148,7 +160,7 @@ const PageNavbar: Component = () => {
                 </AppShellFooter>
             </>}
         </TabGroup>
-    )
+    ) */
 }
 
 const NavButtons: Component<{ page_count: number }> = (props) => {
@@ -184,29 +196,27 @@ const NavButtons: Component<{ page_count: number }> = (props) => {
     )
 
     return (
-        <div class="w-full">
-            <div
-                class="w-full flex my-10 justify-items-end"
-                classList={{
-                    "justify-end": pageId() <= 0,
-                    "justify-around": pageId() > 0,
-                }}
-            >
-                <Show when={pageId() > 0}>
-                    <IconButton>
-                        <A href={baseURL() + (pageId() - 1)}>
-                            <AiOutlineArrowLeft size={icon_size} />
-                        </A>
-                    </IconButton>
-                </Show>
-                <Show when={pageId() < props.page_count - 1}>
-                    <IconButton>
-                        <A href={baseURL() + (pageId() + 1)}>
-                            <AiOutlineArrowRight size={icon_size} />
-                        </A>
-                    </IconButton>
-                </Show>
-            </div>
+        <div
+            class="w-full flex my-10 justify-items-end"
+            classList={{
+                "justify-end": pageId() <= 0,
+                "justify-around": pageId() > 0,
+            }}
+        >
+            <Show when={pageId() > 0}>
+                <IconButton>
+                    <A href={baseURL() + (pageId() - 1)}>
+                        <AiOutlineArrowLeft size={icon_size} />
+                    </A>
+                </IconButton>
+            </Show>
+            <Show when={pageId() < props.page_count - 1}>
+                <IconButton>
+                    <A href={baseURL() + (pageId() + 1)}>
+                        <AiOutlineArrowRight size={icon_size} />
+                    </A>
+                </IconButton>
+            </Show>
         </div>
     )
 }

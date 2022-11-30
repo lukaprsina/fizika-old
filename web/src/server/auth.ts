@@ -7,8 +7,8 @@ import { prisma } from "./db/client";
 
 export const authenticator = new Authenticator<User>(sessionStorage).use(new GitHubStrategy(
   {
-    clientID: serverEnv.GITHUB_CLIENT_ID,
-    clientSecret: serverEnv.GITHUB_CLIENT_SECRET,
+    clientID: serverEnv.CLIENT_ID_GITHUB,
+    clientSecret: serverEnv.CLIENT_SECRET_GITHUB,
     callbackURL: serverEnv.SITE_URL + "/api/auth/github/callback",
     scope: [],
   },
