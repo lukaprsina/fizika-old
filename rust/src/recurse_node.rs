@@ -67,6 +67,13 @@ pub fn recurse_node<W: Write>(
                 }
                 "div" => match node.attr("href") {
                     Some(href) => {
+                        if !(href.ends_with(".mp4")
+                            || href.ends_with(".flv")
+                            || href.ends_with(".m4v"))
+                        {
+                            panic!("div href ends with: {}", href)
+                        }
+
                         let event: XmlEvent = XmlEvent::start_element("video").into();
                         writer.write(event).unwrap();
 
@@ -79,6 +86,12 @@ pub fn recurse_node<W: Write>(
                     None => default_tag("div"),
                 },
                 "img" => {
+                    /*
+                    <figure class="image">
+                        <img src="https://www.tiny.cloud/docs/images/logos/android-chrome-256x256.png" alt="" width="256" height="256">
+                        <figcaption>Caption</figcaption>
+                    </figure>
+                     */
                     let mut src = node.attr("src").unwrap().to_string();
 
                     let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
@@ -138,6 +151,23 @@ pub fn recurse_node<W: Write>(
                     let event: XmlEvent = start.into();
                     writer.write(event).unwrap();
                     true
+                }
+                "caption" => {
+                    let start = XmlEvent::start_element("caption");
+                    if !node.is(Class("imageCaption")) {
+                        panic!("caption is not imageCaption: {:#?}", parents);
+                    }
+                    let event: XmlEvent = start.into();
+                    writer.write(event).unwrap();
+                    true
+                }
+                "video" => {
+                    panic!();
+                    /* let mut start = XmlEvent::start_element("video");
+
+                    let event: XmlEvent = start.into();
+                    writer.write(event).unwrap();
+                    true */
                 }
                 name => default_tag(name),
             }

@@ -3,7 +3,6 @@ use color_eyre::Result;
 pub mod database;
 pub mod html2;
 pub mod javascript;
-pub mod parse_file;
 pub mod process_html;
 pub mod recurse_node;
 pub mod scrape;

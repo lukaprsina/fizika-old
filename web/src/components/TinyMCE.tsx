@@ -22,22 +22,26 @@ const TinyMCE: Component<EditorProps> = (props) => {
         await import(/* @vite-ignore */"https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js")
         await tinymce.init({
             selector: "textarea#tinymce-editor",
-            // base_url: "/tinymce",
-            width: 800,
-            height: 800,
-            promotion: false,
-            plugins: [
-                'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
-                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
-                'media', 'table', 'emoticons', 'template', 'help'
-            ],
-            toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
-                'bullist numlist outdent indent | link image | print preview media fullscreen | ' +
-                'forecolor backcolor emoticons | help',
-            menu: {
-                favs: { title: 'My Favorites', items: 'code visualaid | searchreplace | emoticons' }
+            content_css: '/tinymce/styles.css',
+            height: 500,
+            external_plugins: {
+                tiny_mce_wiris: '/tinymce/math_wiris.min.js'
             },
-            menubar: 'favs file edit view insert format tools table help',
+            extended_valid_elements: "button[*]",
+            plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+            menubar: 'file edit view insert format tools table help',
+            toolbar: 'addModalButton | undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',
+            toolbar_sticky: true,
+            toolbar_mode: 'sliding',
+            contextmenu: 'link image table',
+            draggable_modal: true,
+            autosave_ask_before_unload: true,
+            autosave_interval: '30s',
+            autosave_prefix: '{path}{query}-{id}-',
+            autosave_restore_when_empty: false,
+            autosave_retention: '2m',
+            image_advtab: true,
+            image_caption: true,
         })
     })
 
