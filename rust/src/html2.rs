@@ -200,6 +200,7 @@ fn process_chapter(
         let output_page_dir = course_output_dir.join("pages");
         let output_page_path = output_page_dir.join(format!("page_{}", page_num));
         fs::create_dir_all(&output_page_path)?;
+        println!("{:#?}", output_page_path);
         parse_exercise2(exercise, &output_page_path, course_name.clone())?;
     }
 
@@ -225,6 +226,8 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
                 config.perform_escaping = false;
                 config.write_document_declaration = false;
 
+                println!("Course:\t{:#?}", index_path);
+
                 write_node_to_file(index_file, area, course_name.clone(), config);
             }
         }
@@ -249,6 +252,8 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
         let mut config = EmitterConfig::new().perform_indent(true);
         config.perform_escaping = false;
         config.write_document_declaration = false;
+
+        println!("Popup:\t{:#?}", popup_dir);
 
         write_node_to_file(file, area, course_name.clone(), config);
     }

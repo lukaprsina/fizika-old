@@ -4,7 +4,7 @@ use itertools::Itertools;
 use katex::OutputType;
 use select::{
     node::Node,
-    predicate::{And, Class, Comment, Descendant, Name, Predicate},
+    predicate::{And, Class, Comment, Name},
 };
 use uuid::Uuid;
 use xml::{writer::XmlEvent, EventWriter};
@@ -66,24 +66,16 @@ pub fn recurse_node<W: Write>(
                     false
                 }
                 "table" => {
-                    println!("{}", node.html());
-                    let imgs = node
-                        .find(Descendant(Name("img"), Name("table")))
-                        .collect_vec();
+                    let imgs = node.find(Name("img")).collect_vec();
                     let captions = node
-                        .find(Descendant(
-                            And(Class("imageCaption"), Name("caption")),
-                            Name("table"),
-                        ))
+                        .find(And(Class("imageCaption"), Name("caption")))
                         .collect_vec();
 
-                    println!("Test, {}, {}", imgs.len(), captions.len());
+                    println!("Img: {}, caption {}", imgs.len(), captions.len());
                     if imgs.len() != 0 || captions.len() != 0 {
                         if imgs.len() != 1 || captions.len() != 1 {
-                            panic!("{}\n\n{:#?}\n\n{:#?}", course_name, imgs, captions);
+                            panic!("{:#?}", node.html());
                         }
-
-                        println!("Doing figure: {}", course_name);
 
                         let img = get_only_element(imgs);
                         let caption = get_only_element(captions);
@@ -305,31 +297,6 @@ pub fn recurse_node<W: Write>(
 
     if ending_tag {
         writer.write(XmlEvent::end_element()).unwrap();
-    }
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct RealDescendant<A>(pub A);
-
-impl<A: Predicate + Clone> RealDescendant<A> {
-    fn matches<'a>(&'a self, node: &'a Node<'a>) -> Option<(RealDescendant<A>, Node<'a>)> {
-        let node = *node;
-
-        for child in node.children() {
-            if self.0.matches(&child) {
-                return Some((self.0.clone(), child));
-            }
-        }
-
-        for child in node.children() {
-            let desc = RealDescendant(self.0.clone());
-            let result = desc.matches(&child);
-            if result.is_some() {
-                return Some(result);
-            }
-        }
-
-        None
     }
 }
 
