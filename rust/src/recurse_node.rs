@@ -4,7 +4,7 @@ use itertools::Itertools;
 use katex::OutputType;
 use select::{
     node::Node,
-    predicate::{And, Class, Comment},
+    predicate::{And, Class, Comment, Descendant, Name},
 };
 use uuid::Uuid;
 use xml::{writer::XmlEvent, EventWriter};
@@ -65,6 +65,92 @@ pub fn recurse_node<W: Write>(
                     }
                     false
                 }
+                "table" => {
+                    let imgs = node.find(Descendant(Name("img"), Name("td"))).collect_vec();
+                    let captions = node
+                        .find(Descendant(
+                            And(Class("imageCaption"), Name("caption")),
+                            Name("table"),
+                        ))
+                        .collect_vec();
+
+                    println!("Test, {}, {}", imgs.len(), captions.len());
+                    if imgs.len() != 0 || captions.len() != 0 {
+                        if imgs.len() != 1 || captions.len() != 1 {
+                            panic!("{}\n\n{:#?}\n\n{:#?}", course_name, imgs, captions);
+                        }
+
+                        println!("Doing figure: {}", course_name);
+
+                        let img = get_only_element(imgs);
+                        let caption = get_only_element(captions);
+
+                        let event: XmlEvent = XmlEvent::start_element("figure")
+                            .attr("class", "image")
+                            .into();
+                        writer.write(event).unwrap();
+
+                        {
+                            let mut src = img.attr("src").unwrap().to_string();
+
+                            let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
+                            let split = course_name.split_once("/index.html");
+                            url = url
+                                .join(&format!("{}/", split.expect("No indexes??").0))
+                                .unwrap();
+
+                            src.insert_str(0, url.as_str());
+                            let mut start_event = XmlEvent::start_element("img").attr("src", &src);
+
+                            match node.attr("alt") {
+                                Some(alt) => {
+                                    start_event = start_event.attr("alt", alt);
+                                }
+                                None => unsafe {
+                                    ALT_COUNTER += 1;
+                                },
+                            }
+
+                            let event: XmlEvent = start_event.into();
+                            writer.write(event).unwrap();
+
+                            let end: XmlEvent = XmlEvent::end_element().into();
+                            writer.write(end).unwrap();
+                        }
+
+                        {
+                            if !caption.is(Class("imageCaption")) {
+                                panic!("caption is not imageCaption: {:#?}", parents);
+                            }
+
+                            let figcaption_start: XmlEvent =
+                                XmlEvent::start_element("figcaption").into();
+                            writer.write(figcaption_start).unwrap();
+
+                            let caption_children = caption.children().collect_vec();
+                            let caption_child = get_only_element(caption_children);
+
+                            let caption_elem: XmlEvent =
+                                XmlEvent::Characters(caption_child.as_text().unwrap()).into();
+                            writer.write(caption_elem).unwrap();
+
+                            let end: XmlEvent = XmlEvent::end_element().into();
+                            writer.write(end).unwrap();
+                        }
+
+                        let end: XmlEvent = XmlEvent::end_element().into();
+                        writer.write(end).unwrap();
+
+                        /*
+                        <figure class="image">
+                            <img src="https://www.tiny.cloud/docs/images/logos/android-chrome-256x256.png" alt="" width="256" height="256">
+                            <figcaption>Caption</figcaption>
+                        </figure>
+                         */
+                    }
+
+                    false
+                }
                 "div" => match node.attr("href") {
                     Some(href) => {
                         if !(href.ends_with(".mp4")
@@ -87,11 +173,6 @@ pub fn recurse_node<W: Write>(
                 },
                 "img" => {
                     /*
-                    <figure class="image">
-                        <img src="https://www.tiny.cloud/docs/images/logos/android-chrome-256x256.png" alt="" width="256" height="256">
-                        <figcaption>Caption</figcaption>
-                    </figure>
-                     */
                     let mut src = node.attr("src").unwrap().to_string();
 
                     let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
@@ -115,6 +196,8 @@ pub fn recurse_node<W: Write>(
                     let event: XmlEvent = start_event.into();
                     writer.write(event).unwrap();
                     true
+                    */
+                    false
                 }
                 "a" => {
                     // TODO: skip non-explanetory ones like 7-1
@@ -153,13 +236,15 @@ pub fn recurse_node<W: Write>(
                     true
                 }
                 "caption" => {
-                    let start = XmlEvent::start_element("caption");
+                    /* let start = XmlEvent::start_element("caption");
                     if !node.is(Class("imageCaption")) {
                         panic!("caption is not imageCaption: {:#?}", parents);
                     }
                     let event: XmlEvent = start.into();
                     writer.write(event).unwrap();
                     true
+                    */
+                    false
                 }
                 "video" => {
                     panic!();
@@ -169,6 +254,7 @@ pub fn recurse_node<W: Write>(
                     writer.write(event).unwrap();
                     true */
                 }
+                "tr" | "td" => false,
                 name => default_tag(name),
             }
         }
