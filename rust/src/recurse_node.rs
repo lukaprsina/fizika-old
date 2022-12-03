@@ -71,77 +71,106 @@ pub fn recurse_node<W: Write>(
                         .find(And(Class("imageCaption"), Name("caption")))
                         .collect_vec();
 
-                    println!("Img: {}, caption {}", imgs.len(), captions.len());
                     if imgs.len() != 0 || captions.len() != 0 {
-                        if imgs.len() != 1 || captions.len() != 1 {
-                            panic!("{:#?}", node.html());
-                        }
+                        if imgs.len() == 1 && captions.len() == 1 {
+                            println!("Img: {}, caption {}", imgs.len(), captions.len());
+                            // courses/0/pages/page_23.html
 
-                        let img = get_only_element(imgs);
-                        let caption = get_only_element(captions);
+                            let img = get_only_element(imgs);
+                            let caption = get_only_element(captions);
 
-                        let event: XmlEvent = XmlEvent::start_element("figure")
-                            .attr("class", "image")
-                            .into();
-                        writer.write(event).unwrap();
-
-                        {
-                            let mut src = img.attr("src").unwrap().to_string();
-
-                            let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
-                            let split = course_name.split_once("/index.html");
-                            url = url
-                                .join(&format!("{}/", split.expect("No indexes??").0))
-                                .unwrap();
-
-                            src.insert_str(0, url.as_str());
-                            let mut start_event = XmlEvent::start_element("img").attr("src", &src);
-
-                            match node.attr("alt") {
-                                Some(alt) => {
-                                    start_event = start_event.attr("alt", alt);
-                                }
-                                None => unsafe {
-                                    ALT_COUNTER += 1;
-                                },
-                            }
-
-                            let event: XmlEvent = start_event.into();
+                            let event: XmlEvent = XmlEvent::start_element("figure")
+                                .attr("class", "image")
+                                .into();
                             writer.write(event).unwrap();
 
-                            let end: XmlEvent = XmlEvent::end_element().into();
-                            writer.write(end).unwrap();
-                        }
+                            {
+                                let mut src = img.attr("src").unwrap().to_string();
 
-                        {
-                            if !caption.is(Class("imageCaption")) {
-                                panic!("caption is not imageCaption: {:#?}", parents);
+                                let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
+                                let split = course_name.split_once("/index.html");
+                                url = url
+                                    .join(&format!("{}/", split.expect("No indexes??").0))
+                                    .unwrap();
+
+                                src.insert_str(0, url.as_str());
+                                let mut start_event =
+                                    XmlEvent::start_element("img").attr("src", &src);
+
+                                match node.attr("alt") {
+                                    Some(alt) => {
+                                        start_event = start_event.attr("alt", alt);
+                                    }
+                                    None => unsafe {
+                                        ALT_COUNTER += 1;
+                                    },
+                                }
+
+                                let event: XmlEvent = start_event.into();
+                                writer.write(event).unwrap();
+
+                                let end: XmlEvent = XmlEvent::end_element().into();
+                                writer.write(end).unwrap();
                             }
 
-                            let figcaption_start: XmlEvent =
-                                XmlEvent::start_element("figcaption").into();
-                            writer.write(figcaption_start).unwrap();
+                            {
+                                if !caption.is(Class("imageCaption")) {
+                                    panic!("caption is not imageCaption: {:#?}", parents);
+                                }
 
-                            let caption_children = caption.children().collect_vec();
-                            let caption_child = get_only_element(caption_children);
+                                let figcaption_start: XmlEvent =
+                                    XmlEvent::start_element("figcaption").into();
+                                writer.write(figcaption_start).unwrap();
 
-                            let caption_elem: XmlEvent =
-                                XmlEvent::Characters(caption_child.as_text().unwrap()).into();
-                            writer.write(caption_elem).unwrap();
+                                let temp = caption.children().collect_vec();
+                                let mut caption_children = vec![];
+                                for x in temp {
+                                    if !x.html().trim().is_empty() {
+                                        caption_children.push(x);
+                                    }
+                                }
+
+                                if !caption_children.is_empty() {
+                                    let caption_child = get_only_element(caption_children);
+
+                                    if let Some(text) = caption_child.as_text() {
+                                        let caption_elem: XmlEvent =
+                                            XmlEvent::Characters(text).into();
+                                        writer.write(caption_elem).unwrap();
+                                    } else if caption_child.name().unwrap() == "a" {
+                                        let a_start: XmlEvent = XmlEvent::start_element("a")
+                                            .attr("href", caption_child.attr("href").unwrap())
+                                            .into();
+                                        writer.write(a_start).unwrap();
+
+                                        let caption = caption_child.inner_html();
+                                        let caption_elem: XmlEvent =
+                                            XmlEvent::Characters(&caption).into();
+                                        writer.write(caption_elem).unwrap();
+
+                                        let end: XmlEvent = XmlEvent::end_element().into();
+                                        writer.write(end).unwrap();
+
+                                        println!("\tcaption <a>");
+                                    } else {
+                                        panic!("{}", caption_child.html());
+                                    }
+
+                                    let end: XmlEvent = XmlEvent::end_element().into();
+                                    writer.write(end).unwrap();
+                                }
+                            }
 
                             let end: XmlEvent = XmlEvent::end_element().into();
                             writer.write(end).unwrap();
+
+                            /*
+                            <figure class="image">
+                                <img src="https://www.tiny.cloud/docs/images/logos/android-chrome-256x256.png" alt="" width="256" height="256">
+                                <figcaption>Caption</figcaption>
+                            </figure>
+                             */
                         }
-
-                        let end: XmlEvent = XmlEvent::end_element().into();
-                        writer.write(end).unwrap();
-
-                        /*
-                        <figure class="image">
-                            <img src="https://www.tiny.cloud/docs/images/logos/android-chrome-256x256.png" alt="" width="256" height="256">
-                            <figcaption>Caption</figcaption>
-                        </figure>
-                         */
                     }
 
                     false

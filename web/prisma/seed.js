@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { PrismaClient } from "@prisma/client";
 import path from 'path';
-import { assert } from 'console';
 
 const prisma = new PrismaClient()
 
@@ -59,8 +58,10 @@ async function main() {
         const script_json = JSON.parse(script_file);
 
         const script_title = script_json.metadata.title.substring(3)
-        assert(config_json.heading == script_title)
-        assert(config_json.goals == script_json.metadata.goals)
+        if (config_json.heading != script_title)
+            throw `c_h: ${config_json.heading}, s_t: ${script_title}`
+        if (config_json.goals != script_json.metadata.goals)
+            throw `c_g: ${config_json.goals}, s_m_g: ${script_json.metadata.goals}`
 
         const authors_raw = script_json.metadata.author
         const authors = authors_raw.map((author) => {

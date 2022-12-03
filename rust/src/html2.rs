@@ -200,7 +200,6 @@ fn process_chapter(
         let output_page_dir = course_output_dir.join("pages");
         let output_page_path = output_page_dir.join(format!("page_{}", page_num));
         fs::create_dir_all(&output_page_path)?;
-        println!("{:#?}", output_page_path);
         parse_exercise2(exercise, &output_page_path, course_name.clone())?;
     }
 
