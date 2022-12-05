@@ -36,7 +36,27 @@ export default function Account() {
                                 })
                             }}
                         >
-                            Login with github
+                            Login with Github
+                        </button>
+                        <button
+                            onClick={() => {
+                                authClient.login("microsoft", {
+                                    successRedirect: "/account",
+                                    failureRedirect: "/",
+                                })
+                            }}
+                        >
+                            Login with Microsoft
+                        </button>
+                        <button
+                            onClick={() => {
+                                authClient.login("google", {
+                                    successRedirect: "/account",
+                                    failureRedirect: "/",
+                                })
+                            }}
+                        >
+                            Login with Google
                         </button>
                     </p>
                 </>}

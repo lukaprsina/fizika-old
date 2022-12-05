@@ -126,11 +126,11 @@ const PageNavbar: Component = () => {
             <Header topic={params.topic} user={page_data()?.user} />
         </AppShellHeader>
         <AppShellContent>
-            <div class="mb-10 w-full h-full relative bg-inherit">
+            <div class="w-full min-h-full relative bg-inherit"> {/* mb-10  */}
                 <For each={tabs}>{(tab, i) => (
                     <div
                         style={"z-index: " + i() + ";"}
-                        class="w-full h-full absolute top-0 left-0 bg-inherit"
+                        class="absolute w-full h-full top-0 left-0 bg-inherit"
                     >
                         {tab.content ?? tab.name}
                     </div>
