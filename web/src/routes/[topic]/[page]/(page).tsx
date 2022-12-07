@@ -54,50 +54,6 @@ type ParamsType = {
     topic: string;
     page: string;
 }
-/* createEffect(() => {
-        const my_tabs = [
-            {
-                name: "Navbar",
-                index: 0
-            },
-            {
-                name: "Page",
-                // eslint-disable-next-line solid/no-innerhtml
-                content: <>
-                    <Show when={page_data()?.page?.html}>
-                        <div
-                            // eslint-disable-next-line solid/no-innerhtml
-                            innerHTML={page_data()?.page?.html}
-                        />
-                    </Show>
-                    <NavButtons page_count={page_data()?.page_count ?? 0} />
-                </>,
-                index: 1,
-                hidden_condition: showEditor()
-            },
-            {
-                name: "Editor",
-                content: <>
-                    <TinyMCE
-                        authorized={isAuthed()}
-                        visible={showEditor() && activeTab() == 1}
-                    />
-                    <NavButtons page_count={page_data()?.page_count ?? 0} />
-                </>,
-                index: 1,
-                hidden: true,
-                hidden_condition: !showEditor()
-            },
-            {
-                name: "Explanation",
-                index: 2
-            }
-        ];
-
-        console.log(my_tabs)
-
-        setTabs(my_tabs);
-    }); */
 
 const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
@@ -122,40 +78,8 @@ const PageNavbar: Component = () => {
         }
     })
 
-    /* return <TabsContainer>
-        <div class="bottom-0 bg-inherit text-white left-0 right-0 fixed z-40 flex justify-around">
-            <For each={tabs()}>{(tab, i) => (
-                <Button
-                    onClick={() => setActiveTab(i)}
-                    class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
-                    classList={{
-                        "border-sky-500": activeTab() == i(),
-                        "hidden": tab.hidden
-                    }}
-                >
-                    {tab.name}
-                </Button>
-            )}</For>
-        </div>
-        <AppShellHeader>
-            <Header topic={params.topic} user={page_data()?.user} />
-        </AppShellHeader>
-        <AppShellContent>
-            <div class="w-full min-h-full relative bg-inherit"> //mb-10
-                <For each={tabs()}>{(tab) => {
-                    return (
-                        <div
-                            hidden={activeTab() !== tab.index || tab.hidden_condition}
-                            class="absolute w-full h-full top-0 left-0 bg-inherit"
-                        >
-                            {tab.content ?? tab.name}
-                        </div>
-                    )
-                }}</For>
-            </div>
-        </AppShellContent>
-    </TabsContainer> */
-    return (
+    return <>
+        <div>Test</div>
         <TabsContext defaultIndex={1}>{({ activeTab, setActiveTab }) => <>
             <TabButtonsContainer>
                 <TabButton
@@ -203,7 +127,6 @@ const PageNavbar: Component = () => {
                         />
                     </Show>
                     <NavButtons page_count={page_data()?.page_count ?? 0} />
-
                 </Tab>
                 <Tab
                     activeTab={activeTab}
@@ -225,7 +148,7 @@ const PageNavbar: Component = () => {
                 </Tab>
             </AppShellContent>
         </>}</TabsContext>
-    )
+    </>
 }
 
 const NavButtons: Component<{ page_count: number }> = (props) => {

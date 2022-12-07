@@ -83,7 +83,7 @@ export const [ThemeToggleProvider, useThemeToggle] = createContextProvider(
     }
 );
 
-const AppShell: ParentComponent = (props) => {
+const Providers: ParentComponent = (props) => {
     const [cookies, setCookies] = createStorage({
         api: cookieStorage,
         prefix: "fizika-scnm",
@@ -106,14 +106,6 @@ const AppShell: ParentComponent = (props) => {
             </EditToggleProvider>
         </ThemeToggleProvider>
     )
-}
-
-const Providers: ParentComponent = (props) => {
-    return (
-        <AppShell>
-            {props.children}
-        </AppShell >
-    );
 }
 
 export default Providers
