@@ -1,6 +1,6 @@
 import { Button } from "solid-headless";
 import type { Accessor, Component, JSX, ParentComponent, Setter } from "solid-js";
-import { createEffect, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 
 export type TabsContextType = {
     defaultIndex?: number;
@@ -12,19 +12,12 @@ export type TabsContextType = {
 
 export const TabsContext: Component<TabsContextType> = (props) => {
     const [activeTab, setActiveTab] = createSignal(props.defaultIndex ?? 0)
-    const [children, setChildren] = createSignal<JSX.Element>();
-
-    createEffect(() => {
-        if (props.children) {
-            setChildren(props.children({
-                activeTab,
-                setActiveTab,
-            }))
-        }
-    })
 
     return <>
-        {children()}
+        {props.children && props.children({
+            activeTab,
+            setActiveTab,
+        })}
     </>
 }
 

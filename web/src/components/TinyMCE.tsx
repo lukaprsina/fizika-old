@@ -1,5 +1,8 @@
+import { createContextProvider } from "@solid-primitives/context";
 import type { Component } from "solid-js";
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
+import type { Editor } from "tinymce";
+import { useThemeToggle } from "~/layouts/Providers";
 
 export type EditorProps = {
     authorized: boolean;
@@ -7,11 +10,15 @@ export type EditorProps = {
     content?: string;
 }
 
-async function initTinyMCE(content?: string) {
+function downloadTinyMCE() {
+    Promise.resolve(import(/* @vite-ignore */"https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js"))
+}
+
+async function initTinyMCE(content?: string): Promise<Editor[]> {
+    // const theme_toggle = useThemeToggle();
     console.log("TinyMCE is being initialized");
 
-    await import(/* @vite-ignore */"https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js")
-    await tinymce.init({
+    return await tinymce.init({
         selector: "textarea#tinymce-editor",
         // content_css: '/tinymce/styles.css',
         height: 500,
@@ -28,6 +35,7 @@ async function initTinyMCE(content?: string) {
         draggable_modal: true,
         autosave_ask_before_unload: true,
         autosave_interval: '30s',
+        skin: "oxide-dark",
         autosave_prefix: '{path}{query}-{id}-',
         autosave_restore_when_empty: false,
         autosave_retention: '2m',
@@ -43,23 +51,44 @@ async function initTinyMCE(content?: string) {
     })
 }
 
+export const [EditorInitializedProvider, useEditorInitialized] = createContextProvider(
+    () => {
+        const [isEditorInitialized, setIsEditorInitialized] = createSignal(false);
+
+        return {
+            isEditorInitialized, setIsEditorInitialized
+        };
+    }
+);
+
 const tinymce_key = "drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker";
-const [isEditorInitialized, setIsEditorInitialized] = createSignal(false);
 const TinyMCE: Component<EditorProps> = (props) => {
+    const editorInitialized = useEditorInitialized();
+    const [editor, setEditor] = createSignal<Editor>();
+
     createEffect(() => {
         console.log("TinyMCE", {
             visible: props.visible,
             authed: props.authorized,
-            init: isEditorInitialized()
+            init: editorInitialized?.isEditorInitialized()
         })
 
-        if (props.authorized && props.visible && !isEditorInitialized()) {
-            Promise.resolve(initTinyMCE(props.content));
-            setIsEditorInitialized(true)
+        if (props.authorized && props.visible) {
+            if (!editorInitialized?.isEditorInitialized())
+                downloadTinyMCE()
+
+            setTimeout(async () => {
+                const editors = await initTinyMCE(props.content)
+                console.log(editors)
+                setEditor(editors[0])
+            }, 1000);
+            editorInitialized?.setIsEditorInitialized(true)
         }
     })
 
-
+    onCleanup(() => {
+        editor()?.remove();
+    })
 
     return (
         <textarea id="tinymce-editor" />

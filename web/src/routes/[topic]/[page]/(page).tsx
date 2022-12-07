@@ -79,7 +79,6 @@ const PageNavbar: Component = () => {
     })
 
     return <>
-        <div>Test</div>
         <TabsContext defaultIndex={1}>{({ activeTab, setActiveTab }) => <>
             <TabButtonsContainer>
                 <TabButton
