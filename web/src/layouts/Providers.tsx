@@ -83,10 +83,6 @@ export const [ThemeToggleProvider, useThemeToggle] = createContextProvider(
     }
 );
 
-type CookieType = {
-    theme: "dark" | "light";
-}
-
 const AppShell: ParentComponent = (props) => {
     const [cookies, setCookies] = createStorage({
         api: cookieStorage,

@@ -4,9 +4,10 @@ import { createEffect, createSignal } from "solid-js";
 export type EditorProps = {
     authorized: boolean;
     visible: boolean;
+    content?: string;
 }
 
-async function initTinyMCE() {
+async function initTinyMCE(content?: string) {
     console.log("TinyMCE is being initialized");
 
     await import(/* @vite-ignore */"https://cdn.tiny.cloud/1/" + tinymce_key + "/tinymce/6/tinymce.min.js")
@@ -34,27 +35,27 @@ async function initTinyMCE() {
         image_caption: true,
         setup: (editor) => {
             editor.on("init", (args) => {
-                console.log("TinyMCE is setup", editor, args)
-                editor.setContent("<p>It works</p>")
+                console.log("TinyMCE is setup", editor, args, content)
+                if (typeof content !== "undefined")
+                    editor.setContent(content)
             })
         }
     })
 }
 
 const tinymce_key = "drmp13ceee93lq23r1dankva2b57mbl7wnpr2b4u9et8nker";
+const [isEditorInitialized, setIsEditorInitialized] = createSignal(false);
 const TinyMCE: Component<EditorProps> = (props) => {
-    const [isInitialized, setIsInitialized] = createSignal(false);
-
     createEffect(() => {
         console.log("TinyMCE", {
             visible: props.visible,
             authed: props.authorized,
-            init: isInitialized()
+            init: isEditorInitialized()
         })
 
-        if (props.authorized && props.visible && !isInitialized()) {
-            Promise.resolve(initTinyMCE());
-            setIsInitialized(true)
+        if (props.authorized && props.visible && !isEditorInitialized()) {
+            Promise.resolve(initTinyMCE(props.content));
+            setIsEditorInitialized(true)
         }
     })
 

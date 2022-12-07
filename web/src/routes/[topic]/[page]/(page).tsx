@@ -1,14 +1,15 @@
 import { createShortcut } from "@solid-primitives/keyboard";
-import {
-    Button
-} from 'solid-headless';
+import { Button } from "solid-headless";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
-import type { Accessor, Component, JSX, ParentComponent, Setter } from "solid-js";
+import type { Component, ParentComponent } from "solid-js";
 import { createEffect, createSignal, Show } from "solid-js";
 import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import { useEditToggle } from "~/layouts/Providers";
+import Header from "~/components/Header";
+import { Tab, TabButton, TabButtonsContainer, TabsContext } from "~/components/Tabs";
+import TinyMCE from "~/components/TinyMCE";
+import { AppShellContent, AppShellHeader, useEditToggle } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 
@@ -121,10 +122,6 @@ const PageNavbar: Component = () => {
         }
     })
 
-    /* const a = <TabGroup>{({ isActive }) => {
-        return <p>Shit</p>
-    }</TabGroup> */
-
     /* return <TabsContainer>
         <div class="bottom-0 bg-inherit text-white left-0 right-0 fixed z-40 flex justify-around">
             <For each={tabs()}>{(tab, i) => (
@@ -178,106 +175,56 @@ const PageNavbar: Component = () => {
                 <TabButton
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
-                    index={1}
-                    hidden={true}
-                >
-                    Editor
-                </TabButton>
-                <TabButton
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
                     index={2}
                 >
                     Explanation
                 </TabButton>
             </TabButtonsContainer>
-            <TabsContainer>
+            <AppShellHeader>
+                <Header topic={params.topic} user={page_data()?.user} />
+            </AppShellHeader>
+            <AppShellContent>
                 <Tab
-                ></Tab>
-            </TabsContainer>
+                    activeTab={activeTab}
+                    index={0}
+                >
+                    Navbar
+                </Tab>
+                <Tab
+                    activeTab={activeTab}
+                    index={1}
+                    hidden={showEditor()}
+                >
+
+                    <Show when={page_data()?.page?.html}>
+                        <div
+                            // eslint-disable-next-line solid/no-innerhtml
+                            innerHTML={page_data()?.page?.html}
+                        />
+                    </Show>
+                    <NavButtons page_count={page_data()?.page_count ?? 0} />
+
+                </Tab>
+                <Tab
+                    activeTab={activeTab}
+                    index={1}
+                    hidden={!showEditor()}
+                >
+                    <TinyMCE
+                        authorized={isAuthed()}
+                        visible={showEditor() && activeTab() == 1}
+                        content={page_data()?.page?.html}
+                    />
+                    <NavButtons page_count={page_data()?.page_count ?? 0} />
+                </Tab>
+                <Tab
+                    activeTab={activeTab}
+                    index={2}
+                >
+                    Explanation
+                </Tab>
+            </AppShellContent>
         </>}</TabsContext>
-    )
-}
-
-type TabsContextType = {
-    defaultIndex?: number;
-    children?: (properties: {
-        activeTab: Accessor<number>,
-        setActiveTab: Setter<number>,
-    }) => JSX.Element;
-}
-
-const TabsContext: Component<TabsContextType> = (props) => {
-    const [activeTab, setActiveTab] = createSignal(props.defaultIndex ?? 0);
-    const [children, setChildren] = createSignal<JSX.Element>();
-
-    createEffect(() => {
-        if (props.children) {
-            setChildren(props.children({
-                activeTab,
-                setActiveTab,
-            }))
-        }
-    })
-
-    return <div>
-        {children()}
-    </div>
-}
-
-type TabButtonsContainerType = {
-    defaultIndex?: number;
-}
-
-const TabButtonsContainer: ParentComponent<TabButtonsContainerType> = (props) => {
-    return (
-        <div class="bottom-0 bg-inherit text-white left-0 right-0 fixed z-40 flex justify-around">
-            {props.children}
-        </div>
-    )
-}
-
-type TabButtonType = {
-    index: number;
-    setActiveTab: Setter<number>;
-    activeTab: Accessor<number>;
-    hidden?: boolean;
-}
-
-const TabButton: ParentComponent<TabButtonType> = (props) => {
-    return (
-        <Button
-            onClick={() => props.setActiveTab(props.index)}
-            class="flex sticky flex-grow mb-[-2px] hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center rounded-t-md z-0 box-border border-slate-300 border-b-2 hover:cursor-pointer"
-            classList={{
-                "border-sky-500": props.activeTab() == props.index,
-                "hidden": props.hidden
-            }}
-        >
-            {props.children}
-        </Button>
-    )
-}
-
-type TabsContainerType = {
-};
-
-const TabsContainer: ParentComponent<TabsContainerType> = (props) => {
-    return (
-        <>
-            {props.children}
-        </>
-    )
-}
-
-type TabType = {
-};
-
-const Tab: ParentComponent<TabType> = (props) => {
-    return (
-        <>
-            {props.children}
-        </>
     )
 }
 

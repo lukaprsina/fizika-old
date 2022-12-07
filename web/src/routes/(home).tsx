@@ -2,9 +2,9 @@ import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import Footer from "~/components/layout/Footer";
-import Header from "~/components/layout/Header";
-import { Sidebar, SidebarItem } from "~/components/layout/Sidebar";
+import Footer from "~/components/Footer";
+import Header from "~/components/Header";
+import { Sidebar, SidebarItem } from "~/components/Sidebar";
 import { AppShellContent, AppShellFooter, AppShellHeader } from "~/layouts/Providers";
 import { prisma } from "~/server/db/client";
 

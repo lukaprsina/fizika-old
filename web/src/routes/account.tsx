@@ -1,7 +1,7 @@
 import { Match, Switch } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import Header from "~/components/layout/Header";
+import Header from "~/components/Header";
 import { AppShellHeader, AppShellContent } from "~/layouts/Providers";
 
 import { authenticator } from "~/server/auth";
