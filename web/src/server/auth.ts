@@ -37,7 +37,7 @@ export const authenticator = new Authenticator<User>(sessionStorage).use(new Git
     clientID: serverEnv.CLIENT_ID_GITHUB,
     clientSecret: serverEnv.CLIENT_SECRET_GITHUB,
     callbackURL: serverEnv.SITE_URL + "/api/auth/github/callback",
-    scope: [],
+    scope: ["openid"],
   },
   async ({ profile }) => {
     let user = await prisma.user.findUnique({
@@ -64,7 +64,7 @@ export const authenticator = new Authenticator<User>(sessionStorage).use(new Git
     clientID: serverEnv.CLIENT_ID_GITHUB,
     clientSecret: serverEnv.CLIENT_SECRET_GITHUB,
     callbackURL: serverEnv.SITE_URL + "/api/auth/github/callback",
-    scope: [],
+    scope: ["openid"],
   },
   async ({ profile }) => {
     let user = await prisma.user.findUnique({
