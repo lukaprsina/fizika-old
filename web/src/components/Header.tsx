@@ -32,23 +32,23 @@ const Header: Component<HeaderType> = (props) => {
             </Show>
             <div class="flex">
                 <div class="mx-3">
-                    <input
+                    <label><input
                         type="checkbox"
                         class="mr-2"
                         checked={darkToggle?.dark()}
                         onChange={() => darkToggle?.setDark(!darkToggle.dark())}
                     />
-                    <label>Dark</label>
+                        Dark</label>
                 </div>
                 <div class="mx-3">
                     <Show when={props.user}>
-                        <input
+                        <label class="mr-2"><input
                             type="checkbox"
                             class="mr-2"
                             checked={editToggle?.edit()}
                             onChange={() => editToggle?.change(!editToggle.edit())}
                         />
-                        <label class="mr-2">Edit</label>
+                            Edit</label>
                         <span>{props.user?.displayName}</span>
                     </Show>
                 </div>

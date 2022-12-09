@@ -32,6 +32,8 @@ pub fn recurse_node<W: Write>(
         true
     };
 
+    let mut ignore_children = false;
+
     let ending_tag = match node.name() {
         Some(name) => {
             match name {
@@ -65,7 +67,8 @@ pub fn recurse_node<W: Write>(
                     }
                     false
                 }
-                "table" => {
+                "td" => {
+                    // table
                     let imgs = node.find(Name("img")).collect_vec();
                     let captions = node
                         .find(And(Class("imageCaption"), Name("caption")))
@@ -185,10 +188,19 @@ pub fn recurse_node<W: Write>(
                         }
 
                         let event: XmlEvent = XmlEvent::start_element("video").into();
+
+                        let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
+                        let split = course_name.split_once("/index.html");
+                        url = url
+                            .join(&format!("{}/", split.expect("No indexes??").0))
+                            .unwrap();
+
+                        let href = format!("{}{}", url.as_str(), href);
+
                         writer.write(event).unwrap();
 
                         let source: XmlEvent =
-                            XmlEvent::start_element("source").attr("href", href).into();
+                            XmlEvent::start_element("source").attr("href", &href).into();
                         writer.write(source).unwrap();
                         writer.write(XmlEvent::end_element()).unwrap();
                         true
@@ -225,6 +237,7 @@ pub fn recurse_node<W: Write>(
                 }
                 "a" => {
                     // TODO: skip non-explanetory ones like 7-1
+                    // TODO: po defaultu jih prikazuj, my brother in christ
 
                     if node.is(And(Class("goToSlide"), Class("explain"))) {
                         let mut href = node
@@ -268,6 +281,7 @@ pub fn recurse_node<W: Write>(
                     writer.write(event).unwrap();
                     true
                     */
+                    ignore_children = true;
                     false
                 }
                 "video" => {
@@ -278,7 +292,7 @@ pub fn recurse_node<W: Write>(
                     writer.write(event).unwrap();
                     true */
                 }
-                "tr" | "td" => false,
+                "tr" | "table" | "tbody" => false,
                 name => default_tag(name),
             }
         }
@@ -304,24 +318,26 @@ pub fn recurse_node<W: Write>(
         }
     }
 
-    for child in node.children() {
-        let mut new_parents = parents.clone();
+    if !ignore_children {
+        for child in node.children() {
+            let mut new_parents = parents.clone();
 
-        let maybe_name = match child.name() {
-            Some(name) => Some(name.to_string()),
-            None => None,
-        };
+            let maybe_name = match child.name() {
+                Some(name) => Some(name.to_string()),
+                None => None,
+            };
 
-        new_parents.push(maybe_name);
+            new_parents.push(maybe_name);
 
-        recurse_node(
-            child,
-            course_name.clone(),
-            &mut new_parents,
-            popups,
-            writer,
-            question_mark_course,
-        );
+            recurse_node(
+                child,
+                course_name.clone(),
+                &mut new_parents,
+                popups,
+                writer,
+                question_mark_course,
+            );
+        }
     }
 
     if ending_tag {

@@ -2,7 +2,6 @@ import { createContextProvider } from "@solid-primitives/context";
 import type { Component } from "solid-js";
 import { createEffect, createSignal, onCleanup } from "solid-js";
 import type { Editor } from "tinymce";
-import { useThemeToggle } from "~/layouts/Providers";
 
 export type EditorProps = {
     authorized: boolean;
@@ -36,9 +35,9 @@ async function initTinyMCE(content?: string): Promise<Editor[]> {
         autosave_ask_before_unload: true,
         autosave_interval: '30s',
         skin: "oxide-dark",
-        autosave_prefix: '{path}{query}-{id}-',
+        autosave_prefix: 'autosave-{path}{query}-{id}-',
         autosave_restore_when_empty: false,
-        autosave_retention: '2m',
+        autosave_retention: '30s',
         image_advtab: true,
         image_caption: true,
         setup: (editor) => {
