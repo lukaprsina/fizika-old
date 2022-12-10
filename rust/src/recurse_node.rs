@@ -199,8 +199,13 @@ pub fn recurse_node<W: Write>(
 
                         writer.write(event).unwrap();
 
-                        let source: XmlEvent =
-                            XmlEvent::start_element("source").attr("href", &href).into();
+                        let file_type = href.rsplit_once(".").unwrap().1;
+                        let video_type = &format!("video/{}", file_type);
+
+                        let source: XmlEvent = XmlEvent::start_element("source")
+                            .attr("src", &href)
+                            .attr("type", &video_type)
+                            .into();
                         writer.write(source).unwrap();
                         writer.write(XmlEvent::end_element()).unwrap();
                         true

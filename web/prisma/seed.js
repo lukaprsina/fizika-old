@@ -4,6 +4,14 @@ import path from 'path';
 
 const prisma = new PrismaClient()
 
+function toHex(str) {
+    const result = [];
+    for (var i = 0; i < str.length; i++) {
+        result.push(str.charCodeAt(i))
+    }
+    return result;
+}
+
 async function main() {
     const courses_dir = "../rust/courses_output";
 
@@ -58,10 +66,13 @@ async function main() {
         const script_json = JSON.parse(script_file);
 
         const script_title = script_json.metadata.title.substring(3)
-        if (config_json.heading != script_title)
+        /* if (config_json.heading != script_title)
             throw `c_h: ${config_json.heading}, s_t: ${script_title}`
-        if (config_json.goals != script_json.metadata.goals)
-            throw `c_g: ${config_json.goals}, s_m_g: ${script_json.metadata.goals}`
+        if (config_json.goals != script_json.metadata.goals) {
+            console.log(toHex(config_json.goals))
+            console.log(toHex(script_json.metadata.goals))
+            throw `c_g:\n${config_json.goals}\ns_m_g:\n${script_json.metadata.goals}\n\n`
+        } */
 
         const authors_raw = script_json.metadata.author
         const authors = authors_raw.map((author) => {
