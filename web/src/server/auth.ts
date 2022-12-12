@@ -34,9 +34,9 @@ export const authenticator = new Authenticator<User>(sessionStorage).use(new Git
   }
 )).use(new MicrosoftStrategy(
   {
-    clientID: serverEnv.CLIENT_ID_GITHUB,
-    clientSecret: serverEnv.CLIENT_SECRET_GITHUB,
-    callbackURL: serverEnv.SITE_URL + "/api/auth/github/callback",
+    clientID: serverEnv.CLIENT_ID_MICROSOFT,
+    clientSecret: serverEnv.CLIENT_SECRET_MICROSOFT,
+    callbackURL: serverEnv.SITE_URL + "/api/auth/microsoft/callback",
     scope: ["openid"],
   },
   async ({ profile }) => {
@@ -61,9 +61,9 @@ export const authenticator = new Authenticator<User>(sessionStorage).use(new Git
   }
 )).use(new GoogleStrategy(
   {
-    clientID: serverEnv.CLIENT_ID_GITHUB,
-    clientSecret: serverEnv.CLIENT_SECRET_GITHUB,
-    callbackURL: serverEnv.SITE_URL + "/api/auth/github/callback",
+    clientID: serverEnv.CLIENT_ID_GOOGLE,
+    clientSecret: serverEnv.CLIENT_SECRET_GOOGLE,
+    callbackURL: serverEnv.SITE_URL + "/api/auth/google/callback",
     scope: ["openid"],
   },
   async ({ profile }) => {

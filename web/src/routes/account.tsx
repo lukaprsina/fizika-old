@@ -27,38 +27,44 @@ export default function Account() {
         <AppShellContent>
             <Switch
                 fallback={<>
-                    <p>
-                        <button
-                            onClick={() => {
-                                authClient.login("github", {
-                                    successRedirect: "/account",
-                                    failureRedirect: "/",
-                                })
-                            }}
-                        >
-                            Login with Github
-                        </button>
-                        <button
-                            onClick={() => {
-                                authClient.login("microsoft", {
-                                    successRedirect: "/account",
-                                    failureRedirect: "/",
-                                })
-                            }}
-                        >
-                            Login with Microsoft
-                        </button>
-                        <button
-                            onClick={() => {
-                                authClient.login("google", {
-                                    successRedirect: "/account",
-                                    failureRedirect: "/",
-                                })
-                            }}
-                        >
-                            Login with Google
-                        </button>
-                    </p>
+                    <div>
+                        <p>
+                            <button
+                                onClick={() => {
+                                    authClient.login("github", {
+                                        successRedirect: "/account",
+                                        failureRedirect: "/",
+                                    })
+                                }}
+                            >
+                                Login with Github
+                            </button>
+                        </p>
+                        <p>
+                            <button
+                                onClick={() => {
+                                    authClient.login("microsoft", {
+                                        successRedirect: "/account",
+                                        failureRedirect: "/",
+                                    })
+                                }}
+                            >
+                                Login with Microsoft
+                            </button>
+                        </p>
+                        <p>
+                            <button
+                                onClick={() => {
+                                    authClient.login("google", {
+                                        successRedirect: "/account",
+                                        failureRedirect: "/",
+                                    })
+                                }}
+                            >
+                                Login with Google
+                            </button>
+                        </p>
+                    </div>
                 </>}
             >
                 <Match when={user()}>
