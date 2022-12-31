@@ -3,7 +3,7 @@ import { Button } from "solid-headless";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import type { Component, ParentComponent } from "solid-js";
 import { createEffect, createSignal, Show } from "solid-js";
-import { RouteDataArgs, Style } from "solid-start";
+import { Link, RouteDataArgs, Style } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Header from "~/components/Header";
@@ -12,10 +12,12 @@ import TinyMCE from "~/components/TinyMCE";
 import { AppShellContent, AppShellHeader, useEditToggle } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
+import styles from "./page.module.scss"
 
 export function routeData({ params }: RouteDataArgs) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return createServerData$(async ([_, topicArg, pageArg], { request }) => {
+        // a
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topicArg
@@ -78,6 +80,8 @@ const PageNavbar: Component = () => {
         }
     })
 
+    console.log({ styles })
+
     return <>
         <TabsContext defaultIndex={1}>{({ activeTab, setActiveTab }) => <>
             <TabButtonsContainer>
@@ -121,6 +125,7 @@ const PageNavbar: Component = () => {
 
                     <Show when={page_data()?.page?.html}>
                         <div
+                            class={styles.page_content}
                             // eslint-disable-next-line solid/no-innerhtml
                             innerHTML={page_data()?.page?.html}
                         />

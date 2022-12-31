@@ -5,12 +5,6 @@
 		},
 		{
 			"path": "web"
-		},
-		{
-			"path": "web2"
-		},
-		{
-			"path": "google-t3"
 		}
 	]
 }
