@@ -24,7 +24,6 @@ async function initTinyMCE(content?: string): Promise<Editor[]> {
         external_plugins: {
             tiny_mce_wiris: '/tinymce/math_wiris.min.js'
         },
-        extended_valid_elements: "button[*]",
         plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
         menubar: 'file edit view insert format tools table help',
         toolbar: 'addModalButton | undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry',

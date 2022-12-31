@@ -4,13 +4,13 @@
 			"path": "rust"
 		},
 		{
-			"path": "t3"
-		},
-		{
-			"path": "solid"
-		},
-		{
 			"path": "web"
+		},
+		{
+			"path": "web2"
+		},
+		{
+			"path": "google-t3"
 		}
 	]
 }

@@ -64,22 +64,24 @@ export const authenticator = new Authenticator<User>(sessionStorage).use(new Git
     clientID: serverEnv.CLIENT_ID_GOOGLE,
     clientSecret: serverEnv.CLIENT_SECRET_GOOGLE,
     callbackURL: serverEnv.SITE_URL + "/api/auth/google/callback",
-    scope: ["openid"],
+    // includeGrantedScopes: false,
+    // prompt: "none",
+    scope: ["email", "profile", "openid"],
   },
-  async ({ profile }) => {
+  async (ctx) => {
     let user = await prisma.user.findUnique({
       where: {
-        id: profile.id,
+        id: ctx.profile.id,
       },
     });
 
-    console.log("GOOGLE:", profile)
+    console.log("GOOGLE:", ctx)
 
     if (!user) {
       user = await prisma.user.create({
         data: {
-          id: profile.id,
-          displayName: profile.displayName,
+          id: ctx.profile.id,
+          displayName: ctx.profile.displayName,
         },
       });
     }

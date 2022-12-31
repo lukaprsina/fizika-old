@@ -58,6 +58,7 @@ export default function Account() {
                                     authClient.login("google", {
                                         successRedirect: "/account",
                                         failureRedirect: "/",
+                                        throwOnError: true,
                                     })
                                 }}
                             >

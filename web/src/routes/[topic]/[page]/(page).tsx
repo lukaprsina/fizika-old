@@ -3,7 +3,7 @@ import { Button } from "solid-headless";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import type { Component, ParentComponent } from "solid-js";
 import { createEffect, createSignal, Show } from "solid-js";
-import type { RouteDataArgs } from "solid-start";
+import { RouteDataArgs, Style } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Header from "~/components/Header";
