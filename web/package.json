@@ -44,6 +44,7 @@
     "solid-icons": "^1.0.4",
     "solid-js": "^1.6.6",
     "solid-jsx": "^0.9.1",
+    "solid-mdx": "^0.0.6",
     "solid-start": "^0.2.9",
     "undici": "5.11.0",
     "vite-plugin-static-copy": "^0.12.0",

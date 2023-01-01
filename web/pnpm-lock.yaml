@@ -28,6 +28,7 @@ specifiers:
   solid-icons: ^1.0.4
   solid-js: ^1.6.6
   solid-jsx: ^0.9.1
+  solid-mdx: ^0.0.6
   solid-start: ^0.2.9
   solid-start-node: ^0.2.9
   tailwindcss: ^3.2.4
@@ -58,6 +59,7 @@ dependencies:
   solid-icons: 1.0.4_solid-js@1.6.6
   solid-js: 1.6.6
   solid-jsx: 0.9.1_solid-js@1.6.6
+  solid-mdx: 0.0.6_solid-js@1.6.6+vite@3.2.5
   solid-start: 0.2.9_7g4juq64zsg2futgalxovnqs54
   undici: 5.11.0
   vite-plugin-static-copy: 0.12.0_vite@3.2.5
@@ -114,7 +116,7 @@ packages:
       convert-source-map: 1.9.0
       debug: 4.3.4
       gensync: 1.0.0-beta.2
-      json5: 2.2.2
+      json5: 2.2.3
       semver: 6.3.0
     transitivePeerDependencies:
       - supports-color
@@ -3496,8 +3498,8 @@ packages:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
     dev: true
 
-  /json5/2.2.2:
-    resolution: {integrity: sha512-46Tk9JiOL2z7ytNQWFLpj99RZkVgeHf87yGQKsIkaPz1qSH9UczKH1rO7K3wgRselo0tYMUNfecYpm/p1vC7tQ==}
+  /json5/2.2.3:
+    resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
 
@@ -4720,6 +4722,16 @@ packages:
       solid-js: ^1.4.0
     dependencies:
       solid-js: 1.6.6
+    dev: false
+
+  /solid-mdx/0.0.6_solid-js@1.6.6+vite@3.2.5:
+    resolution: {integrity: sha512-SDr+iOqxvB7ktdjrwgKLCLkJK43J+TQjoYmesHxmZHXtn6W+a5NRqWgBcybsSP0noHa2co1plSjuPYU4bdtklQ==}
+    peerDependencies:
+      solid-js: ^1.2.6
+      vite: '*'
+    dependencies:
+      solid-js: 1.6.6
+      vite: 3.2.5_sass@1.57.1
     dev: false
 
   /solid-refresh/0.4.1_solid-js@1.6.6:
