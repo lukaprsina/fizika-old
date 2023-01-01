@@ -17,7 +17,6 @@ import styles from "./page.module.scss"
 export function routeData({ params }: RouteDataArgs) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return createServerData$(async ([_, topicArg, pageArg], { request }) => {
-        // a
         const topic = await prisma.topic.findUnique({
             where: {
                 title: topicArg

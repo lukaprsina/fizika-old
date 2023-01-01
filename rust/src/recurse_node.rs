@@ -4,7 +4,7 @@ use itertools::Itertools;
 use katex::OutputType;
 use select::{
     node::Node,
-    predicate::{And, Class, Comment, Name},
+    predicate::{self, And, Class, Comment, Name},
 };
 use uuid::Uuid;
 use xml::{writer::XmlEvent, EventWriter};
@@ -76,8 +76,11 @@ pub fn recurse_node<W: Write>(
 
                     if imgs.len() != 0 || captions.len() != 0 {
                         if imgs.len() == 1 && captions.len() == 1 {
-                            println!("Img: {}, caption {}", imgs.len(), captions.len());
+                            // println!("Img: {}, caption {}", imgs.len(), captions.len());
                             // courses/0/pages/page_23.html
+                            if node.attr("href").is_some() {
+                                panic!("Img and video in the same td")
+                            }
 
                             let img = get_only_element(imgs);
                             let caption = get_only_element(captions);
@@ -176,42 +179,58 @@ pub fn recurse_node<W: Write>(
                         }
                     }
 
-                    false
+                    let divs = node.find(predicate::Name("div")).collect_vec();
+                    let ps = node.find(predicate::Name("p")).collect_vec();
+
+                    let write_end_tag = if divs.len() == 1 && ps.len() == 1 {
+                        let div = get_only_element(divs);
+                        let p = get_only_element(ps);
+
+                        let write_end_tag = match div.attr("href") {
+                            Some(href) => {
+                                ignore_children = true;
+
+                                if !(href.ends_with(".mp4")
+                                    || href.ends_with(".flv")
+                                    || href.ends_with(".m4v"))
+                                {
+                                    panic!("div href ends with: {}", href)
+                                }
+
+                                let event: XmlEvent = XmlEvent::start_element("video").into();
+
+                                let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
+                                let split = course_name.split_once("/index.html");
+                                url = url
+                                    .join(&format!("{}/", split.expect("No indexes??").0))
+                                    .unwrap();
+
+                                let href = format!("{}{}", url.as_str(), href);
+
+                                writer.write(event).unwrap();
+
+                                let file_type = href.rsplit_once(".").unwrap().1;
+                                let video_type = &format!("video/{}", file_type);
+
+                                let source: XmlEvent = XmlEvent::start_element("source")
+                                    .attr("src", &href)
+                                    .attr("type", &video_type)
+                                    .into();
+                                writer.write(source).unwrap();
+                                writer.write(XmlEvent::end_element()).unwrap();
+
+                                true
+                            }
+                            None => panic!("Div is not a movie!"),
+                        };
+
+                        write_end_tag
+                    } else {
+                        false
+                    };
+
+                    write_end_tag
                 }
-                "div" => match node.attr("href") {
-                    Some(href) => {
-                        if !(href.ends_with(".mp4")
-                            || href.ends_with(".flv")
-                            || href.ends_with(".m4v"))
-                        {
-                            panic!("div href ends with: {}", href)
-                        }
-
-                        let event: XmlEvent = XmlEvent::start_element("video").into();
-
-                        let mut url = url::Url::parse("http://fizika.sc-nm.si").unwrap();
-                        let split = course_name.split_once("/index.html");
-                        url = url
-                            .join(&format!("{}/", split.expect("No indexes??").0))
-                            .unwrap();
-
-                        let href = format!("{}{}", url.as_str(), href);
-
-                        writer.write(event).unwrap();
-
-                        let file_type = href.rsplit_once(".").unwrap().1;
-                        let video_type = &format!("video/{}", file_type);
-
-                        let source: XmlEvent = XmlEvent::start_element("source")
-                            .attr("src", &href)
-                            .attr("type", &video_type)
-                            .into();
-                        writer.write(source).unwrap();
-                        writer.write(XmlEvent::end_element()).unwrap();
-                        true
-                    }
-                    None => default_tag("div"),
-                },
                 "img" => {
                     /*
                     let mut src = node.attr("src").unwrap().to_string();

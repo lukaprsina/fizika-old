@@ -25,6 +25,8 @@
     "vite": "^3.2.5"
   },
   "dependencies": {
+    "@mdx-js/mdx": "^2.2.1",
+    "@mdx-js/rollup": "^2.2.1",
     "@prisma/client": "^4.8.0",
     "@solid-auth/core": "^0.0.1",
     "@solid-auth/oauth2": "^0.0.2",
@@ -36,9 +38,12 @@
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.6.0",
     "dotenv": "^16.0.3",
+    "remark-gfm": "^3.0.1",
+    "rollup": "^3.9.0",
     "solid-headless": "^0.13.0",
     "solid-icons": "^1.0.4",
     "solid-js": "^1.6.6",
+    "solid-jsx": "^0.9.1",
     "solid-start": "^0.2.9",
     "undici": "5.11.0",
     "vite-plugin-static-copy": "^0.12.0",
