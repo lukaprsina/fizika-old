@@ -107,3 +107,11 @@ pub struct ChapterInfo {
     #[serde(skip_serializing)]
     pub javascript: Option<String>,
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ChapterInfoOutput {
+    pub heading: String,
+    pub author: String,
+    pub goals: Option<String>,
+    pub year: usize,
+}

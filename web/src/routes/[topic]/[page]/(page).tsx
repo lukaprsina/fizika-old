@@ -3,7 +3,7 @@ import { Button } from "solid-headless";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import type { Component, ParentComponent } from "solid-js";
 import { createEffect, createSignal, Show } from "solid-js";
-import { Link, RouteDataArgs, Style } from "solid-start";
+import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Header from "~/components/Header";
@@ -13,6 +13,7 @@ import { AppShellContent, AppShellHeader, useEditToggle } from "~/layouts/Provid
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 import styles from "./page.module.scss"
+import FileManager from "~/components/FileManager";
 
 export function routeData({ params }: RouteDataArgs) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -121,7 +122,6 @@ const PageNavbar: Component = () => {
                     index={1}
                     hidden={showEditor()}
                 >
-
                     <Show when={page_data()?.page?.html}>
                         <div
                             class={styles.page_content}
@@ -129,6 +129,7 @@ const PageNavbar: Component = () => {
                             innerHTML={page_data()?.page?.html}
                         />
                     </Show>
+                    <FileManager page={page_data()?.page} />
                     <NavButtons page_count={page_data()?.page_count ?? 0} />
                 </Tab>
                 <Tab
