@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@mdx-js/mdx': ^2.2.1
   '@mdx-js/rollup': ^2.2.1
+  '@monaco-editor/loader': ^1.3.2
   '@prisma/client': ^4.8.1
   '@solid-auth/core': ^0.0.1
   '@solid-auth/oauth2': ^0.0.2
@@ -20,6 +21,7 @@ specifiers:
   dotenv: ^16.0.3
   eslint: ^8.31.0
   eslint-plugin-solid: ^0.8.0
+  monaco-editor: ^0.34.1
   postcss: ^8.4.20
   prisma: ^4.8.1
   remark-gfm: ^3.0.1
@@ -43,6 +45,7 @@ specifiers:
 dependencies:
   '@mdx-js/mdx': 2.2.1
   '@mdx-js/rollup': 2.2.1_rollup@3.9.1
+  '@monaco-editor/loader': 1.3.2_monaco-editor@0.34.1
   '@prisma/client': 4.8.1_prisma@4.8.1
   '@solid-auth/core': 0.0.1_c5u323qjifrpqxzd7xhfuycuge
   '@solid-auth/oauth2': 0.0.2_ogfhtkj2bz7u6lka266outeoxa
@@ -55,6 +58,7 @@ dependencies:
   '@solidjs/meta': 0.28.2_solid-js@1.6.8
   '@solidjs/router': 0.6.0_solid-js@1.6.8
   dotenv: 16.0.3
+  monaco-editor: 0.34.1
   remark-gfm: 3.0.1
   rollup: 3.9.1
   solid-headless: 0.13.0_solid-js@1.6.8
@@ -1324,6 +1328,15 @@ packages:
       vfile: 5.3.6
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@monaco-editor/loader/1.3.2_monaco-editor@0.34.1:
+    resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      monaco-editor: 0.34.1
+      state-local: 1.0.7
     dev: false
 
   /@nodelib/fs.scandir/2.1.5:
@@ -4235,6 +4248,10 @@ packages:
   /minimist/1.2.7:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
 
+  /monaco-editor/0.34.1:
+    resolution: {integrity: sha512-FKc80TyiMaruhJKKPz5SpJPIjL+dflGvz4CpuThaPMc94AyN7SeC9HQ8hrvaxX7EyHdJcUY5i4D0gNyJj1vSZQ==}
+    dev: false
+
   /mri/1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -4943,6 +4960,10 @@ packages:
 
   /space-separated-tokens/2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
+    dev: false
+
+  /state-local/1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
     dev: false
 
   /statuses/1.5.0:

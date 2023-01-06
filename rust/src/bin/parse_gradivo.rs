@@ -19,15 +19,19 @@ fn main() -> Result<()> {
         &fs::read_to_string("chapter_infos.json").unwrap(),
     )?;
 
-    let chapter_info_outputs = serde_json::from_str::<Vec<ChapterInfoOutput>>(
+    /* let chapter_info_outputs = serde_json::from_str::<Vec<ChapterInfoOutput>>(
         &fs::read_to_string("chapter_infos_output.json").unwrap(),
-    )?;
+    )?; */
+
+    let gradivo_out = Path::new("gradivo_out");
+    fs::remove_dir_all(gradivo_out)?;
 
     let gradivo_path = fs::read_dir("gradivo")?;
 
     let mut extensions = HashSet::new();
 
-    for (dir_pos, dir) in gradivo_path.into_iter().enumerate() {
+    let mut dir_pos = 0;
+    for dir in gradivo_path {
         let folder_path = dir.unwrap().path();
         let folder_path = folder_path.file_name().unwrap();
         let folder_path = folder_path.to_str().unwrap();
@@ -67,15 +71,16 @@ fn main() -> Result<()> {
             );
         }
 
-        let name = chapter_info_outputs[dir_pos].heading.clone();
-        let name = name.replace("č", "c");
+        let json = chapter_infos[dir_pos].clone();
+        let name = json.heading.clone();
         println!("{name:#?}");
 
-        let gradivo_out = Path::new("gradivo_out");
-        let out_dir = gradivo_out.join(name);
+        let out_dir = gradivo_out.join(&json.uuid.to_string());
+
         fs::create_dir_all(&out_dir)?;
         fs::create_dir_all(out_dir.join("images"))?;
         fs::create_dir_all(out_dir.join("videos"))?;
+        dir_pos += 1;
     }
 
     println!("{extensions:#?}");

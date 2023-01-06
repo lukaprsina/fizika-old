@@ -7,6 +7,7 @@ use select::{
     predicate::{Class, Name},
 };
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 pub fn uppercase_first_letter(s: &str) -> String {
     let mut c = s.chars();
@@ -77,6 +78,7 @@ pub fn get_chapter_info(title_slide: Node) -> Result<ChapterInfo> {
         year: None,
         original_name: None,
         javascript: None,
+        uuid: Uuid::new_v4(),
     })
 }
 
@@ -106,6 +108,7 @@ pub struct ChapterInfo {
     pub original_name: Option<String>,
     #[serde(skip_serializing)]
     pub javascript: Option<String>,
+    pub uuid: Uuid,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

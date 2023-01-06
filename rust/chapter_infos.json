@@ -4,279 +4,319 @@
     "author": " Andreja Eršte",
     "goals": null,
     "year": null,
-    "original_name": "material-931- Astronomija/index.html"
+    "original_name": "material-931- Astronomija/index.html",
+    "uuid": "27d0623c-b02f-4372-9b7a-5524a3c45205"
   },
   {
     "heading": "0. Gravitacija, Kepplerjevi zakoni",
     "author": " Matej Rožič",
     "goals": " Poznavanje in uporaba gravitacijskega zakona.\nPoznavanje  in uporaba Kepperjevih zakonov.",
     "year": null,
-    "original_name": "material-936- Keppler/index.html"
+    "original_name": "material-936- Keppler/index.html",
+    "uuid": "357671ef-ccfc-4b65-9e67-50c02f356a11"
   },
   {
     "heading": "1. Kviz o premem gibanju",
     "author": " Matej Rožič",
     "goals": " Preverjaje znanja dijakov o premem gibanju.",
     "year": null,
-    "original_name": "material-621- KVIZ premo gibanje/index.html#state=1"
+    "original_name": "material-621- KVIZ premo gibanje/index.html#state=1",
+    "uuid": "d7573fe2-d8d4-435f-b8a8-66876f8c1e60"
   },
   {
     "heading": "2. Plinski zakoni - kviz",
     "author": " Matej Rožič",
     "goals": null,
     "year": null,
-    "original_name": "material-636-plinski_zakoni_kviz/index.html#state=1"
+    "original_name": "material-636-plinski_zakoni_kviz/index.html#state=1",
+    "uuid": "21988113-fd59-430c-8ac3-21a71d63cb2b"
   },
   {
     "heading": "1. Merjenje",
     "author": " Matej Rožič",
     "goals": " Poznavanje merskih količin, osnovnih enot. Pretvarjanje med enotami. Napake (merske, sistemske, absolutne, relativne...)",
     "year": null,
-    "original_name": "material-802- merjenje/index.html#state=1"
+    "original_name": "material-802- merjenje/index.html#state=1",
+    "uuid": "7e7bd15a-8087-49bc-a2bc-e6265f2c0e15"
   },
   {
     "heading": "1. Fizikalne količine in merske enote",
     "author": " Andreja Eršte",
     "goals": null,
     "year": null,
-    "original_name": "material-943-s Merjenje2 - Andreja/index.html#state=1"
+    "original_name": "material-943-s Merjenje2 - Andreja/index.html#state=1",
+    "uuid": "a3e105d8-c164-42c1-ae1c-59246981617e"
   },
   {
     "heading": "1. 2D - vodoravni ter poševni met",
     "author": " Matej Rožič",
     "goals": " Razumevanje in reševanje nalog iz vodoravnega meta.",
     "year": null,
-    "original_name": "material-614- 2D gibanje/index.html#state=1"
+    "original_name": "material-614- 2D gibanje/index.html#state=1",
+    "uuid": "78499993-d9e4-4982-abbd-4e8cf64e6bc4"
   },
   {
     "heading": "1. Merjenje sil",
     "author": " Matej Rožič",
     "goals": " Poznati in razumeti linearno odvisnost deformacije od sile.",
     "year": null,
-    "original_name": "material-673- Merjenje sil/index.html#state=1"
+    "original_name": "material-673- Merjenje sil/index.html#state=1",
+    "uuid": "20a90476-51cb-4806-aa17-eb86b92cdcf2"
   },
   {
     "heading": "1. Vleka objektov",
     "author": " Matej Rožič",
     "goals": " Pri opazovanju vleke pridemo do zanimivih ugotovitev. V nadaljevanju bomo razložili kako se s tem sooča fizika in zakaj so rezultati tekmovanj predvidljivi.",
     "year": null,
-    "original_name": "material-229-vleka objektov/index.html"
+    "original_name": "material-229-vleka objektov/index.html",
+    "uuid": "ca5a6429-3d3d-4650-82b2-436f4f2961b2"
   },
   {
     "heading": "1. I. Newton",
     "author": " Matej Rožič",
     "goals": " Razstavljanje sil. Reševanje linearnih enačb.",
     "year": null,
-    "original_name": "material-372- I Newton/index.html#state=1"
+    "original_name": "material-372- I Newton/index.html#state=1",
+    "uuid": "007bbd22-5edb-4a2b-bdd7-70f45f14c67e"
   },
   {
     "heading": "1. II. Newtonov zakon",
     "author": " Matej Rožič",
     "goals": " Delovanje okolice ima za posledico spremembo gibanja opazovanega telesa.",
     "year": null,
-    "original_name": "material-667- II Newtnov zakon/index.html#state=1"
+    "original_name": "material-667- II Newtnov zakon/index.html#state=1",
+    "uuid": "af303d96-9cc6-48c4-aa0e-d6781abe4ce2"
   },
   {
     "heading": "1. III. Newtonov zakon",
     "author": " Andreja Eršte",
     "goals": " Spoznati in upoštevati, da je delovanje teles vzajemno.",
     "year": null,
-    "original_name": "material-922- III NZ/index.html#state=1"
+    "original_name": "material-922- III NZ/index.html#state=1",
+    "uuid": "12ae09e5-9069-453f-beac-cb6103f80460"
   },
   {
     "heading": "1. klanec",
     "author": " Matej Rožič",
     "goals": " razumeti potrebne pogoje za mirovanje na klancu.",
     "year": null,
-    "original_name": "material-774- Klanec/index.html#state=1"
+    "original_name": "material-774- Klanec/index.html#state=1",
+    "uuid": "55975eab-f8dc-4cef-8400-341b6e8751ad"
   },
   {
     "heading": "1. Navor",
     "author": " Matej Rožič",
     "goals": " Razumevanje količine navora in njegove uporabe v življenju. ",
     "year": null,
-    "original_name": "material-626- navor/index.html#state=1"
+    "original_name": "material-626- navor/index.html#state=1",
+    "uuid": "21b9a1aa-fc0d-4ffb-b433-98aa11fca24c"
   },
   {
     "heading": "1. Zgradba snovi",
     "author": " Andreja Eršte",
     "goals": null,
     "year": null,
-    "original_name": "material-912- Zgradba snovi/index.html#state=1"
+    "original_name": "material-912- Zgradba snovi/index.html#state=1",
+    "uuid": "783a22d2-5220-40a9-a7a0-0082470f6fc3"
   },
   {
     "heading": "2. Tlak",
     "author": " Matej Rožič",
     "goals": " Povezovanje tlačnih obremenitev s površino in silo.",
     "year": null,
-    "original_name": "material-378- tlak tekočine/index.html#state=1"
+    "original_name": "material-378- tlak tekočine/index.html#state=1",
+    "uuid": "a8bf954a-ab7e-414a-b856-3acc33154839"
   },
   {
     "heading": "2. Vzgon",
     "author": " Matej Rožič",
     "goals": " Razumet in uporabit povezave med potrebnimi količinami (gostota, tlak, globina, prostornima).",
     "year": null,
-    "original_name": "material-635- Vzgon/index.html#state=1"
+    "original_name": "material-635- Vzgon/index.html#state=1",
+    "uuid": "a9488855-7da6-4c9e-89db-837306d6385a"
   },
   {
     "heading": "2. Pretoki tekočin",
     "author": " Matej Rožič",
     "goals": " Povezati pretoke tekočine z obliko cevi.",
     "year": null,
-    "original_name": "material-907- Pretoki tekocin/index.html#state=1"
+    "original_name": "material-907- Pretoki tekocin/index.html#state=1",
+    "uuid": "18907dbd-96b1-44e8-9e5f-cc4ae685b3dc"
   },
   {
     "heading": "2. Gibalna količina",
     "author": " Matej Rožič",
     "goals": " Gibalna količina homogenega telesa, trki, sila curka",
     "year": null,
-    "original_name": "material-582- gibalna količina/index.html#state=1"
+    "original_name": "material-582- gibalna količina/index.html#state=1",
+    "uuid": "bba3d009-27d7-4eaf-8cea-60a227e12235"
   },
   {
     "heading": "2. Delo ter moč, delo tlaka",
     "author": " Matej Rožič",
     "goals": " Dijaki znajo ločiti med notranjimi in zunanjimi silami na opazovati sistem ter znajo določiti premike posameznih sil ter z njimi povezanim delom.",
     "year": null,
-    "original_name": "material-938- Delo/index.html#state=1"
+    "original_name": "material-938- Delo/index.html#state=1",
+    "uuid": "0b676c59-1783-4e38-ba01-8881fa35f9cb"
   },
   {
     "heading": "2. Energija sistema ter delo na sistem",
     "author": " Matej Rožič",
     "goals": " A, P, W",
     "year": null,
-    "original_name": "material-364- energija sistema/index.html#state=1"
+    "original_name": "material-364- energija sistema/index.html#state=1",
+    "uuid": "eef7a876-3943-4218-b2f7-67be9dcd16d9"
   },
   {
     "heading": "2. Gibanje tekočin - Bernoulli",
     "author": " Matej Rožič",
     "goals": " Gibanje tekočin,  stabilnost kritine...",
     "year": null,
-    "original_name": "material-898- Gibanje tekocin - Bernoulli/index.html#state=1"
+    "original_name": "material-898- Gibanje tekocin - Bernoulli/index.html#state=1",
+    "uuid": "9d725435-fd48-4c0a-9db6-ba8624d08779"
   },
   {
     "heading": "2. Temperatura in raztezanje snovi",
     "author": " Matej Rožič",
     "goals": null,
     "year": null,
-    "original_name": "material-414- temperaturo raztezanje/index.html#state=1"
+    "original_name": "material-414- temperaturo raztezanje/index.html#state=1",
+    "uuid": "a7732f49-605f-4c29-99fb-c23aad5b9e7a"
   },
   {
     "heading": "2. Plini",
     "author": " Matej Rožič",
     "goals": " Razumeti povezave med parametri idealnega plina in uporaba v nalogah.",
     "year": null,
-    "original_name": "material-895- Plini/index.html#state=1"
+    "original_name": "material-895- Plini/index.html#state=1",
+    "uuid": "7f128dbd-90b7-45cc-b4b1-a5d2f2cd0b63"
   },
   {
     "heading": "2. Toplota - notranja energija",
     "author": " Matej Rožič",
     "goals": null,
     "year": null,
-    "original_name": "material-958- Notranja energija/index.html#state=1"
+    "original_name": "material-958- Notranja energija/index.html#state=1",
+    "uuid": "fdd8472d-bf5b-4792-aed7-1fcd4d6c95b0"
   },
   {
     "heading": "2. pV diagrami in toplotni stroji",
     "author": " Matej Rožič",
     "goals": " Risanje pV diagramov ter interpretacija narisanega.",
     "year": null,
-    "original_name": "material-910- Toplotni stroj/index.html#state=1"
+    "original_name": "material-910- Toplotni stroj/index.html#state=1",
+    "uuid": "cc945d7f-d2f5-4639-98dc-b2acb1e6f935"
   },
   {
     "heading": "2. Sevanje",
     "author": " Matej Rožič",
     "goals": " Znanje in uporaba fotoefekta. Uporaba Štefanovega zakona za sevanje črnega telesa. Poznavanje Solarne konstante in energijskega toka.",
     "year": null,
-    "original_name": "material-819- Sevanje crnega telesa/index.html#state=1"
+    "original_name": "material-819- Sevanje crnega telesa/index.html#state=1",
+    "uuid": "4f7a8bc5-2e71-4637-bf8c-c9a05cc5d81a"
   },
   {
     "heading": "3. elektrostatika 0: naboj, polje, kondenzator",
     "author": " Matej Rožič",
     "goals": " definicija naboja, uporaba opisa električnega polja, kondenzatorji in vezava",
     "year": null,
-    "original_name": "material-883- Elektrostatika/index.html#state=1"
+    "original_name": "material-883- Elektrostatika/index.html#state=1",
+    "uuid": "3b51eadf-978d-467b-86cd-03a242623ab7"
   },
   {
     "heading": "3. elektrostatika 1:gibanje v E in energija polja",
     "author": " Matej Rožič",
     "goals": " Energija kondenzatorja in gibanje delca v E polju.",
     "year": null,
-    "original_name": "material-902- Gibanje e v E/index.html#state=1"
+    "original_name": "material-902- Gibanje e v E/index.html#state=1",
+    "uuid": "08db2fa7-07d7-4635-ad77-8eb9bb844bfd"
   },
   {
     "heading": "3. električni tok DC",
     "author": " Matej Rožič",
     "goals": " Spoznati pojave povezane z električnim tokom in njihovo uporabo.",
     "year": null,
-    "original_name": "material-897- DC tok/index.html#state=1"
+    "original_name": "material-897- DC tok/index.html#state=1",
+    "uuid": "6db96bd8-a5d6-4e2b-b233-8e9bc4f03a93"
   },
   {
     "heading": "3. magnetizem",
     "author": " Matej Rožič",
     "goals": " magneti, magnetno polje tokovodnika, gibanje delca v magnetnem polju",
     "year": null,
-    "original_name": "material-901- Magnetizem/index.html#state=1"
+    "original_name": "material-901- Magnetizem/index.html#state=1",
+    "uuid": "91f97a6a-b571-4865-8d7f-f9202695adc2"
   },
   {
     "heading": "3. magnetizem - indukcija",
     "author": " Matej Rožič",
     "goals": " Razumeti indukcijo,\ndelovanje transformatorja...",
     "year": null,
-    "original_name": "material-909- indukcija/index.html#state=1"
+    "original_name": "material-909- indukcija/index.html#state=1",
+    "uuid": "5fd71420-729e-4e76-8e59-d045304dd442"
   },
   {
     "heading": "3. Prehodni pojavi C in L",
     "author": " Matej Rožič",
     "goals": " Spoznati in upoštevati polnjenje in praznjenje kondenzatorja tuljave.",
     "year": null,
-    "original_name": "material-919- Prehodni pojavi C in L/index.html#state=1"
+    "original_name": "material-919- Prehodni pojavi C in L/index.html#state=1",
+    "uuid": "c47ed3bd-a946-4329-ab7a-94f303649f9a"
   },
   {
     "heading": "3. transformator",
     "author": " Matej Rožič",
     "goals": " Razumevanje delovanja transformatorja in njegove uporabe.",
     "year": null,
-    "original_name": "material-924- Transformator/index.html#state=1"
+    "original_name": "material-924- Transformator/index.html#state=1",
+    "uuid": "62349910-84cc-4c85-9b27-42be98a87e94"
   },
   {
     "heading": "4. Nihanje",
     "author": " Matej Rožič",
     "goals": " Razumeti harmonično nihanje, nihajni čas, frekvenca,  dušenje, vsiljeno nihanje, resonanca",
     "year": null,
-    "original_name": "material-627- Nihanje/index.html#state=1"
+    "original_name": "material-627- Nihanje/index.html#state=1",
+    "uuid": "721f348e-79da-461b-9317-b802629e070c"
   },
   {
     "heading": "4. Valovanje",
     "author": " Matej Rožič",
     "goals": " valovna fronta, motnja, širjenje valovanja, zvok, svetloba...",
     "year": null,
-    "original_name": "material-657- Valovanje/index.html#state=1"
+    "original_name": "material-657- Valovanje/index.html#state=1",
+    "uuid": "b3f86eb8-989d-492d-b046-49d592d3f59e"
   },
   {
     "heading": "4. Svetloba, lomni količnik",
     "author": " Matej Rožič",
     "goals": " Znanje valovne optike, energijski spekter vidne svetlobe",
     "year": null,
-    "original_name": "material-863- Lomni kolicnik/index.html#state=1"
+    "original_name": "material-863- Lomni kolicnik/index.html#state=1",
+    "uuid": "4defeac3-64e5-4212-88d7-e799c693c420"
   },
   {
     "heading": "4. geometrijska optika",
     "author": " Matej Rožič",
     "goals": " Preslikave zrcal  (ravno zrcalo, ubočeno, izbočeno zrcalo) in leč (zbiralne, razpršilne).\n\nOptični instrumenti (lupa, mikroskop...)",
     "year": null,
-    "original_name": "material-758- Geometrijska/index.html#state=1"
+    "original_name": "material-758- Geometrijska/index.html#state=1",
+    "uuid": "ae9b199e-94fb-48b8-bf26-3da99b0684e9"
   },
   {
     "heading": "4. atom, fotoefekt, rentgen, razpadi",
     "author": " Matej Rožič",
     "goals": " Zgradba atoma. razporeditev delcev v atomu. Energije posameznih delcev. Fotoefekt. Rentgen.",
     "year": null,
-    "original_name": "material-917- Atomika/index.html#state=1"
+    "original_name": "material-917- Atomika/index.html#state=1",
+    "uuid": "3ad480d8-5dab-45dc-92e6-fcfbc5175ec3"
   },
   {
     "heading": "4. Teorija relativnosti",
     "author": " Andreja Eršte",
     "goals": " Spoznati, kaj k fiziki in svetu okoli nas prinašajo ugotovitve Einsteinove splošne in posebne teorije relativnosti.",
     "year": null,
-    "original_name": "material-925- Teorija relativnosti/index.html#state=1"
+    "original_name": "material-925- Teorija relativnosti/index.html#state=1",
+    "uuid": "f1c08d17-d119-4504-9b89-600fa1574e37"
   }
 ]
