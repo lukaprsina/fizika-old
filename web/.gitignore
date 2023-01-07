@@ -1,3 +1,6 @@
+# project specific
+/gradivo
+
 dist
 .solid
 .output
