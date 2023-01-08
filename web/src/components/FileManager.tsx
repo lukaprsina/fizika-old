@@ -1,4 +1,4 @@
-import type { Component } from "solid-js";
+import { Component, createEffect } from "solid-js";
 import { Show } from "solid-js";
 import { For, createSignal } from "solid-js"
 import { createDropzone } from "@solid-primitives/upload"
@@ -6,14 +6,13 @@ import { A, useParams } from "solid-start";
 import type { Page } from "@prisma/client";
 
 type FileManagerType = {
-    page?: Page | null
+    page?: Page;
 }
 
 const FileManager: Component<FileManagerType> = (props) => {
+    const params = useParams();
     const { setRef: dropzoneRef, files: droppedFiles } = createDropzone({
     })
-
-    const params = useParams();
 
     const [files, setFiles] = createSignal<string[]>(["A", "B", "C"]);
 
@@ -27,9 +26,9 @@ const FileManager: Component<FileManagerType> = (props) => {
             >
                 <div class="bg-neutral-800 p-3">
                     <Show when={params.topic}>
-                        <A href="test">{params.topic}</A>
+                        <A href="test">{decodeURI(params.topic)}</A>
                     </Show>
-                    <Show when={params.topic}>
+                    <Show when={params.page}>
                         <span>{" / "}</span>
                         <A href="test">{props.page?.title}</A>
                     </Show>

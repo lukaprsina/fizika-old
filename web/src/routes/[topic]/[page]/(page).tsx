@@ -8,12 +8,11 @@ import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Header from "~/components/Header";
 import { Tab, TabButton, TabButtonsContainer, TabsContext } from "~/components/Tabs";
-import TinyMCE from "~/components/TinyMCE";
 import { AppShellContent, AppShellHeader, useEditToggle } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 import styles from "./page.module.scss"
-import FileManager from "~/components/FileManager";
+import MonacoEditor from "~/components/MonacoEditor";
 
 export function routeData({ params }: RouteDataArgs) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -48,7 +47,7 @@ export function routeData({ params }: RouteDataArgs) {
 
         return { page, user, page_count };
     }, {
-        key: () => ["page", params.topic, params.page]
+        key: () => ["page", decodeURI(params.topic), decodeURI(params.page)]
     })
 }
 
@@ -62,15 +61,6 @@ const PageNavbar: Component = () => {
     const params = useParams<ParamsType>();
     const editToggle = useEditToggle();
     const [showEditor, setShowEditor] = createSignal(false);
-    const [isAuthed, setIsAuthed] = createSignal(false);
-
-    createEffect(() => {
-        if (page_data()?.user) {
-            setIsAuthed(true);
-        } else {
-            setIsAuthed(false);
-        }
-    })
 
     createEffect(() => {
         if (editToggle?.edit()) {
@@ -79,8 +69,6 @@ const PageNavbar: Component = () => {
             setShowEditor(false)
         }
     })
-
-    console.log({ styles })
 
     return <>
         <TabsContext defaultIndex={1}>{({ activeTab, setActiveTab }) => <>
@@ -108,7 +96,7 @@ const PageNavbar: Component = () => {
                 </TabButton>
             </TabButtonsContainer>
             <AppShellHeader>
-                <Header topic={params.topic} user={page_data()?.user} />
+                <Header topic={decodeURI(params.topic)} user={page_data()?.user} />
             </AppShellHeader>
             <AppShellContent>
                 <Tab
@@ -129,7 +117,7 @@ const PageNavbar: Component = () => {
                             innerHTML={page_data()?.page?.html}
                         />
                     </Show>
-                    <FileManager page={page_data()?.page} />
+                    {/* <FileManager page={page_data()?.page ?? undefined} /> */}
                     <NavButtons page_count={page_data()?.page_count ?? 0} />
                 </Tab>
                 <Tab
@@ -137,11 +125,7 @@ const PageNavbar: Component = () => {
                     index={1}
                     hidden={!showEditor()}
                 >
-                    <TinyMCE
-                        authorized={isAuthed()}
-                        visible={showEditor() && activeTab() == 1}
-                        content={page_data()?.page?.html}
-                    />
+                    <MonacoEditor user={page_data()?.user ?? undefined} />
                     <NavButtons page_count={page_data()?.page_count ?? 0} />
                 </Tab>
                 <Tab

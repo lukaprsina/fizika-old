@@ -23,7 +23,7 @@ type ContentType = {
 
 export const AppShellContent: ParentComponent<ContentType> = (props) => {
     return (
-        <div class="z-30 bg-inherit flex justify-center flex-grow w-full px-6 relative" classList={{
+        <div class="z-30 bg-inherit flex justify-center flex-grow h-full px-6 relative" classList={{
             "w-full": props.fullWidth,
         }}>
             {props.children}

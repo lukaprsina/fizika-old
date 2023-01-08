@@ -17,6 +17,7 @@ export function routeData({ params }: RouteDataArgs) {
             }
         });
 
+        // console.log(topic?.id, topic_name);
         if (!topic) return null;
 
         const pages = await prisma.page.findMany({
@@ -29,9 +30,11 @@ export function routeData({ params }: RouteDataArgs) {
             }
         });
 
+        console.log(pages.length, "pages");
+
         return pages;
     }, {
-        key: () => ["topic", params.topic]
+        key: () => ["topic", decodeURI(params.topic)]
     })
 }
 

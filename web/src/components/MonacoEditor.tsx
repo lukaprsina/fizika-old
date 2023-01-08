@@ -1,10 +1,10 @@
-import type { Component } from "solid-js";
+import { Component, createEffect } from "solid-js";
 import { createSignal } from "solid-js";
-import { Body } from "solid-start";
 import { onMount } from "solid-js";
 import loader from '@monaco-editor/loader';
 import { createDropzone } from "@solid-primitives/upload";
 import type monaco from 'monaco-editor'
+import type { User } from "@prisma/client";
 
 /* const selection = editor().getPosition();
 
@@ -14,7 +14,11 @@ import type monaco from 'monaco-editor'
         forceMoveMarkers: true
     }]) */
 
-const MonacoEditor: Component = () => {
+type MonacoEditorType = {
+    user?: User;
+};
+
+const MonacoEditor: Component<MonacoEditorType> = (props) => {
     const [editor, setEditor] = createSignal<monaco.editor.IStandaloneCodeEditor>()
 
     const { setRef: dropzoneRef } = createDropzone({
@@ -32,11 +36,12 @@ const MonacoEditor: Component = () => {
         }
     })
 
-    onMount(() => {
+    createEffect(() => {
         loader.init().then(monaco => {
             const component = document.querySelector("#editor");
             if (!component)
                 return;
+            console.log({ component })
 
             const new_editor = monaco.editor.create(component as HTMLElement, {
                 value: '# editor',
@@ -51,7 +56,7 @@ const MonacoEditor: Component = () => {
     return <div
         id="editor"
         ref={dropzoneRef}
-        class="w-screen h-screen"
+        class="w-full h-full"
     />
 }
 

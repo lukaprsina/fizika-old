@@ -62,6 +62,7 @@ export type TabType = {
 export const Tab: ParentComponent<TabType> = (props) => {
     return (
         <div
+            class="w-full h-full"
             hidden={props.activeTab() !== props.index || props.hidden}
         >
             {props.children}
