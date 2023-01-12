@@ -2,6 +2,7 @@ import { createShortcut } from "@solid-primitives/keyboard";
 import { Button } from "solid-headless";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'solid-icons/ai';
 import type { Component, ParentComponent } from "solid-js";
+import { mergeProps } from "solid-js";
 import { createEffect, createSignal, Show } from "solid-js";
 import type { RouteDataArgs } from "solid-start";
 import { A, useNavigate, useParams, useRouteData } from "solid-start";
@@ -112,20 +113,29 @@ const PageNavbar: Component = () => {
                 >
                     <Show when={page_data()?.page?.html}>
                         <div
-                            class={styles.page_content}
-                            // eslint-disable-next-line solid/no-innerhtml
-                            innerHTML={page_data()?.page?.html}
-                        />
+                            class="flex justify-center"
+                        >
+                            <div
+                                class={styles.page_content}
+                                // eslint-disable-next-line solid/no-innerhtml
+                                innerHTML={page_data()?.page?.html}
+                            />
+                        </div>
                     </Show>
                     {/* <FileManager page={page_data()?.page ?? undefined} /> */}
-                    <NavButtons page_count={page_data()?.page_count ?? 0} />
+                    <NavButtons
+                        keyboard={false}
+                        page_count={page_data()?.page_count ?? 0}
+                    />
                 </Tab>
                 <Tab
                     activeTab={activeTab}
                     index={1}
                     hidden={!showEditor()}
                 >
-                    <MonacoEditor user={page_data()?.user ?? undefined} />
+                    <MonacoEditor
+                        active={activeTab() == 1 && showEditor()}
+                        user={page_data()?.user ?? undefined} />
                     <NavButtons page_count={page_data()?.page_count ?? 0} />
                 </Tab>
                 <Tab
@@ -139,7 +149,13 @@ const PageNavbar: Component = () => {
     </>
 }
 
-const NavButtons: Component<{ page_count: number }> = (props) => {
+type NavButtonsType = {
+    page_count: number;
+    keyboard?: boolean;
+}
+
+const NavButtons: Component<NavButtonsType> = (props) => {
+    const merged = mergeProps({ keyboard: true }, props)
     const params = useParams<ParamsType>();
     const [pageId, setPageId] = createSignal(NaN);
     const [baseURL, setBaseURL] = createSignal("");
@@ -154,7 +170,8 @@ const NavButtons: Component<{ page_count: number }> = (props) => {
     createShortcut(
         ["ARROWLEFT"],
         () => {
-            if (pageId() > 0) {
+            // TODO: doesn't work
+            if (merged.keyboard && pageId() > 0) {
                 navigate(baseURL() + (pageId() - 1))
             }
         },
@@ -164,7 +181,7 @@ const NavButtons: Component<{ page_count: number }> = (props) => {
     createShortcut(
         ["ARROWRIGHT"],
         () => {
-            if (pageId() < props.page_count - 1) {
+            if (merged.keyboard && pageId() < merged.page_count - 1) {
                 navigate(baseURL() + (pageId() + 1))
             }
         },
@@ -186,7 +203,7 @@ const NavButtons: Component<{ page_count: number }> = (props) => {
                     </A>
                 </IconButton>
             </Show>
-            <Show when={pageId() < props.page_count - 1}>
+            <Show when={pageId() < merged.page_count - 1}>
                 <IconButton>
                     <A href={baseURL() + (pageId() + 1)}>
                         <AiOutlineArrowRight size={icon_size} />

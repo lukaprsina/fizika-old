@@ -23,9 +23,7 @@ type ContentType = {
 
 export const AppShellContent: ParentComponent<ContentType> = (props) => {
     return (
-        <div class="z-30 bg-inherit flex justify-center flex-grow h-full px-6 relative" classList={{
-            "w-full": props.fullWidth,
-        }}>
+        <div class="z-30 bg-inherit flex justify-center flex-grow h-full w-full px-6 relative">
             {props.children}
         </div>
     )
@@ -46,6 +44,7 @@ export const AppShellFooter: ParentComponent = (props) => {
 
 export const [EditToggleProvider, useEditToggle] = createContextProvider(
     (props: { initial: boolean }) => {
+        // eslint-disable-next-line solid/reactivity
         const [edit, setEdit] = createSignal(props.initial);
 
         return {
@@ -62,6 +61,7 @@ type ThemeType = {
 
 export const [ThemeToggleProvider, useThemeToggle] = createContextProvider(
     (props: ThemeType) => {
+        // eslint-disable-next-line solid/reactivity
         const [dark, setDark] = createSignal(props.dark);
 
         createEffect(() => {
@@ -75,6 +75,7 @@ export const [ThemeToggleProvider, useThemeToggle] = createContextProvider(
             }
         });
 
+        // eslint-disable-next-line solid/reactivity
         setDark(props.dark)
 
         return {

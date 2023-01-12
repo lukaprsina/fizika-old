@@ -16,10 +16,15 @@ import type { User } from "@prisma/client";
 
 type MonacoEditorType = {
     user?: User;
+    active: boolean;
 };
+
+
+const [editorInitialized, setEditorInitialized] = createSignal(false);
 
 const MonacoEditor: Component<MonacoEditorType> = (props) => {
     const [editor, setEditor] = createSignal<monaco.editor.IStandaloneCodeEditor>()
+    console.warn("Called Monaco Editor")
 
     const { setRef: dropzoneRef } = createDropzone({
         onDrop: async files => {
@@ -37,11 +42,20 @@ const MonacoEditor: Component<MonacoEditorType> = (props) => {
     })
 
     createEffect(() => {
+        if (editorInitialized())
+            return;
+
+        if (!props.active) {
+            console.warn("Editor not active, exiting")
+            return;
+        }
+
+        console.warn("Editor loader.init")
+
         loader.init().then(monaco => {
             const component = document.querySelector("#editor");
             if (!component)
                 return;
-            console.log({ component })
 
             const new_editor = monaco.editor.create(component as HTMLElement, {
                 value: '# editor',
@@ -50,14 +64,22 @@ const MonacoEditor: Component<MonacoEditorType> = (props) => {
             });
 
             setEditor(new_editor);
+            setEditorInitialized(false);
         });
     })
 
     return <div
         id="editor"
         ref={dropzoneRef}
-        class="w-full h-full"
+        class="w-full h-screen"
+    // class="w-screen h-screen"
     />
+}
+
+function wait(time: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, time);
+    });
 }
 
 export default MonacoEditor;
