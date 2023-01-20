@@ -9,7 +9,7 @@ import { A, useNavigate, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import Header from "~/components/Header";
 import { Tab, TabButton, TabButtonsContainer, TabsContext } from "~/components/Tabs";
-import { AppShellContent, AppShellHeader, useEditToggle } from "~/layouts/Providers";
+import { AppShellContent, AppShellHeader } from "~/layouts/Providers";
 import { authenticator } from "~/server/auth";
 import { prisma } from "~/server/db/client";
 import styles from "./page.module.scss"
@@ -60,16 +60,6 @@ type ParamsType = {
 const PageNavbar: Component = () => {
     const page_data = useRouteData<typeof routeData>();
     const params = useParams<ParamsType>();
-    const editToggle = useEditToggle();
-    const [showEditor, setShowEditor] = createSignal(false);
-
-    createEffect(() => {
-        if (editToggle?.edit()) {
-            setShowEditor(true)
-        } else {
-            setShowEditor(false)
-        }
-    })
 
     return <>
         <TabsContext defaultIndex={1}>{({ activeTab, setActiveTab }) => <>
@@ -109,7 +99,6 @@ const PageNavbar: Component = () => {
                 <Tab
                     activeTab={activeTab}
                     index={1}
-                    hidden={showEditor()}
                 >
                     <Show when={page_data()?.page?.html}>
                         <div
@@ -127,22 +116,6 @@ const PageNavbar: Component = () => {
                         keyboard={false}
                         page_count={page_data()?.page_count ?? 0}
                     />
-                </Tab>
-                <Tab
-                    activeTab={activeTab}
-                    index={1}
-                    hidden={!showEditor()}
-                >
-                    <MonacoEditor
-                        active={activeTab() == 1 && showEditor()}
-                        user={page_data()?.user ?? undefined} />
-                    <NavButtons page_count={page_data()?.page_count ?? 0} />
-                </Tab>
-                <Tab
-                    activeTab={activeTab}
-                    index={2}
-                >
-                    Explanation
                 </Tab>
             </AppShellContent>
         </>}</TabsContext>

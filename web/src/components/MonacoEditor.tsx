@@ -61,6 +61,7 @@ const MonacoEditor: Component<MonacoEditorType> = (props) => {
                 value: '# editor',
                 language: 'markdown',
                 dragAndDrop: true,
+                automaticLayout: true,
             });
 
             setEditor(new_editor);

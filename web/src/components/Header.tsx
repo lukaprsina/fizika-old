@@ -2,7 +2,7 @@ import type { User } from "@prisma/client";
 import type { Component } from "solid-js";
 import { Show } from "solid-js";
 import { A } from "solid-start";
-import { useEditToggle, useThemeToggle } from "~/layouts/Providers";
+import { useThemeToggle } from "~/layouts/Providers";
 
 type HeaderType = {
     topic?: string;
@@ -10,7 +10,6 @@ type HeaderType = {
 }
 
 const Header: Component<HeaderType> = (props) => {
-    const editToggle = useEditToggle();
     const darkToggle = useThemeToggle();
 
     return (
@@ -41,16 +40,9 @@ const Header: Component<HeaderType> = (props) => {
                         Dark</label>
                 </div>
                 <div class="mx-3">
-                    <Show when={props.user}>
-                        <label class="mr-2"><input
-                            type="checkbox"
-                            class="mr-2"
-                            checked={editToggle?.edit()}
-                            onChange={() => editToggle?.change(!editToggle.edit())}
-                        />
-                            Edit</label>
-                        <span>{props.user?.displayName}</span>
-                    </Show>
+                    <A href="edit">
+                        Edit
+                    </A>
                 </div>
             </div>
         </div>

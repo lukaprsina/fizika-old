@@ -42,18 +42,6 @@ export const AppShellFooter: ParentComponent = (props) => {
     )
 }
 
-export const [EditToggleProvider, useEditToggle] = createContextProvider(
-    (props: { initial: boolean }) => {
-        // eslint-disable-next-line solid/reactivity
-        const [edit, setEdit] = createSignal(props.initial);
-
-        return {
-            edit,
-            change: setEdit
-        };
-    }
-);
-
 type ThemeType = {
     dark: boolean;
     setCookies: StorageSetter<string, CookieOptions>
@@ -102,11 +90,9 @@ const Providers: ParentComponent = (props) => {
     return (
         <EditorInitializedProvider>
             <ThemeToggleProvider dark={cookies.theme == "dark"} setCookies={setCookies}>
-                <EditToggleProvider initial={false}>
-                    <div class="flex min-h-screen flex-col dark:text-white dark:bg-neutral-900">
-                        {props.children}
-                    </div>
-                </EditToggleProvider>
+                <div class="flex min-h-screen flex-col dark:text-white dark:bg-neutral-900">
+                    {props.children}
+                </div>
             </ThemeToggleProvider>
         </EditorInitializedProvider>
     )
