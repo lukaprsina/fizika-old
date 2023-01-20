@@ -30,8 +30,6 @@ export function routeData({ params }: RouteDataArgs) {
             }
         });
 
-        console.log(pages.length, "pages");
-
         return pages;
     }, {
         key: () => ["topic", decodeURI(params.topic)]
