@@ -1,16 +1,31 @@
-// import type { } from "@mdx-js/mdx"
 import { compile, run } from "@mdx-js/mdx"
-import type { Component, JSX } from "solid-js";
+import type { Component, JSX, Owner, VoidComponent } from "solid-js";
+import { getOwner, runWithOwner } from "solid-js";
 import { createComponent, createSignal, Show } from "solid-js";
 import { onMount } from "solid-js";
 import * as jsx_runtime from 'solid-jsx'
 
 const markdown = `<Test>Inside</Test>`
 
-const MDXOg: Component = () => {
+const Counter: VoidComponent = () => {
+    const [count, setCount] = createSignal(0);
+
+    return <>
+        <p>{count()}</p>
+        <button
+            onClick={() => { setCount(count() + 1) }}
+        >Add</button>
+    </>
+}
+
+const MDX: Component = () => {
     const [content, setContent] = createSignal<JSX.Element>();
+    const [owner, setOwner] = createSignal<Owner | null>(getOwner());
 
     onMount(async () => {
+        if (!owner())
+            return;
+
         const code = String(await compile(markdown, {
             outputFormat: 'function-body',
             jsxImportSource: 'solid-js',
@@ -18,15 +33,16 @@ const MDXOg: Component = () => {
         }))
 
         const Content = (await run(code, jsx_runtime)).default;
-        const component = createComponent(Content,
-            {
+        runWithOwner(owner() as Owner, () => {
+            const component = createComponent(Content, {
                 components: {
-                    Test: () => <span>Pluto</span>
+                    Test: () => <Counter />
                 }
             })
 
-        setContent(component)
-        console.log({ Content, component })
+            setContent(component)
+        })
+
     })
 
     return <Show when={content}>
@@ -34,4 +50,4 @@ const MDXOg: Component = () => {
     </Show>
 }
 
-export default MDXOg;
+export default MDX;

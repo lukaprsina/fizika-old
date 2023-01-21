@@ -5,7 +5,6 @@ import type { CookieOptions, StorageSetter } from "@solid-primitives/storage";
 import { cookieStorage, createStorage } from "@solid-primitives/storage";
 import type { ParentComponent } from "solid-js";
 import { createEffect, createSignal } from "solid-js";
-import { EditorInitializedProvider } from "~/components/TinyMCE";
 
 export const AppShellHeader: ParentComponent = (props) => {
     return (
@@ -35,6 +34,7 @@ export const AppShellFooter: ParentComponent = (props) => {
         >
             {props.children}
         </footer> */}
+    // TODO
     return (
         <>
             {props.children}
@@ -88,13 +88,11 @@ const Providers: ParentComponent = (props) => {
     }
 
     return (
-        <EditorInitializedProvider>
-            <ThemeToggleProvider dark={cookies.theme == "dark"} setCookies={setCookies}>
-                <div class="flex min-h-screen flex-col dark:text-white dark:bg-neutral-900">
-                    {props.children}
-                </div>
-            </ThemeToggleProvider>
-        </EditorInitializedProvider>
+        <ThemeToggleProvider dark={cookies.theme == "dark"} setCookies={setCookies}>
+            <div class="flex min-h-screen flex-col dark:text-white dark:bg-neutral-900">
+                {props.children}
+            </div>
+        </ThemeToggleProvider>
     )
 }
 

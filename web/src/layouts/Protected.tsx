@@ -6,7 +6,6 @@ import { type User } from "@prisma/client";
 
 export const withProtected = (Component: ProtectedRouter) => {
   const routeData = () => {
-    // a
     return createServerData$(async (_, { request }) => {
       const user = await authenticator.isAuthenticated(request);
       if (!user) {
