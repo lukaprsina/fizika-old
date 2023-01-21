@@ -5,10 +5,7 @@ use std::{
 };
 
 use color_eyre::Result;
-use fizika::{
-    init,
-    utils::{ChapterInfo, ChapterInfoOutput},
-};
+use fizika::{init, utils::ChapterInfo};
 use once_cell::sync::Lazy;
 use tracing::warn;
 

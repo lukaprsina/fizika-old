@@ -1,6 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
     fs::{self, File},
+    io::Write,
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -14,9 +15,9 @@ use uuid::Uuid;
 use xml::EmitterConfig;
 
 use crate::{
+    markdown::recurse_node,
     // parse_file::PageConfig,
     process_html::{process_exercise, process_popup, ExerciseError},
-    recurse_node::recurse_node,
     utils::{get_only_element, uppercase_first_letter, ChapterInfo},
 };
 
@@ -49,7 +50,7 @@ pub struct Slide {
 }
 
 #[tracing::instrument]
-pub fn extract_html2() -> Result<()> {
+pub fn to_markdown() -> Result<()> {
     let courses_dir = Path::new("courses");
     let output_dir = Path::new("courses_output");
 
@@ -221,13 +222,9 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
                     fs::write(&config_path, config_json.as_bytes())?;
                 }
 
-                let mut config = EmitterConfig::new().perform_indent(true);
-                config.perform_escaping = false;
-                config.write_document_declaration = false;
-
                 println!("Course:\t{:#?}", index_path);
 
-                write_node_to_file(index_file, area, course_name.clone(), config);
+                write_node_to_file(index_file, area, course_name.clone());
             }
         }
         Err(err) => {
@@ -248,37 +245,31 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
         let popup_dir = popups_dir.join(format!("{}.html", popup.slide.id));
         let file = File::create(&popup_dir)?;
 
-        let mut config = EmitterConfig::new().perform_indent(true);
-        config.perform_escaping = false;
-        config.write_document_declaration = false;
-
         println!("Popup:\t{:#?}", popup_dir);
 
-        write_node_to_file(file, area, course_name.clone(), config);
+        write_node_to_file(file, area, course_name.clone());
     }
 
     Ok(())
 }
 
-fn write_node_to_file(
-    file: File,
-    area: select::node::Node,
-    course_name: String,
-    config: EmitterConfig,
-) {
-    let mut writer = config.create_writer(file);
+fn write_node_to_file(file: File, area: select::node::Node, course_name: String) {
     let mut parents: Vec<Option<String>> = Vec::new();
     let mut new_popups: HashMap<String, Uuid> = HashMap::new();
     let mut question_mark_course = 0;
+    let mut contents = String::new();
 
     recurse_node(
         area,
         course_name,
         &mut parents,
         &mut new_popups,
-        &mut writer,
+        &mut contents,
         &mut question_mark_course,
     );
+
+    file.write(contents.as_bytes())
+        .expect(&format!("Can't write to file: {}", course_name));
 }
 
 fn write_config(

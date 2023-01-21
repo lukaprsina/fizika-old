@@ -2,7 +2,6 @@ lockfileVersion: 5.4
 
 specifiers:
   '@mdx-js/mdx': ^2.2.1
-  '@mdx-js/rollup': ^2.2.1
   '@monaco-editor/loader': ^1.3.2
   '@prisma/client': ^4.9.0
   '@solid-auth/core': ^0.0.1
@@ -26,25 +25,21 @@ specifiers:
   postcss: ^8.4.21
   prisma: ^4.9.0
   remark-gfm: ^3.0.1
-  rollup: ^3.10.1
   sass: ^1.57.1
   solid-headless: ^0.13.0
   solid-icons: ^1.0.4
   solid-js: ^1.6.9
   solid-jsx: ^0.9.1
-  solid-markdown: ^1.2.0
   solid-start: ^0.2.16
   solid-start-node: ^0.2.16
   tailwindcss: ^3.2.4
   typescript: ^4.9.4
   undici: ^5.15.1
   vite: ^3.2.5
-  vite-plugin-static-copy: ^0.12.0
   zod: ^3.20.2
 
 dependencies:
   '@mdx-js/mdx': 2.2.1
-  '@mdx-js/rollup': 2.2.1_rollup@3.10.1
   '@monaco-editor/loader': 1.3.2_monaco-editor@0.34.1
   '@prisma/client': 4.9.0_prisma@4.9.0
   '@solid-auth/core': 0.0.1_tdddjbkfv77o2lukrtxyouxxei
@@ -60,15 +55,12 @@ dependencies:
   monaco-editor: 0.34.1
   parse-multipart-data: 1.5.0
   remark-gfm: 3.0.1
-  rollup: 3.10.1
   solid-headless: 0.13.0_solid-js@1.6.9
   solid-icons: 1.0.4_solid-js@1.6.9
   solid-js: 1.6.9
   solid-jsx: 0.9.1_solid-js@1.6.9
-  solid-markdown: 1.2.0_solid-js@1.6.9
   solid-start: 0.2.16_55umyvmfaswzxpylft3tvr3dvm
   undici: 5.15.1
-  vite-plugin-static-copy: 0.12.0_vite@3.2.5
   zod: 3.20.2
 
 devDependencies:
@@ -1308,20 +1300,6 @@ packages:
       unist-util-position-from-estree: 1.1.2
       unist-util-stringify-position: 3.0.2
       unist-util-visit: 4.1.1
-      vfile: 5.3.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@mdx-js/rollup/2.2.1_rollup@3.10.1:
-    resolution: {integrity: sha512-wpGeK9iO7gPEIyC/ZTiggLY/MkEWDj5IWSsjlpkefgjb5RbmUukXU6/D2rHA+VAopxigS3NlaIL2ctpYBi4fmg==}
-    peerDependencies:
-      rollup: '>=2'
-    dependencies:
-      '@mdx-js/mdx': 2.2.1
-      '@rollup/pluginutils': 5.0.2_rollup@3.10.1
-      rollup: 3.10.1
-      source-map: 0.7.4
       vfile: 5.3.6
     transitivePeerDependencies:
       - supports-color
@@ -3038,15 +3016,6 @@ packages:
   /fraction.js/4.2.0:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
     dev: true
-
-  /fs-extra/10.1.0:
-    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      graceful-fs: 4.2.10
-      jsonfile: 6.1.0
-      universalify: 2.0.0
-    dev: false
 
   /fs-extra/11.1.0:
     resolution: {integrity: sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==}
@@ -4796,26 +4765,6 @@ packages:
       solid-js: 1.6.9
     dev: false
 
-  /solid-markdown/1.2.0_solid-js@1.6.9:
-    resolution: {integrity: sha512-OWev1wiNq2f8GOJu8SA6M527UiH2IxcY4L1KAHIfZgRW3snb+W4YqqZ71iuFsPpmaDLr5Jdg8Kc9NYP+I86sjQ==}
-    peerDependencies:
-      solid-js: ^1.2.0
-    dependencies:
-      comma-separated-tokens: 2.0.3
-      property-information: 6.2.0
-      remark-gfm: 3.0.1
-      remark-parse: 10.0.1
-      remark-rehype: 10.1.0
-      solid-js: 1.6.9
-      space-separated-tokens: 2.0.2
-      style-to-object: 0.3.0
-      unified: 10.1.2
-      unist-util-visit: 4.1.1
-      vfile: 5.3.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /solid-refresh/0.4.2_solid-js@1.6.9:
     resolution: {integrity: sha512-6g1HsgQkY0X0ZmsaydNgHwRaQIhH3bAbagZiYwWnGO7mqli50ehlwQUN18RZ2MH3fTIs9Y1bankZapVhMVuijg==}
     peerDependencies:
@@ -4984,6 +4933,7 @@ packages:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
     dependencies:
       inline-style-parser: 0.1.1
+    dev: true
 
   /style-to-object/0.4.1:
     resolution: {integrity: sha512-HFpbb5gr2ypci7Qw+IOhnP2zOU7e77b+rzM+wTzXzfi1PrtBCX0E7Pk4wL4iTLnhzZ+JgEGAhX81ebTg/aYjQw==}
@@ -5343,19 +5293,6 @@ packages:
       vitefu: 0.2.4_vite@3.2.5
     transitivePeerDependencies:
       - supports-color
-
-  /vite-plugin-static-copy/0.12.0_vite@3.2.5:
-    resolution: {integrity: sha512-5a8hCjYJdf/rl8s7ct/YWt97gXdGPGNSOoJtkY5IYhbnSq04X1gTt5GpFHKfAxhHoed1Grfw3Ed13t7AjJi7gw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    peerDependencies:
-      vite: ^3.0.0
-    dependencies:
-      chokidar: 3.5.3
-      fast-glob: 3.2.12
-      fs-extra: 10.1.0
-      picocolors: 1.0.0
-      vite: 3.2.5_ovmyjmuuyckt3r3gpaexj2onji
-    dev: false
 
   /vite/3.2.5_ovmyjmuuyckt3r3gpaexj2onji:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}

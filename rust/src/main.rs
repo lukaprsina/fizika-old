@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use fizika::{html2::extract_html2, init, javascript::parse_js, scrape::scrape_normal};
+use fizika::{html2::to_markdown, init, javascript::parse_js, scrape::scrape_normal};
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
@@ -12,7 +12,7 @@ pub async fn main() -> Result<()> {
     parse_js()?;
 
     println!("extract_html");
-    extract_html2()?;
+    to_markdown()?;
 
     Ok(())
 }

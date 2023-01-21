@@ -4,7 +4,7 @@ pub mod database;
 pub mod html2;
 pub mod javascript;
 pub mod process_html;
-pub mod recurse_node;
+pub mod markdown;
 pub mod scrape;
 pub mod scrape_utils;
 pub mod utils;
