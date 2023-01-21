@@ -16,7 +16,6 @@ import type { User } from "@prisma/client";
 
 type MonacoEditorType = {
     user?: User;
-    active: boolean;
 };
 
 
@@ -42,20 +41,19 @@ const MonacoEditor: Component<MonacoEditorType> = (props) => {
     })
 
     createEffect(() => {
-        if (editorInitialized())
+        if (!props.user || editorInitialized())
             return;
-
-        if (!props.active) {
-            console.warn("Editor not active, exiting")
-            return;
-        }
 
         console.warn("Editor loader.init")
 
-        loader.init().then(monaco => {
+        loader.init().then(async (monaco) => {
             const component = document.querySelector("#editor");
             if (!component)
                 return;
+
+            console.warn("Shit is not real")
+            await new Promise((r) => setTimeout(r, 1000));
+            console.warn("Shit is real")
 
             const new_editor = monaco.editor.create(component as HTMLElement, {
                 value: '# editor',

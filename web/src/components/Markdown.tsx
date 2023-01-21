@@ -1,5 +1,5 @@
 import { compile, run } from "@mdx-js/mdx"
-import type { Component, JSX, Owner, VoidComponent } from "solid-js";
+import type { Component, JSX, VoidComponent } from "solid-js";
 import { getOwner, runWithOwner } from "solid-js";
 import { createComponent, createSignal, Show } from "solid-js";
 import { onMount } from "solid-js";
@@ -14,18 +14,21 @@ const Counter: VoidComponent = () => {
         <p>{count()}</p>
         <button
             onClick={() => { setCount(count() + 1) }}
-        >Add</button>
+        >
+            Add
+        </button>
     </>
 }
 
-const MDX: Component = () => {
+const Markdown: Component = () => {
     const [content, setContent] = createSignal<JSX.Element>();
-    const [owner, setOwner] = createSignal<Owner | null>(getOwner());
+    const owner = getOwner();
 
     onMount(async () => {
-        if (!owner())
+        if (!owner)
             return;
 
+        console.log("ownera", owner.owned)
         const code = String(await compile(markdown, {
             outputFormat: 'function-body',
             jsxImportSource: 'solid-js',
@@ -33,7 +36,7 @@ const MDX: Component = () => {
         }))
 
         const Content = (await run(code, jsx_runtime)).default;
-        runWithOwner(owner() as Owner, () => {
+        runWithOwner(owner, () => {
             const component = createComponent(Content, {
                 components: {
                     Test: () => <Counter />
@@ -46,8 +49,10 @@ const MDX: Component = () => {
     })
 
     return <Show when={content}>
-        {content()}
+        <div>
+            {content()}
+        </div>
     </Show>
 }
 
-export default MDX;
+export default Markdown;
