@@ -1,6 +1,6 @@
-import { Component, createEffect } from "solid-js";
+import type { Component } from "solid-js";
+import { createEffect } from "solid-js";
 import { createSignal } from "solid-js";
-import { onMount } from "solid-js";
 import loader from '@monaco-editor/loader';
 import { createDropzone } from "@solid-primitives/upload";
 import type monaco from 'monaco-editor'
@@ -75,12 +75,6 @@ const MonacoEditor: Component<MonacoEditorType> = (props) => {
         class="w-full h-screen"
     // class="w-screen h-screen"
     />
-}
-
-function wait(time: number) {
-    return new Promise(resolve => {
-        setTimeout(resolve, time);
-    });
 }
 
 export default MonacoEditor;

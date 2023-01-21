@@ -10,6 +10,7 @@
     "jsx": "preserve",
     "types": [
       "vite/client",
+      "solid-jsx/types"
     ],
     "baseUrl": "./",
     "paths": {

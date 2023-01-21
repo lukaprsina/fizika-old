@@ -1,53 +1,37 @@
-import type { Component, JSX, ParentComponent, ParentProps } from "solid-js";
-import { createComponent, useContext } from "solid-js";
-import { Show, createSignal } from "solid-js";
-import { onMount } from "solid-js"
-import { compile, run } from '@mdx-js/mdx'
+// import type { } from "@mdx-js/mdx"
+import { compile, run } from "@mdx-js/mdx"
+import type { Component, JSX } from "solid-js";
+import { createComponent, createSignal, Show } from "solid-js";
+import { onMount } from "solid-js";
 import * as jsx_runtime from 'solid-jsx'
-import { MDXContext } from 'solid-jsx'
 
-const text = `{console.log(Test)}
-# Heading (rank 1)
-## Heading 2
-### 3
-#### 4
-##### 5
-###### 6
+const markdown = `<Test>Inside</Test>`
 
-> Block quote
+const MDXOg: Component = () => {
+    const [content, setContent] = createSignal<JSX.Element>();
 
-* Unordered
-* List
+    onMount(async () => {
+        const code = String(await compile(markdown, {
+            outputFormat: 'function-body',
+            jsxImportSource: 'solid-js',
+            providerImportSource: 'solid-jsx',
+        }))
 
-1. Ordered
-2. List
+        const Content = (await run(code, jsx_runtime)).default;
+        const component = createComponent(Content,
+            {
+                components: {
+                    Test: () => <span>Pluto</span>
+                }
+            })
 
-A paragraph, introducing a thematic break:
+        setContent(component)
+        console.log({ Content, component })
+    })
 
----
-
-\`\`\`js
-some.code()
-\`\`\`
-
-<Test>OMG</Test>
-
-a [link](https://example.com), an ![image](./image.png), some *emphasis*,
-something **strong**, and finally a little \`code()\`.
-        `;
-
-const MDX: Component = () => {
-    const [Content, setContent] = createSignal<JSX.Element>();
-
-
-
-    return (
-        
-    )
+    return <Show when={content}>
+        {content()}
+    </Show>
 }
 
-const H1Test: ParentComponent = (props) => {
-    return <h4>{props.children}</h4>
-}
-
-export default MDX
+export default MDXOg;
