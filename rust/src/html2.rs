@@ -12,7 +12,6 @@ use once_cell::sync::Lazy;
 use select::{document::Document, predicate};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use xml::EmitterConfig;
 
 use crate::{
     markdown::recurse_node,
@@ -212,7 +211,7 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
         Ok(result) => {
             if let Some((area, subheading)) = result {
                 let index_path = output_page_path.join("index.html");
-                let index_file = File::create(&index_path)?;
+                let mut index_file = File::create(&index_path)?;
 
                 {
                     let config_path = output_page_path.join("config.json");
@@ -224,7 +223,7 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
 
                 println!("Course:\t{:#?}", index_path);
 
-                write_node_to_file(index_file, area, course_name.clone());
+                write_node_to_file(&mut index_file, area, course_name.clone());
             }
         }
         Err(err) => {
@@ -243,17 +242,17 @@ fn parse_exercise2(exercise: Exercise, output_page_path: &Path, course_name: Str
         let (html_uuid, area) = process_popup(&popup.document)?;
         assert_eq!(html_uuid, popup.slide.id);
         let popup_dir = popups_dir.join(format!("{}.html", popup.slide.id));
-        let file = File::create(&popup_dir)?;
+        let mut file = File::create(&popup_dir)?;
 
         println!("Popup:\t{:#?}", popup_dir);
 
-        write_node_to_file(file, area, course_name.clone());
+        write_node_to_file(&mut file, area, course_name.clone());
     }
 
     Ok(())
 }
 
-fn write_node_to_file(file: File, area: select::node::Node, course_name: String) {
+fn write_node_to_file(file: &mut File, area: select::node::Node, course_name: String) {
     let mut parents: Vec<Option<String>> = Vec::new();
     let mut new_popups: HashMap<String, Uuid> = HashMap::new();
     let mut question_mark_course = 0;
@@ -261,7 +260,7 @@ fn write_node_to_file(file: File, area: select::node::Node, course_name: String)
 
     recurse_node(
         area,
-        course_name,
+        course_name.clone(),
         &mut parents,
         &mut new_popups,
         &mut contents,
