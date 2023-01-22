@@ -22,13 +22,13 @@ const Counter: VoidComponent = () => {
 
 const Markdown: Component = () => {
     const [content, setContent] = createSignal<JSX.Element>();
-    const owner = getOwner();
+    // const owner = getOwner();
 
     onMount(async () => {
-        if (!owner)
-            return;
+        console.log("Shit")
+        /* if (!owner)
+            return; */
 
-        console.log("ownera", owner.owned)
         const code = String(await compile(markdown, {
             outputFormat: 'function-body',
             jsxImportSource: 'solid-js',
@@ -36,7 +36,7 @@ const Markdown: Component = () => {
         }))
 
         const Content = (await run(code, jsx_runtime)).default;
-        runWithOwner(owner, () => {
+        /* runWithOwner(owner, () => {
             const component = createComponent(Content, {
                 components: {
                     Test: () => <Counter />
@@ -44,7 +44,7 @@ const Markdown: Component = () => {
             })
 
             setContent(component)
-        })
+        }) */
 
     })
 

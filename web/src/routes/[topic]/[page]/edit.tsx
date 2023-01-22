@@ -6,6 +6,7 @@ import Footer from "~/components/Footer"
 import Header from "~/components/Header"
 import Markdown from "~/components/markdown"
 import MonacoEditor from "~/components/MonacoEditor"
+import SimpleMDE from "~/components/SimpleMDE";
 import { AppShellHeader, AppShellContent, AppShellFooter } from "~/layouts/Providers"
 import { authenticator } from "~/server/auth"
 
@@ -26,9 +27,7 @@ export const routeData = () => {
 };
 
 const Edit: Component = () => {
-    // const { Page, routeData } = withProtected((user) => {
     const current = useRouteData<typeof routeData>();
-    createEffect(() => console.log(current()))
 
     return <>
         <AppShellHeader>
@@ -37,13 +36,15 @@ const Edit: Component = () => {
         <AppShellContent>
             <Show when={current()}>
                 <div
-                    class=""
+                    class="w-full h-full flex flex-row"
                 >
-                    <MonacoEditor
-                        user={current()}
-                    />
+                    <div class="w-1/2">
+                        <SimpleMDE />
+                    </div>
+                    <div class="w-1/2">
+                        <Markdown />
+                    </div>
                 </div>
-                <Markdown />
             </Show>
         </AppShellContent>
         <AppShellFooter>
@@ -53,5 +54,4 @@ const Edit: Component = () => {
     // });
 };
 
-// export { routeData };
 export default Edit;

@@ -89,7 +89,7 @@ const Providers: ParentComponent = (props) => {
 
     return (
         <ThemeToggleProvider dark={cookies.theme == "dark"} setCookies={setCookies}>
-            <div class="flex min-h-screen flex-col dark:text-white dark:bg-neutral-900">
+            <div class="flex min-h-screen bg-white flex-col dark:text-white dark:bg-neutral-900">
                 {props.children}
             </div>
         </ThemeToggleProvider>
