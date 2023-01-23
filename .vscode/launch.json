@@ -7,20 +7,10 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'math-eval'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=math-eval",
-                    "--package=math-eval"
-                ],
-                "filter": {
-                    "name": "math-eval",
-                    "kind": "bin"
-                }
-            },
+            "name": "Debug",
+            "program": "${workspaceFolder}/target/debug/math-eval",
             "args": [],
-            "cwd": "${workspaceFolder}"
-        },
+            "cwd": "${workspaceFolder}/target/debug/"
+        }
     ]
 }

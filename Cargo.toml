@@ -10,7 +10,7 @@ authors = ["Luka Pršina"]
 
 [dependencies]
 color-eyre = { version = "0.6.2", default-features = false }
-criterion = "0.3.6"
+criterion = "0.4.0"
 getrandom = { version = "0.2.7", features = ["js"], optional = true }
 itertools = "0.10.3"
 lazy_static = "1.4.0"
@@ -23,10 +23,6 @@ thiserror = "1.0.31"
 tracing = "0.1.35"
 tracing-subscriber = { version = "0.3.14", features = ["env-filter"] }
 uuid = { version = "1.1.2", features = ["v4", "fast-rng", "macro-diagnostics"] }
-yew = { version = "0.19.3", optional = true }
-
-[features]
-web = ["dep:getrandom", "dep:yew"]
 
 # color-eyre docs
 [profile.dev.package.backtrace]
