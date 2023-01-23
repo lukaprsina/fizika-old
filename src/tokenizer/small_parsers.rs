@@ -2,7 +2,6 @@ use super::Number;
 use crate::tokenizer::{Operation, Token};
 use std::{cmp::Ordering, collections::HashMap, num::NonZeroUsize};
 
-use lazy_static::lazy_static;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, tag_no_case, take_until},
@@ -13,6 +12,7 @@ use nom::{
     sequence::{pair, preceded, terminated, tuple},
     Err, IResult, Needed,
 };
+use once_cell::sync::Lazy;
 
 fn parse_eol_comment<'a, E: ParseError<&'a str> + 'a>(i: &'a str) -> IResult<&'a str, (), E> {
     trim(value(
@@ -63,25 +63,23 @@ fn add_str_token_pairs(
     result
 }
 
-lazy_static! {
-    static ref BINARY_EXPRESSION_MAPS: Vec<HashMap<&'static str, &'static Token>> = {
-        add_str_token_pairs(&[
-            ("+", &Token::Binary(Operation::Add)),
-            ("-", &Token::Binary(Operation::Subtract)),
-            ("*", &Token::Binary(Operation::Multiply)),
-            ("/", &Token::Binary(Operation::Divide)),
-            ("%", &Token::Binary(Operation::Mod)),
-            ("^", &Token::Binary(Operation::Power)),
-            ("!", &Token::Binary(Operation::Factorial)),
-            ("=", &Token::Binary(Operation::Equal)),
-            ("<", &Token::Binary(Operation::LessThan)),
-            (">", &Token::Binary(Operation::GreaterThan)),
-            ("<=", &Token::Binary(Operation::LessThanOrEqual)),
-            (">=", &Token::Binary(Operation::GreaterThanOrEqual)),
-            ("!=", &Token::Binary(Operation::NotEqual)),
-        ])
-    };
-}
+static BINARY_EXPRESSION_MAPS: Lazy<Vec<HashMap<&'static str, &'static Token>>> = Lazy::new(|| {
+    add_str_token_pairs(&[
+        ("+", &Token::Binary(Operation::Add)),
+        ("-", &Token::Binary(Operation::Subtract)),
+        ("*", &Token::Binary(Operation::Multiply)),
+        ("/", &Token::Binary(Operation::Divide)),
+        ("%", &Token::Binary(Operation::Mod)),
+        ("^", &Token::Binary(Operation::Power)),
+        ("!", &Token::Binary(Operation::Factorial)),
+        ("=", &Token::Binary(Operation::Equal)),
+        ("<", &Token::Binary(Operation::LessThan)),
+        (">", &Token::Binary(Operation::GreaterThan)),
+        ("<=", &Token::Binary(Operation::LessThanOrEqual)),
+        (">=", &Token::Binary(Operation::GreaterThanOrEqual)),
+        ("!=", &Token::Binary(Operation::NotEqual)),
+    ])
+});
 
 fn parse_and_map<'a, OutputType, FuncError>(
     name: &'a str,

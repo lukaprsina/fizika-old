@@ -51,8 +51,9 @@ fn main() -> Result<()> {
         let eq1 = ctx.remove_equation(uuid1).unwrap();
         let eq2 = ctx.remove_equation(uuid2).unwrap();
 
-        info!(%eq1);
-        info!(%eq2);
+        println!("{:#?}", eq1);
+        // info!(%eq1);
+        // info!(%eq2);
 
         let elem1 = eq1.eq_sides.first().unwrap();
         let elem2 = eq2.eq_sides.first().unwrap();
