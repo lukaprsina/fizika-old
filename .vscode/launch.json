@@ -7,6 +7,25 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug unit tests in library 'math-eval'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=math-eval"
+                ],
+                "filter": {
+                    "name": "math-eval",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug executable 'math-eval'",
             "cargo": {
                 "args": [
@@ -22,5 +41,61 @@
             "args": [],
             "cwd": "${workspaceFolder}"
         },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'math-eval'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=math-eval",
+                    "--package=math-eval"
+                ],
+                "filter": {
+                    "name": "math-eval",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'expand'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=expand",
+                    "--package=math-eval"
+                ],
+                "filter": {
+                    "name": "expand",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'expand'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=expand",
+                    "--package=math-eval"
+                ],
+                "filter": {
+                    "name": "expand",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
     ]
 }

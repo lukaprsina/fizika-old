@@ -275,6 +275,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "delegate"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d70a2d4995466955a415223acf3c9c934b9ff2339631cdf4ffc893da4bacd717"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "directories"
 version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -569,6 +580,7 @@ version = "0.1.0"
 dependencies = [
  "color-eyre",
  "criterion",
+ "delegate",
  "getrandom",
  "itertools",
  "lazy_static 1.4.0",

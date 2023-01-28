@@ -1,21 +1,14 @@
 use std::rc::Rc;
 
 use color_eyre::eyre::Result;
-use itertools::Itertools;
-use math_eval::ast::{app::App, context::Context};
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
-
+use math_eval::{
+    actions::bind::Bind,
+    ast::{app::App, context::Context},
+    initialize,
+};
 // TODO: vec remove unwrap
 fn main() -> Result<()> {
-    color_eyre::install()?;
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::TRACE)
-        .without_time()
-        .finish();
-
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-
+    initialize()?;
     // info!("Started the logger crate");
 
     let app = App::new()?;
@@ -23,8 +16,6 @@ fn main() -> Result<()> {
     let context = Context::new(Rc::clone(&app));
 
     let ctx_uuid = app.borrow_mut().add_context(context);
-
-    // let a = "4x + 4 + x^2 + 5";
 
     // let a = "(2 + a)/cos(x)";
     // let a = "2/a";
@@ -35,8 +26,8 @@ fn main() -> Result<()> {
 
     // let a = "2log(a+c)+b";
     // let b = "b+2log(c+b)";
-    let a = "1 + 2 + 3";
-    let b = "5 + 6";
+    let a = "4x + 4 + x^2 + 5";
+    let b = "a^2 + 2ab + b^2";
 
     let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, a)?;
     let uuid2 = App::try_add_equation(Rc::clone(&app), ctx_uuid, b)?;
