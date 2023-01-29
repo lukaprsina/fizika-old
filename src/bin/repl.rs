@@ -37,7 +37,7 @@ fn main() -> Result<()> {
                 let eq = ctx.remove_equation(uuid).unwrap();
 
                 println!("{}", eq);
-                println!("{:#?}", eq);
+                // println!("{:#?}", eq);
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");

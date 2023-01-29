@@ -39,14 +39,15 @@ fn main() -> Result<()> {
 }
 
 fn multiply(eq: math_eval::ast::Equation) {
-    if let NodeOrExpression::Expression(mut expr) = eq.eq_sides[0].node_or_expression.clone() {
-        expr.expand();
+    if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
+        // expr.expand();
+        println!("{expr:#?}");
         println!("{expr}");
     };
 }
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["2 - x", "(3+x)(2+x)"];
+    let strings = vec!["1-(-2-3)/(-4)-6"];
     strings
         .into_iter()
         .map(|string| string.to_string())

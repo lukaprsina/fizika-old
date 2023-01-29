@@ -1,10 +1,7 @@
 use crate::ast::{Equation, Expression, Node, Sign};
 use std::fmt::{Display, Write};
 
-use crate::ast::{
-    element::IsTimesVisible, element::ShouldBeParenthesized, product::Product, Element,
-    NodeOrExpression,
-};
+use crate::ast::{element::ShouldBeParenthesized, product::Product, Element, NodeOrExpression};
 
 impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -142,20 +139,86 @@ impl Display for Product {
 impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
+        // println!("{self:#?}");
 
-        match self.node_or_expression {
-            NodeOrExpression::Node(node) => todo!(),
+        match &self.node_or_expression {
+            NodeOrExpression::Node(node) => result += &node.to_string(),
             NodeOrExpression::Expression(expression) => {
-                // a
-                for (pos, product) in expression.products.into_iter().enumerate() {
-                    let is_denom_empty = product.denominator.is_empty();
+                for (pos, product) in expression.products.iter().enumerate() {
+                    let is_numerator_empty = product.numerator.is_empty();
+                    let is_denominator_empty = product.denominator.is_empty();
                     let is_elem_pos = self.sign == Sign::Positive;
-                    let first_in_element = pos == 0;
+                    let is_first_in_element = pos == 0;
+                    let mut is_denom_first_element_pos = false;
+                    let mut is_numerator_product = false;
+                    let mut is_denominator_product = false;
+
+                    if let Some(first_elem) = product.numerator.first() {
+                        is_numerator_product = match &first_elem.node_or_expression {
+                            NodeOrExpression::Expression(expression) => {
+                                expression.products.len() == 1
+                            }
+                            NodeOrExpression::Node(_) => true,
+                        };
+                    }
+
+                    if let Some(first_elem) = product.denominator.first() {
+                        is_denom_first_element_pos = first_elem.sign == Sign::Positive;
+                        is_denominator_product = match &first_elem.node_or_expression {
+                            NodeOrExpression::Expression(expression) => {
+                                expression.products.len() == 1
+                            }
+                            NodeOrExpression::Node(_) => true,
+                        };
+                    }
+
+                    let open_numerator = !is_elem_pos && !is_first_in_element
+                        || !is_elem_pos && !is_denominator_empty
+                        || !is_numerator_product && is_denominator_empty;
+
+                    let open_denominator = !is_denom_first_element_pos || !is_denominator_product;
+
+                    {
+                        if product.numerator.is_empty() {
+                            result += " 1";
+                        }
+
+                        let mut last: Option<&Element>;
+
+                        for (side_pos, side) in [&product.numerator, &product.denominator]
+                            .into_iter()
+                            .enumerate()
+                        {
+                            last = None;
+                            let open = !side.is_empty()
+                                && (side_pos == 0 && open_numerator
+                                    || side_pos == 1 && open_denominator);
+
+                            if open {
+                                // println!("{side:#?}");
+                                result.push('(');
+                            }
+
+                            for element in side.iter() {
+                                let elem_str = element.to_string();
+                                // println!("{elem_str}");
+                                result += &elem_str;
+
+                                last = Some(element);
+                            }
+
+                            if open {
+                                result.push(')');
+                            }
+
+                            if side_pos == 0 && !product.denominator.is_empty() {
+                                result.push('/');
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        result += &self.node_or_expression.to_string();
 
         write!(f, "{}", result)
     }

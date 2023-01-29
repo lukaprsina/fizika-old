@@ -11,7 +11,7 @@ authors = ["Luka Pršina"]
 [dependencies]
 color-eyre = { version = "0.6.2", default-features = false }
 criterion = "0.4.0"
-delegate = "0.7.0"
+delegate = "0.9.0"
 getrandom = { version = "0.2.7", features = ["js"], optional = true }
 itertools = "0.10.3"
 nom = "7.1.1"

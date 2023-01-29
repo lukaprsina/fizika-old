@@ -63,15 +63,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'expand'",
+            "name": "Debug executable 'file'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=expand",
+                    "--bin=file",
                     "--package=math-eval"
                 ],
                 "filter": {
-                    "name": "expand",
+                    "name": "file",
                     "kind": "bin"
                 }
             },
@@ -81,16 +81,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'expand'",
+            "name": "Debug unit tests in executable 'file'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=expand",
+                    "--bin=file",
                     "--package=math-eval"
                 ],
                 "filter": {
-                    "name": "expand",
+                    "name": "file",
                     "kind": "bin"
                 }
             },
@@ -100,15 +100,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'parser'",
+            "name": "Debug executable 'hardcoded'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=parser",
+                    "--bin=hardcoded",
                     "--package=math-eval"
                 ],
                 "filter": {
-                    "name": "parser",
+                    "name": "hardcoded",
                     "kind": "bin"
                 }
             },
@@ -118,16 +118,53 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'parser'",
+            "name": "Debug unit tests in executable 'hardcoded'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=parser",
+                    "--bin=hardcoded",
                     "--package=math-eval"
                 ],
                 "filter": {
-                    "name": "parser",
+                    "name": "hardcoded",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'repl'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=repl",
+                    "--package=math-eval"
+                ],
+                "filter": {
+                    "name": "repl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'repl'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=repl",
+                    "--package=math-eval"
+                ],
+                "filter": {
+                    "name": "repl",
                     "kind": "bin"
                 }
             },
