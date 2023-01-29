@@ -31,23 +31,23 @@ fn main() -> Result<()> {
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
         let eq = ctx.remove_equation(uuid1).unwrap();
-
-        multiply(eq)
+        do_stuff(eq)
     }
 
     Ok(())
 }
 
-fn multiply(eq: math_eval::ast::Equation) {
-    if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
-        // expr.expand();
-        println!("{expr:#?}");
-        println!("{expr}");
-    };
+fn do_stuff(eq: math_eval::ast::Equation) {
+    // eq.to_string();
+    // println!("{eq:#?}");
+    println!("{eq}");
+    /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
+        expr.expand();
+    }; */
 }
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["1-(-2-3)/(-4)-6"];
+    let strings = vec!["-((-2)/(-4))"];
     strings
         .into_iter()
         .map(|string| string.to_string())

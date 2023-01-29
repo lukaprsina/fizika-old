@@ -25,7 +25,7 @@ impl App {
             strategies: vec![],
         }));
 
-        let ctx_uuid = {
+        /* let ctx_uuid = {
             let mut borrowed_app = app.borrow_mut();
 
             let context = Context::new(Rc::clone(&app));
@@ -59,7 +59,7 @@ impl App {
                     return Err(eq_err);
                 }
             }
-        }
+        } */
 
         Ok(app)
     }

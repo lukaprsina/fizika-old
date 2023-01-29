@@ -33,17 +33,20 @@ fn main() -> Result<()> {
     let ctx_uuid = app.borrow_mut().add_context(context);
 
     let file = fs::read_to_string("formulas.txt").expect("File formulas.txt not found");
-    let lines = file.split("\n").collect_vec();
+    let lines = file.lines().collect_vec();
 
     for equation in lines {
         match App::try_add_equation(Rc::clone(&app), ctx_uuid, equation) {
             Ok(uuid) => {
+                // print!("=\"{equation}\",");
+                println!("{equation}");
                 let mut borrowed_app = app.borrow_mut();
                 let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
                 let eq = ctx.remove_equation(uuid).unwrap();
 
-                multiply(eq)
+                multiply(eq);
+                // println!("\n");
             }
             Err(err) => match err {
                 CreateEquationError::ParseError(ParseError::Empty) => {}
@@ -56,18 +59,10 @@ fn main() -> Result<()> {
 }
 
 fn multiply(eq: math_eval::ast::Equation) {
-    println!("{eq}");
+    println!("{eq}\n");
     /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
         // expr.expand();
         println!("{expr:#?}");
         println!("{expr}");
     }; */
 }
-
-static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["1-(-2-3)/(-4)-6"];
-    strings
-        .into_iter()
-        .map(|string| string.to_string())
-        .collect_vec()
-});

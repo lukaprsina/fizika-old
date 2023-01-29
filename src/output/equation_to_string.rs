@@ -116,15 +116,28 @@ impl Display for Product {
             result += " 1";
         }
 
-        let mut last: Option<&Element>;
-
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
-            last = None;
+            let side_length = side.len();
+            let mut open = false;
+
+            if side_length == 1 {
+                if let Some(element) = side.first() {
+                    if element.sign == Sign::Positive {
+                        // open = true;
+                    }
+                }
+            }
+
+            if open {
+                result.push('(');
+            }
 
             for element in side.iter() {
                 result += &element.to_string();
+            }
 
-                last = Some(element);
+            if open {
+                result.push(')');
             }
 
             if side_pos == 0 && !self.denominator.is_empty() {
@@ -139,85 +152,24 @@ impl Display for Product {
 impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
-        // println!("{self:#?}");
+        println!("{self:#?}");
 
         match &self.node_or_expression {
-            NodeOrExpression::Node(node) => result += &node.to_string(),
             NodeOrExpression::Expression(expression) => {
-                for (pos, product) in expression.products.iter().enumerate() {
-                    let is_numerator_empty = product.numerator.is_empty();
-                    let is_denominator_empty = product.denominator.is_empty();
-                    let is_elem_pos = self.sign == Sign::Positive;
-                    let is_first_in_element = pos == 0;
-                    let mut is_denom_first_element_pos = false;
-                    let mut is_numerator_product = false;
-                    let mut is_denominator_product = false;
-
-                    if let Some(first_elem) = product.numerator.first() {
-                        is_numerator_product = match &first_elem.node_or_expression {
-                            NodeOrExpression::Expression(expression) => {
-                                expression.products.len() == 1
-                            }
-                            NodeOrExpression::Node(_) => true,
-                        };
+                for product in &expression.products {
+                    let open = !product.denominator.is_empty() && self.sign != Sign::Positive;
+                    if open {
+                        result.push('(');
                     }
 
-                    if let Some(first_elem) = product.denominator.first() {
-                        is_denom_first_element_pos = first_elem.sign == Sign::Positive;
-                        is_denominator_product = match &first_elem.node_or_expression {
-                            NodeOrExpression::Expression(expression) => {
-                                expression.products.len() == 1
-                            }
-                            NodeOrExpression::Node(_) => true,
-                        };
-                    }
+                    result += &product.to_string();
 
-                    let open_numerator = !is_elem_pos && !is_first_in_element
-                        || !is_elem_pos && !is_denominator_empty
-                        || !is_numerator_product && is_denominator_empty;
-
-                    let open_denominator = !is_denom_first_element_pos || !is_denominator_product;
-
-                    {
-                        if product.numerator.is_empty() {
-                            result += " 1";
-                        }
-
-                        let mut last: Option<&Element>;
-
-                        for (side_pos, side) in [&product.numerator, &product.denominator]
-                            .into_iter()
-                            .enumerate()
-                        {
-                            last = None;
-                            let open = !side.is_empty()
-                                && (side_pos == 0 && open_numerator
-                                    || side_pos == 1 && open_denominator);
-
-                            if open {
-                                // println!("{side:#?}");
-                                result.push('(');
-                            }
-
-                            for element in side.iter() {
-                                let elem_str = element.to_string();
-                                // println!("{elem_str}");
-                                result += &elem_str;
-
-                                last = Some(element);
-                            }
-
-                            if open {
-                                result.push(')');
-                            }
-
-                            if side_pos == 0 && !product.denominator.is_empty() {
-                                result.push('/');
-                            }
-                        }
+                    if open {
+                        result.push(')');
                     }
                 }
             }
+            NodeOrExpression::Node(node) => result += &node.to_string(),
         }
 
         write!(f, "{}", result)
