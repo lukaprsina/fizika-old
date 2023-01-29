@@ -104,24 +104,7 @@ impl Display for Expression {
         let mut result = String::new();
 
         for (pos, product) in self.products.iter().enumerate() {
-            match product.numerator.first() {
-                Some(element) => {
-                    if pos == 0 {
-                        if element.sign == Sign::Negative {
-                            // write!(result, "{} ", element.sign).unwrap()
-                        }
-                    } else {
-                        write!(result, "{} ", element.sign).unwrap()
-                    }
-                }
-                None => result += "+ 1",
-            }
-
             result += &product.to_string();
-
-            if pos != self.products.len() - 1 {
-                result.push(' ');
-            }
         }
 
         write!(f, "{}", result)
@@ -132,48 +115,19 @@ impl Display for Product {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        // println!("\nNum:\n{:#?}", self);
+        if self.numerator.is_empty() {
+            result += " 1";
+        }
 
         let mut last: Option<&Element>;
 
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             last = None;
 
-            let open = side.len() >= 2;
-            if open {
-                result.push('(');
-            }
-
             for element in side.iter() {
-                let explicit_minus = side_pos > 0 && element.sign == Sign::Negative;
-
-                let product_open = element.should_be_parenthesized() || explicit_minus;
-
-                if let Some(last) = last {
-                    if element.is_times_visible(last) {
-                        result += " * ";
-                    }
-                }
-
-                if product_open {
-                    result.push('(');
-                }
-
-                /* if explicit_minus {
-                    write!(result, "{} ", element.sign).unwrap();
-                } */
-
                 result += &element.to_string();
 
-                if product_open {
-                    result.push(')');
-                }
-
                 last = Some(element);
-            }
-
-            if open {
-                result.push(')');
             }
 
             if side_pos == 0 && !self.denominator.is_empty() {
@@ -189,23 +143,19 @@ impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        // let open = false; // TODO self.sign == Sign::Negative; // self.should_be_parenthesized();
-        let open = self.sign == Sign::Negative
-            && matches!(self.node_or_expression, NodeOrExpression::Expression(_));
-
-        if self.sign == Sign::Negative {
-            write!(result, "{}", self.sign).unwrap();
-        }
-
-        if open {
-            result.push('(');
+        match self.node_or_expression {
+            NodeOrExpression::Node(node) => todo!(),
+            NodeOrExpression::Expression(expression) => {
+                // a
+                for (pos, product) in expression.products.into_iter().enumerate() {
+                    let is_denom_empty = product.denominator.is_empty();
+                    let is_elem_pos = self.sign == Sign::Positive;
+                    let first_in_element = pos == 0;
+                }
+            }
         }
 
         result += &self.node_or_expression.to_string();
-
-        if open {
-            result.push(')');
-        }
 
         write!(f, "{}", result)
     }

@@ -1,6 +1,5 @@
 // TODO: apply everything to every element expression
-// sagemath
-// log(2+3+4)
-// log(x-2^2, -(-3^-(-2)))
-// -(-2/-3)
-// log(x-2^2!, -(-3^-(-2)))
+log(2+3+4)
+log(x-2^2, -(-3^-(-2)))
+-(-2/-3)
+log(x-2^2!, -(-3^-(-2)))

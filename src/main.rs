@@ -2,8 +2,12 @@ use std::rc::Rc;
 
 use color_eyre::eyre::Result;
 use math_eval::{
-    actions::is_same::{IsSame, IsSameNames},
+    actions::{
+        bind::Bind,
+        is_same::{IsSame, IsSameNames},
+    },
     ast::{app::App, context::Context, Element},
+    initialize,
 };
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;

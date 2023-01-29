@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use color_eyre::eyre::Result;
 use itertools::Itertools;
-use math_eval::ast::{app::App, context::Context};
+use math_eval::ast::{app::App, context::Context, NodeOrExpression};
 use once_cell::sync::Lazy;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
@@ -32,14 +32,21 @@ fn main() -> Result<()> {
 
         let eq = ctx.remove_equation(uuid1).unwrap();
 
-        info!(%eq);
+        multiply(eq)
     }
 
     Ok(())
 }
 
+fn multiply(eq: math_eval::ast::Equation) {
+    if let NodeOrExpression::Expression(mut expr) = eq.eq_sides[0].node_or_expression.clone() {
+        expr.expand();
+        println!("{expr}");
+    };
+}
+
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["1 + 1", "sin(x) + 2", "3x^2 + 4cos(x)"];
+    let strings = vec!["2 - x", "(3+x)(2+x)"];
     strings
         .into_iter()
         .map(|string| string.to_string())
