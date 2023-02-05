@@ -160,20 +160,23 @@ impl Display for Element {
         }
 
         match &self.node_or_expression {
+            // TODO: if it's only a node, it's shit
             NodeOrExpression::Expression(expression) => {
                 let product_len = expression.products.len();
 
                 let open_expr = product_len > 1;
 
                 if open_expr {
-                    result.push('(');
+                    result.push_str("(");
                 }
 
                 for product in &expression.products {
                     // let open = !product.denominator.is_empty() && self.sign != Sign::Positive;
-                    let open_elem = self.sign != Sign::Positive;
+                    // let open_elem = false;
+                    let open_elem = !product.denominator.is_empty()
+                        || self.sign != Sign::Positive && product_len > 1;
                     if open_elem {
-                        result.push('e');
+                        result.push_str("(");
                     }
 
                     for (side_pos, side) in [&product.numerator, &product.denominator]

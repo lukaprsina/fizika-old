@@ -77,10 +77,10 @@ Equation {
     app: RefCell {
         value: <borrowed>,
     },
-    context: 4bc314b440c249ef9de05194218b22b0,
+    context: c73ebcf0dede411e95bfe765e16a0b5b,
     cache: None,
 }
-(1-(e-2)e-3)))
+e(1-e(p(-2)p(-3)))
 Equation {
     eq_sides: [
         Element {
@@ -218,7 +218,7 @@ Equation {
     app: RefCell {
         value: <borrowed>,
     },
-    context: 4bc314b440c249ef9de05194218b22b0,
+    context: c73ebcf0dede411e95bfe765e16a0b5b,
     cache: None,
 }
-(1-e(-2-3)/(-4-5)))
+e(1-p(e(-2-3)/e(-4-5)))

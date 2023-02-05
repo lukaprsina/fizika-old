@@ -47,7 +47,7 @@ fn do_stuff(eq: math_eval::ast::Equation) {
 }
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["1-(-2-3)", "1-(-2-3)/(-4-5)"];
+    let strings = vec!["1-((-2)/(-4))"];
     strings
         .into_iter()
         .map(|string| string.to_string())
