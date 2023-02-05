@@ -14,3 +14,9 @@
 
 (-1*(-2))*3
 // -(-1*(-2))*3
+
+// TODO: apply everything to every element expression
+log(2+3+4)
+log(x-2^2, -(-3^-(-2)))
+-(-2/-3)
+log(x-2^2!, -(-3^-(-2)))

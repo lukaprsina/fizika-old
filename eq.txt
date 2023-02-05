@@ -1,0 +1,224 @@
+Equation {
+    eq_sides: [
+        Element {
+            sign: Positive,
+            node_or_expression: Expression(
+                Expression {
+                    products: [
+                        Product {
+                            numerator: [
+                                Element {
+                                    sign: Positive,
+                                    node_or_expression: Node(
+                                        Number(
+                                            Int(
+                                                1,
+                                            ),
+                                        ),
+                                    ),
+                                    is_number: false,
+                                },
+                            ],
+                            denominator: [],
+                        },
+                        Product {
+                            numerator: [
+                                Element {
+                                    sign: Negative,
+                                    node_or_expression: Expression(
+                                        Expression {
+                                            products: [
+                                                Product {
+                                                    numerator: [
+                                                        Element {
+                                                            sign: Negative,
+                                                            node_or_expression: Node(
+                                                                Number(
+                                                                    Int(
+                                                                        2,
+                                                                    ),
+                                                                ),
+                                                            ),
+                                                            is_number: false,
+                                                        },
+                                                    ],
+                                                    denominator: [],
+                                                },
+                                                Product {
+                                                    numerator: [
+                                                        Element {
+                                                            sign: Negative,
+                                                            node_or_expression: Node(
+                                                                Number(
+                                                                    Int(
+                                                                        3,
+                                                                    ),
+                                                                ),
+                                                            ),
+                                                            is_number: false,
+                                                        },
+                                                    ],
+                                                    denominator: [],
+                                                },
+                                            ],
+                                        },
+                                    ),
+                                    is_number: false,
+                                },
+                            ],
+                            denominator: [],
+                        },
+                    ],
+                },
+            ),
+            is_number: false,
+        },
+    ],
+    app: RefCell {
+        value: <borrowed>,
+    },
+    context: 4bc314b440c249ef9de05194218b22b0,
+    cache: None,
+}
+(1-(e-2)e-3)))
+Equation {
+    eq_sides: [
+        Element {
+            sign: Positive,
+            node_or_expression: Expression(
+                Expression {
+                    products: [
+                        Product {
+                            numerator: [
+                                Element {
+                                    sign: Positive,
+                                    node_or_expression: Node(
+                                        Number(
+                                            Int(
+                                                1,
+                                            ),
+                                        ),
+                                    ),
+                                    is_number: false,
+                                },
+                            ],
+                            denominator: [],
+                        },
+                        Product {
+                            numerator: [
+                                Element {
+                                    sign: Negative,
+                                    node_or_expression: Expression(
+                                        Expression {
+                                            products: [
+                                                Product {
+                                                    numerator: [
+                                                        Element {
+                                                            sign: Positive,
+                                                            node_or_expression: Expression(
+                                                                Expression {
+                                                                    products: [
+                                                                        Product {
+                                                                            numerator: [
+                                                                                Element {
+                                                                                    sign: Negative,
+                                                                                    node_or_expression: Node(
+                                                                                        Number(
+                                                                                            Int(
+                                                                                                2,
+                                                                                            ),
+                                                                                        ),
+                                                                                    ),
+                                                                                    is_number: false,
+                                                                                },
+                                                                            ],
+                                                                            denominator: [],
+                                                                        },
+                                                                        Product {
+                                                                            numerator: [
+                                                                                Element {
+                                                                                    sign: Negative,
+                                                                                    node_or_expression: Node(
+                                                                                        Number(
+                                                                                            Int(
+                                                                                                3,
+                                                                                            ),
+                                                                                        ),
+                                                                                    ),
+                                                                                    is_number: false,
+                                                                                },
+                                                                            ],
+                                                                            denominator: [],
+                                                                        },
+                                                                    ],
+                                                                },
+                                                            ),
+                                                            is_number: false,
+                                                        },
+                                                    ],
+                                                    denominator: [
+                                                        Element {
+                                                            sign: Positive,
+                                                            node_or_expression: Expression(
+                                                                Expression {
+                                                                    products: [
+                                                                        Product {
+                                                                            numerator: [
+                                                                                Element {
+                                                                                    sign: Negative,
+                                                                                    node_or_expression: Node(
+                                                                                        Number(
+                                                                                            Int(
+                                                                                                4,
+                                                                                            ),
+                                                                                        ),
+                                                                                    ),
+                                                                                    is_number: false,
+                                                                                },
+                                                                            ],
+                                                                            denominator: [],
+                                                                        },
+                                                                        Product {
+                                                                            numerator: [
+                                                                                Element {
+                                                                                    sign: Negative,
+                                                                                    node_or_expression: Node(
+                                                                                        Number(
+                                                                                            Int(
+                                                                                                5,
+                                                                                            ),
+                                                                                        ),
+                                                                                    ),
+                                                                                    is_number: false,
+                                                                                },
+                                                                            ],
+                                                                            denominator: [],
+                                                                        },
+                                                                    ],
+                                                                },
+                                                            ),
+                                                            is_number: false,
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ),
+                                    is_number: false,
+                                },
+                            ],
+                            denominator: [],
+                        },
+                    ],
+                },
+            ),
+            is_number: false,
+        },
+    ],
+    app: RefCell {
+        value: <borrowed>,
+    },
+    context: 4bc314b440c249ef9de05194218b22b0,
+    cache: None,
+}
+(1-e(-2-3)/(-4-5)))

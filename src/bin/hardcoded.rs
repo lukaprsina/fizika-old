@@ -2,9 +2,9 @@ use std::rc::Rc;
 
 use color_eyre::eyre::Result;
 use itertools::Itertools;
-use math_eval::ast::{app::App, context::Context, NodeOrExpression};
+use math_eval::ast::{app::App, context::Context};
 use once_cell::sync::Lazy;
-use tracing::{info, Level};
+use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
 // TODO: vec remove unwrap
@@ -39,7 +39,7 @@ fn main() -> Result<()> {
 
 fn do_stuff(eq: math_eval::ast::Equation) {
     // eq.to_string();
-    // println!("{eq:#?}");
+    println!("{eq:#?}");
     println!("{eq}");
     /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
         expr.expand();
@@ -47,7 +47,7 @@ fn do_stuff(eq: math_eval::ast::Equation) {
 }
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["-((-2)/(-4))"];
+    let strings = vec!["1-(-2-3)", "1-(-2-3)/(-4-5)"];
     strings
         .into_iter()
         .map(|string| string.to_string())

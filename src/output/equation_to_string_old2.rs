@@ -177,12 +177,12 @@ impl Display for Element {
                     }
 
                     // println!("{expression:#?}");
-                    /*let open_numerator = !is_elem_positive && !is_first_in_element
-                    || !is_elem_positive && !is_denominator_empty
-                    || !is_numerator_product && is_denominator_empty;*/
+                    let open_numerator = !is_elem_positive && !is_first_in_element
+                        || !is_elem_positive && !is_denominator_empty
+                        || !is_numerator_product && is_denominator_empty;
 
-                    let open_numerator = !is_elem_positive && products_len > 1
-                        || !is_numerator_product && !is_denominator_empty;
+                    /*let open_numerator = !is_elem_positive && products_len > 1
+                    || !is_numerator_product && !is_denominator_empty;*/
 
                     let open_denominator = !is_denom_first_element_pos || !is_denominator_product;
 
@@ -228,7 +228,7 @@ impl Display for Element {
             }
         }
 
-        print!("=\"{result}\",");
+        // print!("=\"{result}\",");
         write!(f, "{}", result)
     }
 }

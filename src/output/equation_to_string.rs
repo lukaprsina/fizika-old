@@ -116,17 +116,18 @@ impl Display for Product {
             result += " 1";
         }
 
+        // println!("{self:#?}");
+
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             let side_length = side.len();
-            let mut open = false;
-
-            if side_length == 1 {
-                if let Some(element) = side.first() {
-                    if element.sign == Sign::Positive {
-                        // open = true;
-                    }
-                }
-            }
+            /* let open = if side_length == 1 {
+                let element = side.first().unwrap();
+                element.sign != Sign::Positive
+                //  self.denominator.is_empty()
+            } else {
+                side_length != 0
+            }; */
+            let open = false;
 
             if open {
                 result.push('(');
@@ -152,26 +153,72 @@ impl Display for Product {
 impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
-        println!("{self:#?}");
+        // println!("{self:#?}");
+
+        if self.sign != Sign::Positive {
+            result.push_str(&format!("{}", self.sign));
+        }
 
         match &self.node_or_expression {
             NodeOrExpression::Expression(expression) => {
+                let product_len = expression.products.len();
+
+                let open_expr = product_len > 1;
+
+                if open_expr {
+                    result.push('(');
+                }
+
                 for product in &expression.products {
-                    let open = !product.denominator.is_empty() && self.sign != Sign::Positive;
-                    if open {
-                        result.push('(');
+                    // let open = !product.denominator.is_empty() && self.sign != Sign::Positive;
+                    let open_elem = self.sign != Sign::Positive;
+                    if open_elem {
+                        result.push('e');
                     }
 
-                    result += &product.to_string();
+                    for (side_pos, side) in [&product.numerator, &product.denominator]
+                        .into_iter()
+                        .enumerate()
+                    {
+                        let side_length = side.len();
+                        let open_product = if product_len == 1 {
+                            let element = side.first().unwrap();
+                            element.sign != Sign::Positive
+                            //  self.denominator.is_empty()
+                        } else {
+                            side_length != 0
+                        };
 
-                    if open {
+                        if open_product {
+                            // result.push('p');
+                        }
+
+                        for element in side {
+                            result += &element.to_string();
+                        }
+
+                        if open_product {
+                            // result.push(')');
+                        }
+
+                        if side_pos == 0 && !product.denominator.is_empty() {
+                            result.push('/');
+                        }
+                    }
+
+                    if open_elem {
                         result.push(')');
                     }
+                }
+
+                if open_expr {
+                    result.push(')');
                 }
             }
             NodeOrExpression::Node(node) => result += &node.to_string(),
         }
 
+        // println!("{result}");
         write!(f, "{}", result)
     }
 }

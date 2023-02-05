@@ -59,12 +59,12 @@ impl TryFrom<&str> for NoContextEquation {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let tokens = TokenizedString::try_from(value).map_err(CreateEquationError::ParseError)?;
-        println!("{}\n{:#?}\n", value, tokens.tokens);
+        // println!("{}\n{:#?}\n", value, tokens.tokens);
 
         let ast = NoContextEquation::try_from(tokens)
             .map_err(CreateEquationError::TokensToEquationError)?;
 
-        println!("{:#?}", ast.sides);
+        // println!("{:#?}", ast.sides);
 
         Ok(ast)
     }

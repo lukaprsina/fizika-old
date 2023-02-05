@@ -6,12 +6,11 @@ use math_eval::{
     ast::{
         app::App,
         context::{Context, CreateEquationError},
-        NodeOrExpression,
     },
     tokenizer::parser::ParseError,
 };
-use once_cell::sync::Lazy;
-use tracing::{info, Level};
+
+use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
 // TODO: vec remove unwrap
