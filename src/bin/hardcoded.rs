@@ -66,8 +66,8 @@ fn do_stuff(eq: math_eval::ast::Equation) {
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     // TODO: expression is not cached to the top
     let strings = vec![
-        "f(g(h, x+2))",
-        // "f(a, b^2)=3x",
+        "a*(b+c)", // "f(g(h, x+2))",
+                  // "f(a, b^2)=3x",
     ];
     strings
         .into_iter()

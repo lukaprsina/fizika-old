@@ -71,8 +71,8 @@ impl Context {
                     &mut |elem| {
                         let mut nested_elem_cache = ElementCache::new();
 
-                        if let NodeOrExpression::Node(node) = &mut elem.node_or_expression {
-                            match node {
+                        match &mut elem.node_or_expression {
+                            NodeOrExpression::Node(node) => match node {
                                 Node::Function { name, arguments: _ } => {
                                     analysis.functions.insert(name.clone(), None);
                                     if elem.cache.is_none() {
@@ -92,6 +92,14 @@ impl Context {
                                     cache.variables.insert(name.clone());
                                 }
                                 _ => (),
+                            },
+                            NodeOrExpression::Expression(expression) => {
+                                for product in &mut expression.products {
+                                    for element in &mut product.numerator {
+                                        info!("{:#?}\n\n{:#?}", element.cache, nested_elem_cache);
+                                        if let Some(cache) = &mut element.cache {}
+                                    }
+                                }
                             }
                         }
 

@@ -179,6 +179,7 @@ impl Element {
                     for product in &mut expression.products {
                         for side in [&mut product.numerator, &mut product.denominator] {
                             for element in side {
+                                // info!("{:#?}", element);
                                 element.apply_to_every_element_mut(function, top_down, level);
                             }
                         }
