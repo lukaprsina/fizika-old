@@ -6,7 +6,9 @@ use uuid::Uuid;
 
 use crate::{ast::element::ElementCache, tokenizer::parser::ParseError};
 
-use super::{app::App, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression};
+use super::{
+    app::App, expression, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression,
+};
 
 #[derive(Debug, Clone)]
 pub struct Context {
@@ -71,35 +73,23 @@ impl Context {
                     &mut |elem| {
                         let mut nested_elem_cache = ElementCache::new();
 
-                        match &mut elem.node_or_expression {
-                            NodeOrExpression::Node(node) => match node {
+                        if elem.cache.is_none() {
+                            elem.cache = Some(ElementCache::new());
+                        }
+
+                        let cache = elem.cache.as_mut().expect("No element cache");
+
+                        if let NodeOrExpression::Node(node) = &mut elem.node_or_expression {
+                            match node {
                                 Node::Function { name, arguments: _ } => {
                                     analysis.functions.insert(name.clone(), None);
-                                    if elem.cache.is_none() {
-                                        elem.cache = Some(ElementCache::new());
-                                    }
-
-                                    let cache = elem.cache.as_mut().expect("No element cache");
                                     cache.functions.insert(name.clone());
                                 }
                                 Node::Variable(name) => {
                                     analysis.variables.insert(name.clone(), None);
-                                    if elem.cache.is_none() {
-                                        elem.cache = Some(ElementCache::new());
-                                    }
-
-                                    let cache = elem.cache.as_mut().expect("No element cache");
                                     cache.variables.insert(name.clone());
                                 }
                                 _ => (),
-                            },
-                            NodeOrExpression::Expression(expression) => {
-                                for product in &mut expression.products {
-                                    for element in &mut product.numerator {
-                                        info!("{:#?}\n\n{:#?}", element.cache, nested_elem_cache);
-                                        if let Some(cache) = &mut element.cache {}
-                                    }
-                                }
                             }
                         }
 
