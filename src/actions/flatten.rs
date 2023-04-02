@@ -23,7 +23,7 @@ impl Equation {
             eq_sides: vec![],
             app: Rc::clone(&self.app),
             context: self.context,
-            cache: self.cache,
+            cache: None,
         };
 
         // ANATODO
@@ -39,13 +39,17 @@ impl Element {
     pub fn flatten(self) -> Element {
         let sign = self.sign;
 
-        self.apply_to_every_element_into(&mut move |element: Element| {
-            if let NodeOrExpression::Expression(expression) = element.node_or_expression {
-                Element::new(sign, NodeOrExpression::Expression(expression.flatten()))
-            } else {
-                element
-            }
-        })
+        self.apply_to_every_element_into(
+            &mut move |element: Element| {
+                if let NodeOrExpression::Expression(expression) = element.node_or_expression {
+                    Element::new(sign, NodeOrExpression::Expression(expression.flatten()))
+                } else {
+                    element
+                }
+            },
+            true,
+            None,
+        )
     }
 }
 

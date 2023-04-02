@@ -4,7 +4,7 @@ use thiserror::Error;
 use tracing::info;
 use uuid::Uuid;
 
-use crate::tokenizer::parser::ParseError;
+use crate::{ast::element::ElementCache, tokenizer::parser::ParseError};
 
 use super::{app::App, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression};
 
@@ -62,26 +62,60 @@ impl Context {
         uuid
     }
 
-    pub fn analyze(&self) -> ContextAnalysis {
+    pub fn analyze(&mut self) -> ContextAnalysis {
         let mut analysis = ContextAnalysis::new();
 
-        for (_, equation) in &self.equations {
-            info!("{:#?}", equation.eq_sides.len());
-            for element in &equation.eq_sides {
-                info!("{:#?}", element);
-                element.apply_to_every_element(&mut |elem| {
-                    if let NodeOrExpression::Node(node) = &elem.node_or_expression {
-                        match node {
-                            Node::Function { name, arguments: _ } => {
-                                analysis.functions.insert(name.clone(), None);
+        for (_, equation) in &mut self.equations {
+            for element in &mut equation.eq_sides {
+                element.apply_to_every_element_mut(
+                    &mut |elem| {
+                        let mut nested_elem_cache = ElementCache::new();
+
+                        if let NodeOrExpression::Node(node) = &mut elem.node_or_expression {
+                            match node {
+                                Node::Function { name, arguments: _ } => {
+                                    analysis.functions.insert(name.clone(), None);
+                                    if elem.cache.is_none() {
+                                        elem.cache = Some(ElementCache::new());
+                                    }
+
+                                    let cache = elem.cache.as_mut().expect("No element cache");
+                                    cache.functions.insert(name.clone());
+                                }
+                                Node::Variable(name) => {
+                                    analysis.variables.insert(name.clone(), None);
+                                    if elem.cache.is_none() {
+                                        elem.cache = Some(ElementCache::new());
+                                    }
+
+                                    let cache = elem.cache.as_mut().expect("No element cache");
+                                    cache.variables.insert(name.clone());
+                                }
+                                _ => (),
                             }
-                            Node::Variable(name) => {
-                                analysis.variables.insert(name.clone(), None);
-                            }
-                            _ => (),
                         }
-                    }
-                });
+
+                        elem.apply_to_every_element_mut(
+                            &mut |elem_inner| {
+                                // println!("{:#?}", elem_inner);
+                                if let Some(cache) = &mut elem_inner.cache {
+                                    // println!("{:#?}", cache);
+                                    nested_elem_cache.functions.extend(cache.functions.clone());
+                                    nested_elem_cache.variables.extend(cache.variables.clone());
+                                }
+                            },
+                            false,
+                            Some(1),
+                        );
+
+                        if let Some(cache) = elem.cache.as_mut() {
+                            cache.functions.extend(nested_elem_cache.functions.clone());
+                            cache.variables.extend(nested_elem_cache.variables.clone());
+                        }
+                    },
+                    false,
+                    None,
+                );
             }
         }
 
@@ -92,11 +126,6 @@ impl Context {
         println!("Context {}", self.uuid);
 
         let analysis = self.analyze();
-        info!("{}", self.equations.len());
-        for (_, _) in self.equations.iter() {
-            // println!("{:#?}\n", equation);
-            // println!("{}\n{}\n", equation, "-".repeat(80));
-        }
 
         println!("Analysis: {:#?}", analysis);
     }
