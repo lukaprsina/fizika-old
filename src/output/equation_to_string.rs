@@ -100,7 +100,7 @@ impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        for (pos, product) in self.products.iter().enumerate() {
+        for (_, product) in self.products.iter().enumerate() {
             result += &product.to_string();
         }
 
@@ -119,7 +119,7 @@ impl Display for Product {
         // println!("{self:#?}");
 
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
-            let side_length = side.len();
+            let _ = side.len();
             /* let open = if side_length == 1 {
                 let element = side.first().unwrap();
                 element.sign != Sign::Positive

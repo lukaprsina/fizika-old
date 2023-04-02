@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 use itertools::Itertools;
 
 use crate::{

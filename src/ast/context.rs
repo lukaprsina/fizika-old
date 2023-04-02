@@ -1,11 +1,12 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 use thiserror::Error;
+use tracing::info;
 use uuid::Uuid;
 
 use crate::tokenizer::parser::ParseError;
 
-use super::{app::App, token_to_element::TokensToEquationError, Equation};
+use super::{app::App, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression};
 
 #[derive(Debug, Clone)]
 pub struct Context {
@@ -61,11 +62,70 @@ impl Context {
         uuid
     }
 
+    pub fn analyze(&self) -> ContextAnalysis {
+        let mut analysis = ContextAnalysis::new();
+
+        for (_, equation) in &self.equations {
+            info!("{:#?}", equation.eq_sides.len());
+            for element in &equation.eq_sides {
+                info!("{:#?}", element);
+                element.apply_to_every_element(&mut |elem| {
+                    if let NodeOrExpression::Node(node) = &elem.node_or_expression {
+                        match node {
+                            Node::Function { name, arguments: _ } => {
+                                analysis.functions.insert(name.clone(), None);
+                            }
+                            Node::Variable(name) => {
+                                analysis.variables.insert(name.clone(), None);
+                            }
+                            _ => (),
+                        }
+                    }
+                });
+            }
+        }
+
+        analysis
+    }
+
     pub fn solve(&mut self) {
         println!("Context {}", self.uuid);
-        for (_, equation) in self.equations.iter() {
+
+        let analysis = self.analyze();
+        info!("{}", self.equations.len());
+        for (_, _) in self.equations.iter() {
             // println!("{:#?}\n", equation);
-            println!("{}\n{}\n", equation, "-".repeat(80));
+            // println!("{}\n{}\n", equation, "-".repeat(80));
+        }
+
+        println!("Analysis: {:#?}", analysis);
+    }
+}
+
+#[derive(Debug)]
+pub enum VariableType {
+    Constant,
+    Independet,
+    Dependent,
+}
+
+#[derive(Debug)]
+pub enum FunctionType {
+    BuiltIn,
+    Custom,
+}
+
+#[derive(Default, Debug)]
+pub struct ContextAnalysis {
+    variables: HashMap<String, Option<VariableType>>,
+    functions: HashMap<String, Option<FunctionType>>,
+}
+
+impl ContextAnalysis {
+    pub fn new() -> ContextAnalysis {
+        ContextAnalysis {
+            variables: HashMap::new(),
+            functions: HashMap::new(),
         }
     }
 }

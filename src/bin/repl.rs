@@ -1,11 +1,8 @@
-use std::rc::Rc;
-
 use color_eyre::eyre::Result;
-use itertools::Itertools;
 use math_eval::ast::{app::App, context::Context};
-use once_cell::sync::Lazy;
-use rustyline::{error::ReadlineError, Editor};
-use tracing::{info, Level};
+use rustyline::{error::ReadlineError, DefaultEditor};
+use std::rc::Rc;
+use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
 // TODO: vec remove unwrap
@@ -24,7 +21,7 @@ fn main() -> Result<()> {
 
     let ctx_uuid = app.borrow_mut().add_context(context);
 
-    let mut rl = Editor::<()>::new()?;
+    let mut rl = DefaultEditor::new()?;
 
     loop {
         let readline = rl.readline(">> ");

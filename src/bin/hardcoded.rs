@@ -8,6 +8,7 @@ use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
 // TODO: vec remove unwrap
+#[allow(dead_code, unused_variables)]
 fn main() -> Result<()> {
     color_eyre::install()?;
     let subscriber = FmtSubscriber::builder()
@@ -16,8 +17,6 @@ fn main() -> Result<()> {
         .finish();
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-
-    // info!("Started the logger crate");
 
     let app = App::new()?;
 
@@ -29,25 +28,30 @@ fn main() -> Result<()> {
         let uuid1 = App::try_add_equation(Rc::clone(&app), ctx_uuid, equation.as_str())?;
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-
-        let eq = ctx.remove_equation(uuid1).unwrap();
-        do_stuff(eq)
+        /* let eq = ctx.remove_equation(uuid1).unwrap();
+        do_stuff(eq); */
     }
+
+    let mut borrowed_app = app.borrow_mut();
+    let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+
+    context.solve();
 
     Ok(())
 }
 
+#[allow(dead_code, unused_variables)]
 fn do_stuff(eq: math_eval::ast::Equation) {
     // eq.to_string();
-    println!("{eq:#?}");
-    println!("{eq}");
+    // println!("{eq:#?}");
+    // println!("{eq}");
     /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
         expr.expand();
     }; */
 }
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    let strings = vec!["1-((-2)/(-4))"];
+    let strings = vec!["f(a, b^2)=3x"];
     strings
         .into_iter()
         .map(|string| string.to_string())

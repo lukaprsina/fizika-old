@@ -9,8 +9,7 @@ use math_eval::{
     ast::{app::App, context::Context, Element},
     initialize,
 };
-use tracing::{info, Level};
-use tracing_subscriber::FmtSubscriber;
+use tracing::info;
 
 // TODO: vec remove unwrap
 fn main() -> Result<()> {
