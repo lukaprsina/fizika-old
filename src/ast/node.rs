@@ -9,7 +9,6 @@ use super::{
 pub enum Node {
     Number(Number),
     Variable(String),
-    Unit(String),
     Power {
         base: Box<Element>,
         power: Box<Element>,
@@ -41,11 +40,10 @@ impl IsTimesVisible for Node {
             | Node::Function { .. }
             | Node::Modulo { .. }
             | Node::Factorial { .. } => true,
-            Node::Variable(_) | Node::Unit(_) => match &last.node_or_expression {
-                NodeOrExpression::Node(var_node) => !matches!(
-                    var_node,
-                    Node::Number(_) | Node::Variable(_) | Node::Unit(_)
-                ),
+            Node::Variable(_) => match &last.node_or_expression {
+                NodeOrExpression::Node(var_node) => {
+                    !matches!(var_node, Node::Number(_) | Node::Variable(_))
+                }
                 NodeOrExpression::Expression(_) => false,
             },
         }

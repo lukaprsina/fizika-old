@@ -67,7 +67,7 @@ static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     // TODO: expression is not cached to the top
     let strings = vec![
         // "a*(b+c)", // "f(g(h, x+2))",
-        "f(a, b^2)=3x",
+        "f(a, b^2)+c*d=3x",
     ];
     strings
         .into_iter()

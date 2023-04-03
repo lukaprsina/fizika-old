@@ -58,7 +58,6 @@ impl Display for Node {
         match self {
             Node::Number(number) => result += &number.to_string(),
             Node::Variable(variable) => result += variable,
-            Node::Unit(unit) => result += unit,
             Node::Power { base, power } => {
                 write!(
                     result,

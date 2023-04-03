@@ -1,14 +1,11 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 use thiserror::Error;
-use tracing::info;
 use uuid::Uuid;
 
 use crate::{ast::element::ElementCache, tokenizer::parser::ParseError};
 
-use super::{
-    app::App, expression, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression,
-};
+use super::{app::App, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression};
 
 #[derive(Debug, Clone)]
 pub struct Context {

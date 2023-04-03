@@ -165,13 +165,6 @@ impl IsSame for Node {
 
                 true
             }
-            Node::Unit(left_name) => {
-                if let Node::Unit(right_name) = rhs {
-                    left_name == right_name
-                } else {
-                    false
-                }
-            }
             Node::Power {
                 base: left_base,
                 power: left_power,

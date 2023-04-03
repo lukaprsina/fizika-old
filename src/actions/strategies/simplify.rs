@@ -1,26 +1,63 @@
-use crate::ast::{product::Product, Element, Equation, Expression, Node, NodeOrExpression};
+#![allow(unused_variables)]
+
+use crate::ast::{Element, Equation, Node, NodeOrExpression};
 
 use super::strategy::Strategy;
 
-fn simplify_equation(_equation: &mut Equation) {}
+// imply that it has been analysed
+fn simplify_equation(equation: &mut Equation, variable_name: &str) {
+    if equation.eq_sides.len() != 2 {
+        return;
+    }
 
-fn simplify_element(_element: &mut Element) {}
+    for side_element in &mut equation.eq_sides {
+        match &mut side_element.cache {
+            Some(cache) => {
+                if cache.variables.len() > 1 {
+                    break;
+                }
 
-fn simplify_node_or_expression(_node_or_expression: &mut NodeOrExpression) {}
-
-fn simplify_node(_node: &mut Node) {}
-
-fn simplify_expression(_expression: &mut Expression) {}
-
-fn simplify_product(_product: &mut Product) {}
+                // get to variable
+                // keep track of the operations
+                // then do the inverse
+                build_stack(side_element, variable_name);
+            }
+            None => panic!("Equation has not been analyzed, cannot simplify"),
+        }
+    }
+}
 
 pub fn get_simplify() -> Strategy {
     Strategy {
-        equation: Box::new(simplify_equation),
-        element: Box::new(simplify_element),
-        node_or_expression: Box::new(simplify_node_or_expression),
-        node: Box::new(simplify_node),
-        expression: Box::new(simplify_expression),
-        product: Box::new(simplify_product),
+        equation: Some(Box::new(simplify_equation)),
     }
+}
+
+fn build_stack(side: &Element, variable_name: &str) -> Vec<Element> {
+    let mut stack = vec![];
+
+    let mut element = side;
+
+    loop {
+        match &element.node_or_expression {
+            NodeOrExpression::Node(node) => {
+                // stack.push(node.clone());
+            }
+            NodeOrExpression::Expression(expression) => {
+                for product in &expression.products {
+                    for product_elem in &product.numerator {
+                        if let Some(cache) = &product_elem.cache {
+                            if cache.variables.contains(variable_name) {
+                                stack.push(element.clone());
+                                element = &product_elem;
+                            }
+                            // here
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    stack
 }
