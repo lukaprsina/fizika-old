@@ -1,12 +1,13 @@
 [package]
-name = "math-eval"
+name = "math-cli"
 version = "0.1.0"
 edition = "2021"
-default-run = "math-eval"
+default-run = "hardcoded"
 authors = ["Luka Pršina"]
 
-# [lib]
-# crate-type = ["rlib", "cdylib"]
+[lib]
+name = "math_eval"
+crate-type = ["rlib", "dylib"]
 
 [dependencies]
 color-eyre = { version = "0.6.2", default-features = false }

@@ -1,0 +1,5 @@
+{
+	"devDependencies": {
+		"@types/ffi": "^0.2.4"
+	}
+}
