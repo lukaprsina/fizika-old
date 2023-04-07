@@ -8,9 +8,33 @@ use crate::{ast::element::ElementCache, tokenizer::parser::ParseError};
 use super::{app::App, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression};
 
 #[derive(Debug, Clone)]
+pub enum Domain {}
+
+#[derive(Debug, Clone)]
+pub enum FunctionProperty {
+    Idempotent,
+    Involution,
+    Asociative,
+    Commutative,
+}
+
+#[derive(Debug, Clone)]
+pub enum ElementDefinition {
+    Variable {
+        domain: Domain,
+    },
+    Function {
+        domain: Domain,
+        codomain: Domain,
+        properties: Vec<FunctionProperty>,
+    },
+}
+
+#[derive(Debug, Clone)]
 pub struct Context {
     pub app: Rc<RefCell<App>>,
     equations: HashMap<Uuid, Equation>,
+    pub definitions: HashMap<String, ElementDefinition>,
     pub uuid: Uuid,
 }
 
@@ -28,6 +52,7 @@ impl Context {
             equations: HashMap::new(),
             app,
             uuid: Uuid::nil(),
+            definitions: HashMap::new(),
         }
     }
 

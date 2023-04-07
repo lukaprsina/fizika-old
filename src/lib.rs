@@ -18,8 +18,3 @@ pub fn initialize() -> Result<()> {
 
     Ok(())
 }
-
-#[no_mangle]
-pub extern "C" fn sum_two(a: i32, b: i32) -> i32 {
-    a + b
-}

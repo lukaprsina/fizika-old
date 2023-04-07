@@ -17,7 +17,9 @@ impl Debug for Strategy {
 
 impl App {
     pub fn add_strategies(&mut self) {
-        self.strategies
-            .extend(vec![strategies::simplify::get_simplify()]);
+        self.strategies.extend(vec![
+            strategies::simplify::get_simplify(),
+            strategies::solve_one_variable::get_solve_one_variable(),
+        ]);
     }
 }

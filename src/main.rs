@@ -11,6 +11,11 @@ use math_eval::{
 };
 use tracing::info;
 
+#[typeshare::typeshare]
+fn sum_two(a: i32, b: i32) -> i32 {
+    a + b
+}
+
 // TODO: vec remove unwrap
 fn main() -> Result<()> {
     initialize()?;
