@@ -1,5 +1,3 @@
-use super::Number;
-use crate::tokenizer::{Operation, Token};
 use std::{cmp::Ordering, collections::HashMap, num::NonZeroUsize};
 
 use nom::{
@@ -12,7 +10,10 @@ use nom::{
     sequence::{pair, preceded, terminated, tuple},
     Err, IResult, Needed,
 };
+use num::{bigint::ParseBigIntError, Num};
 use once_cell::sync::Lazy;
+
+use super::token::{Operation, Token};
 
 fn parse_eol_comment<'a, E: ParseError<&'a str> + 'a>(i: &'a str) -> IResult<&'a str, (), E> {
     trim(value(
@@ -118,9 +119,9 @@ fn parse_hexadecimal(input: &str) -> IResult<&str, Token> {
                 many0(char('_')),
             ))),
         ),
-        |out: &str| -> Result<Token, std::num::ParseIntError> {
-            let number = i64::from_str_radix(&str::replace(out, "_", ""), 16)?;
-            Ok(Token::Number(Number::Int(number)))
+        |out: &str| -> Result<Token, ParseBigIntError> {
+            let number = num::BigInt::from_str_radix(&str::replace(out, "_", ""), 16)?;
+            Ok(Token::Number(number.into()))
         },
     )(input)
 }
@@ -131,9 +132,9 @@ fn parse_octal(input: &str) -> IResult<&str, Token> {
             alt((tag("0o"), tag("0O"))),
             recognize(many1(terminated(one_of("01234567"), many0(char('_'))))),
         ),
-        |out: &str| -> Result<Token, std::num::ParseIntError> {
-            let number = i64::from_str_radix(&str::replace(out, "_", ""), 8)?;
-            Ok(Token::Number(Number::Int(number)))
+        |out: &str| -> Result<Token, ParseBigIntError> {
+            let number = num::BigInt::from_str_radix(&str::replace(out, "_", ""), 8)?;
+            Ok(Token::Number(number.into()))
         },
     )(input)
 }
@@ -144,9 +145,9 @@ fn parse_binary(input: &str) -> IResult<&str, Token> {
             alt((tag("0b"), tag("0B"))),
             recognize(many1(terminated(one_of("01"), many0(char('_'))))),
         ),
-        |out: &str| -> Result<Token, std::num::ParseIntError> {
-            let number = i64::from_str_radix(&str::replace(out, "_", ""), 2)?;
-            Ok(Token::Number(Number::Int(number)))
+        |out: &str| -> Result<Token, ParseBigIntError> {
+            let number = num::BigInt::from_str_radix(&str::replace(out, "_", ""), 2)?;
+            Ok(Token::Number(number.into()))
         },
     )(input)
 }
@@ -154,9 +155,9 @@ fn parse_binary(input: &str) -> IResult<&str, Token> {
 fn parse_decimal(input: &str) -> IResult<&str, Token> {
     map_res(
         recognize(many1(terminated(one_of("0123456789"), many0(char('_'))))),
-        |out: &str| -> Result<Token, std::num::ParseIntError> {
-            let number = str::replace(out, "_", "").parse::<i64>()?;
-            Ok(Token::Number(Number::Int(number)))
+        |out: &str| -> Result<Token, ParseBigIntError> {
+            let number = num::BigInt::from_str_radix(&str::replace(out, "_", ""), 10)?;
+            Ok(Token::Number(number.into()))
         },
     )(input)
 }
@@ -172,7 +173,10 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
             ))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number.into())))
+
+                let float =
+                    num::BigRational::from_float(number).expect("Can't read input to float");
+                Ok(Token::Number(float))
             },
         ), // Case two: 42e42 and 42.42e42
         map_res(
@@ -185,14 +189,20 @@ fn parse_float(input: &str) -> IResult<&str, Token> {
             ))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number.into())))
+
+                let float =
+                    num::BigRational::from_float(number).expect("Can't read input to float");
+                Ok(Token::Number(float))
             },
         ), // Case three: 42. and 42.42
         map_res(
             recognize(tuple((parse_decimal, char('.'), opt(parse_decimal)))),
             |out: &str| -> Result<Token, std::num::ParseFloatError> {
                 let number = str::replace(out, "_", "").parse::<f64>()?;
-                Ok(Token::Number(Number::Float(number.into())))
+
+                let float =
+                    num::BigRational::from_float(number).expect("Can't read input to float");
+                Ok(Token::Number(float))
             },
         ),
     ))(input)
@@ -234,21 +244,11 @@ pub fn parse_unit(input: &str) -> IResult<&str, Token> {
     alt((
         map_res(
             preceded(parse_number, complete(parse_idenifier)),
-            |s| -> Result<Token, ()> {
-                Ok(Token::Identifier {
-                    name: s.to_string(),
-                    could_be_unit: true,
-                })
-            },
+            |s| -> Result<Token, ()> { Ok(Token::Identifier(s.to_string())) },
         ),
         map_res(
             preceded(parse_right_parenthesis, complete(parse_idenifier)),
-            |s| -> Result<Token, ()> {
-                Ok(Token::Identifier {
-                    name: s.to_string(),
-                    could_be_unit: true,
-                })
-            },
+            |s| -> Result<Token, ()> { Ok(Token::Identifier(s.to_string())) },
         ),
         map_res(
             preceded(
@@ -272,22 +272,14 @@ pub fn parse_unit(input: &str) -> IResult<&str, Token> {
                 ),
                 complete(parse_idenifier),
             ),
-            |s| -> Result<Token, ()> {
-                Ok(Token::Identifier {
-                    name: s.to_string(),
-                    could_be_unit: true,
-                })
-            },
+            |s| -> Result<Token, ()> { Ok(Token::Identifier(s.to_string())) },
         ),
     ))(input)
 }
 
 fn parse_variable(input: &str) -> IResult<&str, Token> {
     map_res(complete(parse_idenifier), |s| -> Result<Token, ()> {
-        Ok(Token::Identifier {
-            name: s.to_string(),
-            could_be_unit: false,
-        })
+        Ok(Token::Identifier(s.to_string()))
     })(input)
 }
 
@@ -428,82 +420,6 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_unit() {}
-
-    #[test]
-    fn test_parse_hexadecimal() {
-        assert_eq!(
-            Ok(("", Token::Number(Number::Int(0x1A)))),
-            parse_hexadecimal("0x1A")
-        );
-    }
-
-    #[test]
-    fn test_parse_octal() {
-        assert_eq!(
-            Ok(("", Token::Number(Number::Int(0o73)))),
-            parse_octal("0o73")
-        );
-    }
-
-    #[test]
-    fn test_parse_binary() {
-        assert_eq!(
-            Ok(("", Token::Number(Number::Int(0b011001)))),
-            parse_binary("0b011001")
-        );
-    }
-
-    #[test]
-    fn test_parse_decimal() {
-        assert_eq!(
-            Ok(("", Token::Number(Number::Int(297)))),
-            parse_decimal("297")
-        );
-    }
-
-    #[test]
-    fn test_parse_float() {
-        assert_eq!(
-            Ok(("", Token::Number(Number::Float(0.42.into())))),
-            parse_float(".42")
-        );
-
-        assert_eq!(
-            Ok(("", Token::Number(Number::Float(10e3.into())))),
-            parse_float("10e3")
-        );
-
-        assert_eq!(
-            Ok(("", Token::Number(Number::Float(10.1e3.into())))),
-            parse_float("10.1e3")
-        );
-
-        assert_eq!(
-            Ok(("", Token::Number(Number::Float(297.42.into())))),
-            parse_float("297.42")
-        );
-    }
-
-    #[test]
-    fn test_parse_number() {
-        let cases = [
-            ("0x1A", Token::Number(Number::Int(0x1A))),
-            ("0o73", Token::Number(Number::Int(0o73))),
-            ("0b011001", Token::Number(Number::Int(0b011001))),
-            ("297", Token::Number(Number::Int(297))),
-            (".42", Token::Number(Number::Float(0.42.into()))),
-            ("10e3", Token::Number(Number::Float(10e3.into()))),
-            ("10.1e3", Token::Number(Number::Float(10.1e3.into()))),
-            ("297.42", Token::Number(Number::Float(297.42.into()))),
-        ];
-
-        for case in cases {
-            assert_eq!(case.1, parse_number(case.0).unwrap().1);
-        }
-    }
-
-    #[test]
     fn test_parse_identifier() {
         assert_eq!(Ok(("", "abc")), parse_idenifier("abc"));
         assert_eq!(Ok(("", "Abc")), parse_idenifier("Abc"));
@@ -514,44 +430,99 @@ mod tests {
     #[test]
     fn test_parse_variable() {
         assert_eq!(
-            Ok((
-                "",
-                Token::Identifier {
-                    name: "abc".to_string(),
-                    could_be_unit: false
-                }
-            )),
+            Ok(("", Token::Identifier("abc".to_string()))),
             parse_variable("abc")
         );
         assert_eq!(
-            Ok((
-                "",
-                Token::Identifier {
-                    name: "Abc".to_string(),
-                    could_be_unit: false
-                }
-            )),
+            Ok(("", Token::Identifier("Abc".to_string()))),
             parse_variable("Abc")
         );
         assert_eq!(
-            Ok((
-                "",
-                Token::Identifier {
-                    name: "_abc".to_string(),
-                    could_be_unit: false
-                }
-            )),
+            Ok(("", Token::Identifier("_abc".to_string()))),
             parse_variable("_abc")
         );
         assert_eq!(
+            Ok(("", Token::Identifier("a_Bc".to_string()))),
+            parse_variable("a_Bc")
+        );
+    }
+
+    #[test]
+    fn test_parse_hexadecimal() {
+        assert_eq!(
             Ok((
                 "",
-                Token::Identifier {
-                    name: "a_Bc".to_string(),
-                    could_be_unit: false
-                }
+                Token::Number(num::BigRational::from_integer(0x1A.into()))
             )),
-            parse_variable("a_Bc")
+            parse_hexadecimal("0x1A")
+        );
+    }
+
+    #[test]
+    fn test_parse_octal() {
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_integer(0o73.into()))
+            )),
+            parse_octal("0o73")
+        );
+    }
+
+    #[test]
+    fn test_parse_binary() {
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_integer(0b011001.into()))
+            )),
+            parse_binary("0b011001")
+        );
+    }
+
+    #[test]
+    fn test_parse_decimal() {
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_integer(297.into()))
+            )),
+            parse_decimal("297")
+        );
+    }
+
+    #[test]
+    fn test_parse_float() {
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_float(0.42).expect("Can't parse float"))
+            )),
+            parse_float(".42")
+        );
+
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_float(10e3).expect("Can't parse float"))
+            )),
+            parse_float("10e3")
+        );
+
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_float(10.1e3).expect("Can't parse float"))
+            )),
+            parse_float("10.1e3")
+        );
+
+        assert_eq!(
+            Ok((
+                "",
+                Token::Number(num::BigRational::from_float(297.42).expect("Can't parse float"))
+            )),
+            parse_float("297.42")
         );
     }
 

@@ -51,24 +51,6 @@ impl Display for Operation {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Eq, Ord)]
-pub enum Number {
-    Int(i64),
-    Float(ordered_float::OrderedFloat<f64>),
-}
-
-impl Display for Number {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Number::Int(integer) => write!(f, "{}", integer),
-            Number::Float(float) => {
-                let mut buffer = ryu::Buffer::new();
-                write!(f, "{}", buffer.format(float.0))
-            }
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Binary(Operation),
@@ -76,11 +58,8 @@ pub enum Token {
     LeftParenthesis,
     RightParenthesis,
     Comma,
-    Number(Number),
-    Identifier {
-        name: String,
-        could_be_unit: bool,
-    },
+    Number(num::BigRational),
+    Identifier(String),
     Function {
         name: String,
         num_of_args: Option<usize>,

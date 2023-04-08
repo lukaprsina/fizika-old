@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use super::{
     element::{IsTimesVisible, ShouldBeParenthesized},
     Element, Node, NodeOrExpression, Sign,
@@ -29,20 +27,42 @@ impl Product {
         }
     }
 
-    // TODO
-    pub fn get_components(&self) -> [HashMap<Node, usize>; 2] {
-        let results: [HashMap<Node, usize>; 2] = Default::default();
+    pub fn rationalize(&mut self) -> Self {
+        let mut new_product = Product::new(vec![], vec![]);
 
-        for side in [&self.numerator, &self.denominator] {
+        let mut new_number = num::BigRational::new(
+            num::BigInt::new(num::bigint::Sign::NoSign, vec![]),
+            num::BigInt::new(num::bigint::Sign::NoSign, vec![]),
+        );
+
+        for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             for element in side {
-                match &element.node_or_expression {
-                    NodeOrExpression::Node(_) => todo!(),
-                    NodeOrExpression::Expression(_) => todo!(),
+                let add_element = match &element.node_or_expression {
+                    NodeOrExpression::Node(node) => match node {
+                        Node::Number(number) => {
+                            if side_pos == 0 {
+                                new_number *= number;
+                            } else {
+                                new_number /= number;
+                            }
+                            false
+                        }
+                        _ => true,
+                    },
+                    NodeOrExpression::Expression(_) => true,
+                };
+
+                if add_element {
+                    if side_pos == 0 {
+                        new_product.numerator.push(element.clone());
+                    } else {
+                        new_product.denominator.push(element.clone());
+                    }
                 }
             }
         }
 
-        results
+        new_product
     }
 }
 

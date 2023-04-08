@@ -13,7 +13,6 @@ use math_eval::{
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
-// TODO: vec remove unwrap
 fn main() -> Result<()> {
     color_eyre::install()?;
     let subscriber = FmtSubscriber::builder()

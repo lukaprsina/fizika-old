@@ -7,16 +7,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'math-eval'",
+            "name": "Debug unit tests in library 'math_eval'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
                     "--lib",
-                    "--package=math-eval"
+                    "--package=math_eval"
                 ],
                 "filter": {
-                    "name": "math-eval",
+                    "name": "math_eval",
                     "kind": "lib"
                 }
             },
@@ -26,15 +26,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'math-eval'",
+            "name": "Debug executable 'math_eval'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=math-eval",
-                    "--package=math-eval"
+                    "--bin=math_eval",
+                    "--package=math_eval"
                 ],
                 "filter": {
-                    "name": "math-eval",
+                    "name": "math_eval",
                     "kind": "bin"
                 }
             },
@@ -44,16 +44,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'math-eval'",
+            "name": "Debug unit tests in executable 'math_eval'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=math-eval",
-                    "--package=math-eval"
+                    "--bin=math_eval",
+                    "--package=math_eval"
                 ],
                 "filter": {
-                    "name": "math-eval",
+                    "name": "math_eval",
                     "kind": "bin"
                 }
             },
@@ -68,7 +68,7 @@
                 "args": [
                     "build",
                     "--bin=file",
-                    "--package=math-eval"
+                    "--package=math_eval"
                 ],
                 "filter": {
                     "name": "file",
@@ -87,7 +87,7 @@
                     "test",
                     "--no-run",
                     "--bin=file",
-                    "--package=math-eval"
+                    "--package=math_eval"
                 ],
                 "filter": {
                     "name": "file",
@@ -100,15 +100,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'hardcoded'",
+            "name": "Debug executable 'web'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=hardcoded",
-                    "--package=math-eval"
+                    "--bin=web",
+                    "--package=math_eval"
                 ],
                 "filter": {
-                    "name": "hardcoded",
+                    "name": "web",
                     "kind": "bin"
                 }
             },
@@ -118,16 +118,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'hardcoded'",
+            "name": "Debug unit tests in executable 'web'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=hardcoded",
-                    "--package=math-eval"
+                    "--bin=web",
+                    "--package=math_eval"
                 ],
                 "filter": {
-                    "name": "hardcoded",
+                    "name": "web",
                     "kind": "bin"
                 }
             },
@@ -142,7 +142,7 @@
                 "args": [
                     "build",
                     "--bin=repl",
-                    "--package=math-eval"
+                    "--package=math_eval"
                 ],
                 "filter": {
                     "name": "repl",
@@ -161,10 +161,47 @@
                     "test",
                     "--no-run",
                     "--bin=repl",
-                    "--package=math-eval"
+                    "--package=math_eval"
                 ],
                 "filter": {
                     "name": "repl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'hardcoded'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=hardcoded",
+                    "--package=math_eval"
+                ],
+                "filter": {
+                    "name": "hardcoded",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'hardcoded'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=hardcoded",
+                    "--package=math_eval"
+                ],
+                "filter": {
+                    "name": "hardcoded",
                     "kind": "bin"
                 }
             },

@@ -14,16 +14,19 @@ use super::{
 pub struct App {
     pub formulas: Uuid,
     pub contexts: HashMap<Uuid, Context>,
-    pub strategies: Vec<Strategy>,
+    pub strategies: HashMap<String, Strategy>,
 }
 
 impl App {
     pub fn new() -> Result<Rc<RefCell<App>>, CreateEquationError> {
-        let app = Rc::new(RefCell::new(App {
+        let mut app = App {
             formulas: Uuid::nil(),
             contexts: HashMap::new(),
-            strategies: vec![],
-        }));
+            strategies: HashMap::new(),
+        };
+        app.add_strategies();
+
+        let app = Rc::new(RefCell::new(app));
 
         /* let ctx_uuid = {
             let mut borrowed_app = app.borrow_mut();

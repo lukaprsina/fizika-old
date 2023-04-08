@@ -2,15 +2,15 @@ use nom::IResult;
 use std::ops::Deref;
 use thiserror::Error;
 
-use crate::tokenizer::{
-    small_parsers::{
-        parse_left_expression, parse_right_expression, parse_right_expression_no_parenthesis,
-        parse_right_expression_with_comma, parse_unit,
-    },
-    Operation, Token,
+use crate::tokenizer::small_parsers::{
+    parse_left_expression, parse_right_expression, parse_right_expression_no_parenthesis,
+    parse_right_expression_with_comma, parse_unit,
 };
 
-use super::small_parsers::trim_with_comments;
+use super::{
+    small_parsers::trim_with_comments,
+    token::{Operation, Token},
+};
 
 #[derive(Debug, Error)]
 pub enum ParseError {
@@ -98,14 +98,8 @@ impl TryFrom<&str> for TokenizedString {
                         next_is_unit = false;
 
                         match token {
-                            Token::Identifier {
-                                name,
-                                could_be_unit: _,
-                            } => {
-                                *token = Token::Identifier {
-                                    name: name.clone(),
-                                    could_be_unit: true,
-                                };
+                            Token::Identifier(name) => {
+                                *token = Token::Identifier(name.clone());
                             }
                             Token::LeftParenthesis | Token::RightParenthesis => {
                                 next_is_unit = true;

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use uuid::Uuid;
 
-use crate::tokenizer::{parser::TokenizedString, Operation};
+use crate::tokenizer::{parser::TokenizedString, token::Operation};
 
 use super::{app::App, context::CreateEquationError, Element};
 

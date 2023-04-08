@@ -1,5 +1,3 @@
-use crate::tokenizer::Number;
-
 use super::{
     element::{IsTimesVisible, NodeOrExpression, ShouldBeParenthesized},
     Element,
@@ -7,7 +5,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Node {
-    Number(Number),
+    Number(num::BigRational),
     Variable(String),
     Power {
         base: Box<Element>,

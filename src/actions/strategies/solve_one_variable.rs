@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use crate::ast::{Element, Equation, NodeOrExpression};
 
 use super::strategy::Strategy;

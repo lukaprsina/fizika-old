@@ -11,11 +11,6 @@ use math_eval::{
 };
 use tracing::info;
 
-#[typeshare::typeshare]
-fn sum_two(a: i32, b: i32) -> i32 {
-    a + b
-}
-
 // TODO: vec remove unwrap
 fn main() -> Result<()> {
     initialize()?;
@@ -32,7 +27,7 @@ fn main() -> Result<()> {
     // let b = "(1/cos(x) + a/cos(x))";
 
     // let a = "1/7 * a * (2 - a) / 2 * (b + 4) * 4";
-    // let a = "log(2+3+4)"; // TODO: leading minus is ignored, observe debug
+    // let a = "log(2+3+4)";
 
     // let a = "2log(a+c)+b";
     // let b = "b+2log(c+b)";

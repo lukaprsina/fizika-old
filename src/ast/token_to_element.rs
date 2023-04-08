@@ -3,7 +3,10 @@ use thiserror::Error;
 
 use crate::{
     ast::{Element, NodeOrExpression},
-    tokenizer::{parser::TokenizedString, token::Associativity, Operation, Token},
+    tokenizer::{
+        parser::TokenizedString,
+        token::{Associativity, Operation, Token},
+    },
 };
 
 use super::{
@@ -174,16 +177,7 @@ fn rpn_to_ast(tokens: &[Token]) -> Result<Element, AbstractSyntaxTreeError> {
                 Sign::Positive,
                 NodeOrExpression::Node(Node::Number(number)),
             )),
-            Token::Identifier {
-                name,
-                could_be_unit: _,
-            } => {
-                // TODO: need context to determine if this is a unit
-                /* let node = if could_be_unit {
-                    Node::Unit(name)
-                } else {
-                    Node::Variable(name)
-                }; */
+            Token::Identifier(name) => {
                 let node = Node::Variable(name);
 
                 stack.push(Element::new(Sign::Positive, NodeOrExpression::Node(node)));

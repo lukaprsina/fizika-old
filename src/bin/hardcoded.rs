@@ -8,7 +8,6 @@ use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 use uuid::Uuid;
 
-// TODO: vec remove unwrap
 #[allow(dead_code, unused_variables)]
 fn main() -> Result<()> {
     color_eyre::install()?;
@@ -32,8 +31,6 @@ fn main() -> Result<()> {
         uuids.push(uuid);
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-        /* let eq = ctx.remove_equation(uuid1).unwrap();
-        do_stuff(eq); */
     }
 
     {
@@ -47,7 +44,12 @@ fn main() -> Result<()> {
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
         let eq = ctx.remove_equation(uuid).unwrap();
-        do_stuff(eq);
+        // do_stuff(eq);
+
+        let simplify = borrowed_app.strategies.get_mut("simplify").unwrap();
+        let func = simplify.equation.as_deref_mut().unwrap();
+        let mut cloned_eq = eq.clone();
+        func(&mut cloned_eq, "x");
     }
 
     Ok(())
@@ -56,18 +58,16 @@ fn main() -> Result<()> {
 #[allow(dead_code, unused_variables)]
 fn do_stuff(eq: math_eval::ast::Equation) {
     // eq.to_string();
-    println!("{eq:#?}");
-    // println!("{eq}");
+    // println!("{eq:#?}");
     /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
         expr.expand();
     }; */
 }
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
-    // TODO: expression is not cached to the top
     let strings = vec![
         // "a*(b+c)", // "f(g(h, x+2))",
-        "f(a, b^2)+c*d=3x",
+        "2/4",
     ];
     strings
         .into_iter()

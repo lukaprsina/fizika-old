@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
 
 use crate::{
     actions::strategies,
@@ -17,9 +17,18 @@ impl Debug for Strategy {
 
 impl App {
     pub fn add_strategies(&mut self) {
-        self.strategies.extend(vec![
-            strategies::simplify::get_simplify(),
-            strategies::solve_one_variable::get_solve_one_variable(),
-        ]);
+        let tuples = [
+            ("simplify", strategies::simplify::get_simplify()),
+            (
+                "solve_one_variable",
+                strategies::solve_one_variable::get_solve_one_variable(),
+            ),
+        ];
+        self.strategies.extend(
+            tuples
+                .into_iter()
+                .map(|tuple| (tuple.0.to_string(), tuple.1))
+                .collect::<HashMap<String, Strategy>>(),
+        );
     }
 }
