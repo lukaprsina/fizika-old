@@ -37,7 +37,8 @@ impl Equation {
         };
 
         // info!("{}", equation);
-        equation.flatten()
+        // equation.flatten()
+        equation
         // println!("{:#?}", equation);
     }
 }
@@ -63,8 +64,6 @@ impl TryFrom<&str> for NoContextEquation {
 
         let ast = NoContextEquation::try_from(tokens)
             .map_err(CreateEquationError::TokensToEquationError)?;
-
-        // println!("{:#?}", ast.sides);
 
         Ok(ast)
     }

@@ -17,7 +17,6 @@ fn move_element_to_product(element: Element, new_product: &mut Product, side_pos
 }
 
 impl Equation {
-    // #[tracing::instrument(skip_all)]
     pub fn flatten(self) -> Equation {
         let mut new_equation = Equation {
             eq_sides: vec![],
@@ -26,7 +25,7 @@ impl Equation {
             cache: None,
         };
 
-        // ANATODO
+        // TODO:
         for element in self.eq_sides {
             new_equation.eq_sides.push(element.flatten());
         }

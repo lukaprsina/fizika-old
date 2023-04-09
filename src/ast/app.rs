@@ -24,6 +24,7 @@ impl App {
             contexts: HashMap::new(),
             strategies: HashMap::new(),
         };
+
         app.add_strategies();
 
         let app = Rc::new(RefCell::new(app));

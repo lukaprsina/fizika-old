@@ -31,12 +31,16 @@ impl Product {
         let mut new_product = Product::new(vec![], vec![]);
 
         let mut new_number = num::BigRational::new(
-            num::BigInt::new(num::bigint::Sign::NoSign, vec![]),
-            num::BigInt::new(num::bigint::Sign::NoSign, vec![]),
+            num::BigInt::new(num::bigint::Sign::Plus, vec![1]),
+            num::BigInt::new(num::bigint::Sign::Plus, vec![1]),
         );
+
+        let mut sign = Sign::Positive;
 
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
             for element in side {
+                sign = sign * element.sign;
+
                 let add_element = match &element.node_or_expression {
                     NodeOrExpression::Node(node) => match node {
                         Node::Number(number) => {
@@ -61,6 +65,28 @@ impl Product {
                 }
             }
         }
+
+        new_product.numerator.insert(
+            0,
+            Element::new(
+                sign,
+                NodeOrExpression::Node(Node::Number(num::BigRational::new(
+                    new_number.numer().clone(),
+                    num::BigInt::new(num::bigint::Sign::Plus, vec![1]),
+                ))),
+            ),
+        );
+
+        new_product.denominator.insert(
+            0,
+            Element::new(
+                Sign::Positive,
+                NodeOrExpression::Node(Node::Number(num::BigRational::new(
+                    new_number.denom().clone(),
+                    num::BigInt::new(num::bigint::Sign::Plus, vec![1]),
+                ))),
+            ),
+        );
 
         new_product
     }

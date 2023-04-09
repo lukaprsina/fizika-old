@@ -39,6 +39,7 @@ pub enum NodeOrExpression {
 pub struct ElementCache {
     pub variables: HashSet<String>,
     pub functions: HashSet<String>,
+    pub is_number: Option<bool>,
 }
 
 impl ElementCache {
@@ -46,6 +47,7 @@ impl ElementCache {
         ElementCache {
             variables: HashSet::new(),
             functions: HashSet::new(),
+            is_number: None,
         }
     }
 }
@@ -66,7 +68,6 @@ impl Ord for ElementCache {
 pub struct Element {
     pub sign: Sign,
     pub node_or_expression: NodeOrExpression,
-    pub is_number: bool,
     pub cache: Option<ElementCache>,
 }
 
@@ -75,8 +76,40 @@ impl Element {
         Self {
             sign,
             node_or_expression,
-            is_number: false,
             cache: None,
+        }
+    }
+
+    // assume analyzed
+    pub fn is_number(&self) -> bool {
+        if self.cache.is_none() {
+            panic!("Not analyzed");
+        }
+
+        match &self.node_or_expression {
+            NodeOrExpression::Node(node) => {
+                if let Node::Number(_) = node {
+                    true
+                } else {
+                    false
+                }
+            }
+            NodeOrExpression::Expression(expression) => {
+                let mut is_number = true;
+
+                'outer: for product in &expression.products {
+                    for side in [&product.numerator, &product.denominator] {
+                        for element in side {
+                            if !element.is_number() {
+                                is_number = false;
+                                break 'outer;
+                            }
+                        }
+                    }
+                }
+
+                is_number
+            }
         }
     }
 

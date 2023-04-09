@@ -143,11 +143,11 @@ impl Context {
     }
 
     pub fn solve(&mut self) {
-        println!("Context {}", self.uuid);
+        // println!("Context {}", self.uuid);
 
         let analysis = self.analyze();
 
-        println!("Analysis: {:#?}", analysis);
+        // println!("Analysis: {:#?}", analysis);
     }
 }
 

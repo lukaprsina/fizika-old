@@ -4,7 +4,7 @@ use color_eyre::eyre::Result;
 use itertools::Itertools;
 use math_eval::ast::{app::App, context::Context};
 use once_cell::sync::Lazy;
-use tracing::Level;
+use tracing::{debug, Level};
 use tracing_subscriber::FmtSubscriber;
 use uuid::Uuid;
 
@@ -50,24 +50,17 @@ fn main() -> Result<()> {
         let func = simplify.equation.as_deref_mut().unwrap();
         let mut cloned_eq = eq.clone();
         func(&mut cloned_eq, "x");
+        debug!("{cloned_eq:#?}");
+        debug!("{cloned_eq}");
     }
 
     Ok(())
 }
 
-#[allow(dead_code, unused_variables)]
-fn do_stuff(eq: math_eval::ast::Equation) {
-    // eq.to_string();
-    // println!("{eq:#?}");
-    /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
-        expr.expand();
-    }; */
-}
-
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
         // "a*(b+c)", // "f(g(h, x+2))",
-        "2/4",
+        "-2/(-a/-8)",
     ];
     strings
         .into_iter()
