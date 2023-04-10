@@ -51,18 +51,6 @@ impl Element {
     }
 }
 
-fn move_element_to_products(element: Element, new_products: &mut Vec<Product>, side_pos: usize) {
-    let mut new_product = Product::new(vec![], vec![]);
-
-    match side_pos {
-        0 => new_product.numerator.push(element),
-        1 => new_product.denominator.push(element),
-        _ => unreachable!(),
-    }
-
-    new_products.push(new_product);
-}
-
 fn process_inner_element(
     inner_element: &mut Element,
     new_products: &mut Vec<Product>,
@@ -93,12 +81,36 @@ fn process_inner_element(
     }
 }
 
+fn move_element_to_products(element: Element, new_products: &mut Vec<Product>, side_pos: usize) {
+    let mut new_product = if new_products.len() == 0 {
+        Product::new(vec![], vec![])
+    } else if new_products.len() == 1 {
+        new_products.remove(0)
+    } else {
+        panic!("Product should not have more than one element");
+    };
+
+    match side_pos {
+        0 => new_product.numerator.push(element),
+        1 => new_product.denominator.push(element),
+        _ => unreachable!(),
+    }
+
+    new_products.push(new_product);
+}
+
 fn transfer_products(
     inner_expression: Expression,
     new_products: &mut Vec<Product>,
     side_pos: usize,
 ) {
-    let mut new_product = Product::new(vec![], vec![]);
+    let mut new_product = if new_products.len() == 0 {
+        Product::new(vec![], vec![])
+    } else if new_products.len() == 1 {
+        new_products.remove(0)
+    } else {
+        panic!("Product should not have more than one element");
+    };
 
     for inner_product in inner_expression.products {
         if side_pos == 0 {

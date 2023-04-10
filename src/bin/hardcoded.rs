@@ -46,7 +46,7 @@ fn main() -> Result<()> {
         let mut eq = ctx.remove_equation(uuid).unwrap();
         // do_stuff(eq);
         let expr = eq.equation_sides.first_mut().unwrap();
-        debug!("{expr:#?}");
+        // debug!("{expr:#?}");
         // debug!("{expr}");
         expr.flatten();
         debug!("{}", EQUATIONS[pos]);
