@@ -5,11 +5,11 @@ use super::strategy::Strategy;
 
 // imply that it has been analysed
 fn solve_one_variable(equation: &mut Equation, variable_name: &str) {
-    if equation.eq_sides.len() != 2 {
+    if equation.equation_sides.len() != 2 {
         return;
     }
 
-    for side_element in &mut equation.eq_sides {
+    for side_element in &mut equation.equation_sides {
         match &mut side_element.cache {
             Some(cache) => {
                 if cache.variables.len() > 1 {

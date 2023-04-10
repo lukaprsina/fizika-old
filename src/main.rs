@@ -49,8 +49,8 @@ fn main() -> Result<()> {
         // info!(%eq1);
         // info!(%eq2);
 
-        let elem1 = eq1.eq_sides.first().unwrap();
-        let elem2 = eq2.eq_sides.first().unwrap();
+        let elem1 = eq1.equation_sides.first().unwrap();
+        let elem2 = eq2.equation_sides.first().unwrap();
 
         elem1.bind(&elem2);
 

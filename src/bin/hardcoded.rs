@@ -43,15 +43,20 @@ fn main() -> Result<()> {
     for uuid in uuids {
         let mut borrowed_app = app.borrow_mut();
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-        let eq = ctx.remove_equation(uuid).unwrap();
+        let mut eq = ctx.remove_equation(uuid).unwrap();
         // do_stuff(eq);
+        let expr = eq.equation_sides.first_mut().unwrap();
+        expr.flatten();
+        debug!("{expr:#?}");
+        debug!("{expr}");
+        println!("\n\n");
 
-        let simplify = borrowed_app.strategies.get_mut("simplify").unwrap();
+        /* let simplify = borrowed_app.strategies.get_mut("simplify").unwrap();
         let func = simplify.equation.as_deref_mut().unwrap();
         let mut cloned_eq = eq.clone();
         func(&mut cloned_eq, "x");
         debug!("{cloned_eq:#?}");
-        debug!("{cloned_eq}");
+        debug!("{cloned_eq}"); */
     }
 
     Ok(())
@@ -60,7 +65,12 @@ fn main() -> Result<()> {
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
         // "a*(b+c)", // "f(g(h, x+2))",
-        "-2/(-a/-8)",
+        // "-2/(-a/-8)",
+        "(-1-2)-3",
+        "(-1*(-2))-3",
+        "(-1-2)*3 - 3",
+        "(-1*(-2))*3 - 3",
+        "(1/2)/(3/4)",
     ];
     strings
         .into_iter()

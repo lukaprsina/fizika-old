@@ -1,14 +1,60 @@
-use std::rc::Rc;
+use tracing::debug;
 
-use crate::ast::{product::Product, Element, Equation, Expression, NodeOrExpression, Sign};
+use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
-#[derive(Debug)]
-pub enum FlattenResult {
-    Monomial,
-    Polynomial,
+impl Element {
+    pub fn flatten(&mut self) {
+        let sign = Sign::Positive;
+
+        self.apply_to_every_element_mut(
+            &mut |element| {
+                // debug!("{element:#?}");
+
+                let node_or_expression = match &mut element.node_or_expression {
+                    NodeOrExpression::Node(node) => {
+                        // a
+                        NodeOrExpression::Node(node.clone())
+                    }
+                    NodeOrExpression::Expression(expression) => {
+                        let mut new_expression = Expression::new(vec![]);
+
+                        for product in &mut expression.products {
+                            let is_surrounded =
+                                (product.numerator.len() + product.denominator.len()) >= 2;
+
+                            let mut new_product = Product::new(vec![], vec![]);
+
+                            for (side_pos, side) in
+                                [&mut product.numerator, &mut product.denominator]
+                                    .into_iter()
+                                    .enumerate()
+                            {
+                                for inner_element in side {
+                                    process_inner_element(
+                                        inner_element,
+                                        &mut new_product,
+                                        side_pos,
+                                        is_surrounded,
+                                    );
+                                }
+                            }
+
+                            new_expression.products.push(new_product);
+                        }
+
+                        NodeOrExpression::Expression(new_expression)
+                    }
+                };
+
+                *element = Element::new(sign, node_or_expression);
+            },
+            false,
+            None,
+        );
+    }
 }
 
-fn move_element_to_product(element: Element, new_product: &mut Product, side_pos: usize) {
+fn move_element_to_product(element: &Element, new_product: &mut Product, side_pos: usize) {
     match side_pos {
         0 => new_product.numerator.push(element.clone()),
         1 => new_product.denominator.push(element.clone()),
@@ -16,116 +62,52 @@ fn move_element_to_product(element: Element, new_product: &mut Product, side_pos
     }
 }
 
-impl Equation {
-    pub fn flatten(self) -> Equation {
-        let mut new_equation = Equation {
-            eq_sides: vec![],
-            app: Rc::clone(&self.app),
-            context: self.context,
-            cache: None,
-        };
-
-        // TODO:
-        for element in self.eq_sides {
-            new_equation.eq_sides.push(element.flatten());
-        }
-
-        new_equation
+fn process_inner_element(
+    inner_element: &mut Element,
+    new_product: &mut Product,
+    side_pos: usize,
+    is_surrounded: bool,
+) {
+    if inner_element.sign != Sign::Positive {
+        move_element_to_product(inner_element, new_product, side_pos);
+        return;
     }
-}
 
-impl Element {
-    pub fn flatten(self) -> Element {
-        let sign = self.sign;
-
-        self.apply_to_every_element_into(
-            &mut move |element: Element| {
-                if let NodeOrExpression::Expression(expression) = element.node_or_expression {
-                    Element::new(sign, NodeOrExpression::Expression(expression.flatten()))
+    let move_to_product = match &mut inner_element.node_or_expression {
+        NodeOrExpression::Expression(inner_expression) => {
+            if inner_expression.products.len() == 1 {
+                transfer_products(inner_expression.clone(), new_product, side_pos);
+                false
+            } else {
+                if !is_surrounded {
+                    transfer_products(inner_expression.clone(), new_product, side_pos);
+                    false
                 } else {
-                    element
+                    // don't move
+                    true
                 }
-            },
-            true,
-            None,
-        )
+            }
+        }
+        _ => true,
+    };
+
+    if move_to_product {
+        move_element_to_product(inner_element, new_product, side_pos);
     }
 }
 
-impl Expression {
-    #[tracing::instrument(skip_all)]
-    pub fn flatten(self) -> Expression {
-        // info!("Flatten: {}", self);
+fn transfer_products(inner_expression: Expression, new_product: &mut Product, side_pos: usize) {
+    for inner_product in inner_expression.products {
+        if side_pos == 0 {
+            new_product.numerator.extend(inner_product.numerator);
 
-        let mut result_expression = Expression::new(vec![]);
+            new_product.denominator.extend(inner_product.denominator);
+        } else if side_pos == 1 {
+            new_product.numerator.extend(inner_product.denominator);
 
-        for product in self.products.into_iter() {
-            // debug!("New product: {}", product);
-            let mut result_product = Product::new(vec![], vec![]);
-
-            let is_surrounded = (product.numerator.len() + product.denominator.len()) >= 2;
-
-            for (side_pos, side) in [product.numerator, product.denominator]
-                .into_iter()
-                .enumerate()
-            {
-                // debug!("Side {}", side_pos);
-                // println!("{:#?}", side);
-
-                for element in side.into_iter() {
-                    // debug!("Element: {}", element);
-                    match element.node_or_expression {
-                        NodeOrExpression::Expression(expression) => {
-                            let mut new_expr = expression.flatten();
-
-                            let create_new_element = match element.sign {
-                                Sign::Positive => {
-                                    if is_surrounded {
-                                        // info!("num_elements_in_expr > 1");
-                                        if new_expr.products.len() == 1 {
-                                            let only_product = new_expr.products.remove(0);
-
-                                            result_product.numerator.extend(only_product.numerator);
-
-                                            result_product
-                                                .denominator
-                                                .extend(only_product.denominator);
-
-                                            false
-                                        } else {
-                                            true
-                                        }
-                                    } else {
-                                        result_expression
-                                            .products
-                                            .extend(new_expr.products.clone());
-                                        false
-                                    }
-                                }
-                                Sign::Negative => true,
-                            };
-
-                            if create_new_element {
-                                let new_elem = Element::new(
-                                    element.sign,
-                                    NodeOrExpression::Expression(new_expr),
-                                );
-
-                                move_element_to_product(new_elem, &mut result_product, side_pos)
-                            }
-                        }
-                        NodeOrExpression::Node(_) => {
-                            move_element_to_product(element, &mut result_product, side_pos)
-                        }
-                    }
-                }
-            }
-
-            if !result_product.numerator.is_empty() || !result_product.denominator.is_empty() {
-                result_expression.products.push(result_product);
-            }
+            new_product.denominator.extend(inner_product.numerator);
+        } else {
+            panic!("Too many ratio sides");
         }
-
-        result_expression
     }
 }

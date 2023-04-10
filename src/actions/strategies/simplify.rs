@@ -8,7 +8,7 @@ use super::strategy::Strategy;
 
 // assume that it has been analysed
 fn simplify_equation(equation: &mut Equation, _: &str) {
-    for side_element in &mut equation.eq_sides {
+    for side_element in &mut equation.equation_sides {
         debug!("{side_element:#?}");
 
         side_element.apply_to_every_element_mut(

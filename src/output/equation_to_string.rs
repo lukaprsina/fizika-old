@@ -7,14 +7,14 @@ impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        let len = self.eq_sides.len() as isize - 2;
+        let len = self.equation_sides.len() as isize - 2;
         if len.is_positive() {
-            for side in &self.eq_sides[0..len as usize] {
+            for side in &self.equation_sides[0..len as usize] {
                 result += &format!("{} = ", side)
             }
         }
 
-        if let Some(last) = self.eq_sides.last() {
+        if let Some(last) = self.equation_sides.last() {
             result += &format!("{}", last)
         }
 

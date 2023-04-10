@@ -90,7 +90,7 @@ impl Context {
         let mut analysis = ContextAnalysis::new();
 
         for (_, equation) in &mut self.equations {
-            for element in &mut equation.eq_sides {
+            for element in &mut equation.equation_sides {
                 element.apply_to_every_element_mut(
                     &mut |elem| {
                         let mut nested_elem_cache = ElementCache::new();

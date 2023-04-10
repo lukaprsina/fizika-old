@@ -1,13 +1,13 @@
-(-1-2)-3    -> -1-2-3       polynomial new_expr, expr.products == 1
+(-1-2)-3    -> -1-2-3       polynomial new_expr, expr.products == 1             surrounded 0 inner 2     yes
 -(-1-2)-3
 
-(-1*(-2))-3 -> -1*(-2)-3    monomial new_expr, monomial current expr
+(-1*(-2))-3 -> -1*(-2)-3    monomial new_expr, monomial current expr            surrounded 0 inner 1     yes
 -(-1*(-2))-3
 
-(-1-2)*3
+(-1-2)*3 - 3                                                                    surrounded 1 inner 2     no
 -(-1-2)*3
 
-(-1*(-2))*3 -> -1*(-2)*3    monomial new_expr, monomial current expr
+(-1*(-2))*3 - 3 -> -1*(-2)*3 - 3    monomial new_expr, monomial current expr    surrounded 1 inner 1     yes
 -(-1*(-2))*3
 
 fn Expression.flatten() -> FlattenResult {

@@ -99,13 +99,13 @@ impl<T: Ord + Clone + IsSame + Display> IsSame for Vec<T> {
 
 impl IsSame for Equation {
     fn is_same(lhs: &Self, rhs: &Self, names: &mut IsSameNames) -> bool {
-        if lhs.eq_sides.len() != rhs.eq_sides.len() {
+        if lhs.equation_sides.len() != rhs.equation_sides.len() {
             return false;
         }
         // TODO: not true
         let mut result = true;
 
-        for (left, right) in lhs.eq_sides.iter().zip(&rhs.eq_sides) {
+        for (left, right) in lhs.equation_sides.iter().zip(&rhs.equation_sides) {
             result &= Element::is_same(left, right, names);
             if !result {
                 break;

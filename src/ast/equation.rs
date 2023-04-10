@@ -11,7 +11,7 @@ pub struct EquationCache {}
 
 #[derive(Debug, Clone)]
 pub struct Equation {
-    pub eq_sides: Vec<Element>,
+    pub equation_sides: Vec<Element>,
     pub app: Rc<RefCell<App>>,
     pub context: Uuid,
     pub cache: Option<EquationCache>,
@@ -30,7 +30,7 @@ pub struct EquationSide {
 impl Equation {
     pub fn new(elements: Vec<Element>, app: Rc<RefCell<App>>, ctx_uuid: Uuid) -> Self {
         let equation = Equation {
-            eq_sides: elements,
+            equation_sides: elements,
             app: Rc::clone(&app),
             context: ctx_uuid,
             cache: Some(EquationCache {}),
