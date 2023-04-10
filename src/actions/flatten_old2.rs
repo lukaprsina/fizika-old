@@ -1,17 +1,20 @@
-use itertools::Itertools;
 use tracing::debug;
 
 use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 
 impl Element {
     pub fn flatten(&mut self) {
+        let sign = Sign::Positive;
+
         self.apply_to_every_element_mut(
             &mut |element| {
-                debug!("{element:#?}");
-                let sign = element.sign.clone();
+                // debug!("{element:#?}");
 
                 let node_or_expression = match &mut element.node_or_expression {
-                    NodeOrExpression::Node(node) => NodeOrExpression::Node(node.clone()),
+                    NodeOrExpression::Node(node) => {
+                        // a
+                        NodeOrExpression::Node(node.clone())
+                    }
                     NodeOrExpression::Expression(expression) => {
                         let mut new_expression = Expression::new(vec![]);
 
@@ -19,7 +22,7 @@ impl Element {
                             let is_surrounded =
                                 (product.numerator.len() + product.denominator.len()) >= 2;
 
-                            let mut new_products: Vec<Product> = vec![];
+                            let mut new_product = Product::new(vec![], vec![]);
 
                             for (side_pos, side) in
                                 [&mut product.numerator, &mut product.denominator]
@@ -29,14 +32,14 @@ impl Element {
                                 for inner_element in side {
                                     process_inner_element(
                                         inner_element,
-                                        &mut new_products,
+                                        &mut new_product,
                                         side_pos,
                                         is_surrounded,
                                     );
                                 }
                             }
 
-                            new_expression.products.extend(new_products);
+                            new_expression.products.push(new_product);
                         }
 
                         NodeOrExpression::Expression(new_expression)
@@ -51,55 +54,49 @@ impl Element {
     }
 }
 
-fn move_element_to_products(element: Element, new_products: &mut Vec<Product>, side_pos: usize) {
-    let mut new_product = Product::new(vec![], vec![]);
-
+fn move_element_to_product(element: &Element, new_product: &mut Product, side_pos: usize) {
     match side_pos {
-        0 => new_product.numerator.push(element),
-        1 => new_product.denominator.push(element),
+        0 => new_product.numerator.push(element.clone()),
+        1 => new_product.denominator.push(element.clone()),
         _ => unreachable!(),
     }
-
-    new_products.push(new_product);
 }
 
 fn process_inner_element(
     inner_element: &mut Element,
-    new_products: &mut Vec<Product>,
+    new_product: &mut Product,
     side_pos: usize,
     is_surrounded: bool,
 ) {
-    debug!("inner_element: {inner_element:#?}");
     if inner_element.sign != Sign::Positive {
-        move_element_to_products(inner_element.clone(), new_products, side_pos);
+        move_element_to_product(inner_element, new_product, side_pos);
         return;
     }
 
-    match &mut inner_element.node_or_expression {
+    let move_to_product = match &mut inner_element.node_or_expression {
         NodeOrExpression::Expression(inner_expression) => {
             if inner_expression.products.len() == 1 {
-                transfer_products(inner_expression.clone(), new_products, side_pos);
+                transfer_products(inner_expression.clone(), new_product, side_pos);
+                false
             } else {
-                if is_surrounded {
-                    move_element_to_products(inner_element.clone(), new_products, side_pos);
+                if !is_surrounded {
+                    transfer_products(inner_expression.clone(), new_product, side_pos);
+                    false
                 } else {
-                    transfer_elements_in_products(inner_expression.clone(), new_products, side_pos);
+                    // move: is surrounded, product len not 1
+                    true
                 }
             }
         }
-        NodeOrExpression::Node(_) => {
-            move_element_to_products(inner_element.clone(), new_products, side_pos)
-        }
+        _ => true, // move: node
+    };
+
+    if move_to_product {
+        move_element_to_product(inner_element, new_product, side_pos);
     }
 }
 
-fn transfer_products(
-    inner_expression: Expression,
-    new_products: &mut Vec<Product>,
-    side_pos: usize,
-) {
-    let mut new_product = Product::new(vec![], vec![]);
-
+fn transfer_products(inner_expression: Expression, new_product: &mut Product, side_pos: usize) {
     for inner_product in inner_expression.products {
         if side_pos == 0 {
             new_product.numerator.extend(inner_product.numerator);
@@ -111,32 +108,6 @@ fn transfer_products(
             new_product.denominator.extend(inner_product.numerator);
         } else {
             panic!("Too many ratio sides");
-        }
-    }
-
-    new_products.push(new_product);
-}
-
-fn transfer_elements_in_products(
-    inner_expression: Expression,
-    new_products: &mut Vec<Product>,
-    side_pos: usize,
-) {
-    for inner_product in inner_expression.products {
-        for side in [inner_product.numerator, inner_product.denominator] {
-            let products = if side_pos == 0 {
-                side.into_iter()
-                    .map(|elem| Product::new(vec![elem], vec![]))
-                    .collect_vec()
-            } else if side_pos == 1 {
-                side.into_iter()
-                    .map(|elem| Product::new(vec![], vec![elem]))
-                    .collect_vec()
-            } else {
-                panic!("Too many ratio sides");
-            };
-
-            new_products.extend(products);
         }
     }
 }
