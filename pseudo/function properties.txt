@@ -1,0 +1,81 @@
+Domain
+Codomain
+Range
+Injectivity
+Surjectivity
+Bijectivity
+Continuity
+Differentiability
+Integrability
+
+    Domain: The set of input values for which the function is defined.
+
+    Range: The set of output values that the function can produce.
+
+    Continuity: The property of being "smooth" or having no abrupt changes in value.
+
+    Differentiability: The property of having a well-defined derivative at every point in the domain.
+
+    Monotonicity: The property of either increasing or decreasing throughout its domain.
+
+    Symmetry: The property of being unchanged when certain transformations are applied, such as reflection or rotation.
+
+    Periodicity: The property of repeating itself at regular intervals.
+
+    Asymptotes: The behavior of the function as the input approaches certain values or infinity.
+
+    Convexity/Concavity: The shape of the graph of the function, whether it is curved upward or downward.
+
+    Invertibility: The property of having an inverse function that maps the output values back to their corresponding input values.
+
+
+    Domain
+    Range
+    Continuous
+    Discontinuous
+    Differentiable
+    Non-differentiable
+    Monotonic
+    Strictly increasing
+    Strictly decreasing
+    Non-monotonic
+    Symmetric
+    Asymmetric
+    Periodic
+    Non-periodic
+    Even
+    Odd
+    Bounded
+    Unbounded
+    Convex
+    Concave
+    Inflection points
+    Asymptotes
+    Vertical asymptotes
+    Horizontal asymptotes
+    Slant asymptotes
+    Inverse
+    One-to-one
+    Onto
+    Bijective
+    Injective
+    Surjective
+    Implicit
+    Explicit
+    Piecewise
+    Algebraic
+    Transcendental
+    Polynomial
+    Rational
+    Trigonometric
+    Exponential
+    Logarithmic
+    Hyperbolic
+    Differential equation solution
+    Integral equation solution
+    Fourier series
+    Laplace transform
+    Fourier transform
+    Z-transform
+    Taylor series
+    Laurent series

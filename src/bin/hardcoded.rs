@@ -69,8 +69,9 @@ fn main() -> Result<()> {
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
-        // "a*(b+c)", // "f(g(h, x+2))",
+        // "a*(b+c)",
         // "-2/(-a/-8)",
+        "f(g(h, x+2))",
         // "(-1-2)-3",
         // "(-1*(-2))-3",
         "(-1-2)*3",

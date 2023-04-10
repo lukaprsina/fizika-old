@@ -7,7 +7,7 @@ impl Element {
     pub fn flatten(&mut self) {
         self.apply_to_every_element_mut(
             &mut |element| {
-                debug!("{element:#?}");
+                // debug!("{element:#?}");
                 let sign = element.sign.clone();
 
                 let node_or_expression = match &mut element.node_or_expression {
@@ -57,7 +57,7 @@ fn process_inner_element(
     side_pos: usize,
     is_surrounded: bool,
 ) {
-    debug!("inner_element: {inner_element:#?}");
+    // debug!("inner_element: {inner_element:#?}");
     if inner_element.sign != Sign::Positive {
         move_element_to_products(inner_element.clone(), new_products, side_pos);
         return;
