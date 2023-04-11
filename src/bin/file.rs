@@ -36,31 +36,24 @@ fn main() -> Result<()> {
     for equation in lines {
         match App::try_add_equation(Rc::clone(&app), ctx_uuid, equation) {
             Ok(uuid) => {
-                // print!("=\"{equation}\",");
-                println!("{equation}");
                 let mut borrowed_app = app.borrow_mut();
                 let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
 
                 let eq = ctx.remove_equation(uuid).unwrap();
-
-                multiply(eq);
-                // println!("\n");
+                println!("{eq:#?}");
+                println!("{equation}");
+                println!("{eq}");
+                println!("\n");
             }
             Err(err) => match err {
                 CreateEquationError::ParseError(ParseError::Empty) => {}
                 _ => return Err(err.into()),
             },
         }
+
+        let mut line = String::new();
+        std::io::stdin().read_line(&mut line)?;
     }
 
     Ok(())
-}
-
-fn multiply(eq: math_eval::ast::Equation) {
-    println!("{eq}\n");
-    /* if let NodeOrExpression::Expression(expr) = eq.eq_sides[0].node_or_expression.clone() {
-        // expr.expand();
-        println!("{expr:#?}");
-        println!("{expr}");
-    }; */
 }

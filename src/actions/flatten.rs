@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use tracing::debug;
 
 use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
 

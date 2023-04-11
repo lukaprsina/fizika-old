@@ -50,7 +50,7 @@ fn main() -> Result<()> {
         // debug!("{expr}");
         expr.flatten();
         debug!("{}", EQUATIONS[pos]);
-        debug!("{expr:#?}");
+        // debug!("{expr:#?}");
         debug!("{expr}");
         println!("\n\n");
 
@@ -71,9 +71,10 @@ static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
         // "a*(b+c)",
         // "-2/(-a/-8)",
-        "f(g(h, x+2))",
+        // "f(g(h, x+2))",
         // "(-1-2)-3",
         // "(-1*(-2))-3",
+        "1-((-2-3)*(-4-5))/((-6-7)*(-8-9))",
         "(-1-2)*3",
         "(-1-2)*3 - 3",
         "(-1*(-2))*3 - 3",

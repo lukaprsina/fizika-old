@@ -118,21 +118,45 @@ impl Display for Product {
         // println!("{self:#?}");
 
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
-            let open = if !self.denominator.is_empty() && side.len() == 1 {
-                match &side.first().expect("No element in side").node_or_expression {
-                    NodeOrExpression::Node(_) => true,
-                    NodeOrExpression::Expression(_) => false,
-                }
-            } else {
+            let open = if self.denominator.is_empty() {
                 false
+            } else {
+                if side.len() == 1 {
+                    match &side.first().expect("No element in side").node_or_expression {
+                        NodeOrExpression::Node(_) => true,
+                        NodeOrExpression::Expression(_) => false,
+                    }
+                } else {
+                    false
+                }
             };
+
+            // let open = false;
 
             if open {
                 result.push('(');
             }
 
-            for element in side.iter() {
+            for (element_pos, element) in side.iter().enumerate() {
+                let element_open = (element_pos > 0 || (side_pos == 1 && element_pos == 0))
+                    && element.sign == Sign::Negative;
+
+                if element_open {
+                    result.push('(');
+                }
+
                 result += &element.to_string();
+
+                if element_open {
+                    result.push_str(&format!("_!{element_pos}_"));
+                    result.push(')');
+                }
+
+                // TODO: -6 isn't in denominator
+                // 1/((((-6)+1)+1)+1)
+                if side.len() > 1 && element_pos == 0 {
+                    result.push_str(&format!("__:{side_pos}:{element_pos}:{}", side.len()));
+                }
             }
 
             if open {
@@ -148,19 +172,23 @@ impl Display for Product {
     }
 }
 
+/* TODO:
+5-6
+5*(-6)
+ */
+
 impl Display for Element {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
         // println!("{self:#?}");
 
-        let one_product = if let NodeOrExpression::Expression(expression) = &self.node_or_expression
-        {
-            expression.products.len() < 2
-        } else {
-            true
+        let one_product = match &self.node_or_expression {
+            NodeOrExpression::Expression(expression) => expression.products.len() < 2,
+            NodeOrExpression::Node(_) => true,
         };
 
-        let open_element = self.sign == Sign::Positive && one_product;
+        let open_element = matches!(self.node_or_expression, NodeOrExpression::Expression(_))
+            && (self.sign == Sign::Negative || !one_product);
         if open_element {
             result.push('(');
         }
