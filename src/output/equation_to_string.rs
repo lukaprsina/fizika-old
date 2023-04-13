@@ -145,18 +145,18 @@ impl Display for Product {
                     result.push('(');
                 }
 
-                result += &element.to_string();
+                result += &format!("{} {} ", element.sign, element.to_string());
 
                 if element_open {
-                    result.push_str(&format!("_!{element_pos}_"));
+                    // result.push_str(&format!("_!{element_pos}_"));
                     result.push(')');
                 }
 
                 // TODO: -6 isn't in denominator
                 // 1/((((-6)+1)+1)+1)
-                if side.len() > 1 && element_pos == 0 {
+                /* if side.len() > 1 && element_pos == 0 {
                     result.push_str(&format!("__:{side_pos}:{element_pos}:{}", side.len()));
-                }
+                } */
             }
 
             if open {
