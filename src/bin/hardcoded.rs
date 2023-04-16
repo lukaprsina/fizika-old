@@ -4,11 +4,10 @@ use color_eyre::eyre::Result;
 use itertools::Itertools;
 use math_eval::ast::{app::App, context::Context};
 use once_cell::sync::Lazy;
-use tracing::{debug, Level};
+use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 use uuid::Uuid;
 
-#[allow(dead_code, unused_variables)]
 fn main() -> Result<()> {
     color_eyre::install()?;
     let subscriber = FmtSubscriber::builder()
@@ -19,35 +18,19 @@ fn main() -> Result<()> {
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
     let app = App::new()?;
-
-    let context = Context::new(Rc::clone(&app));
-
-    let ctx_uuid = app.borrow_mut().add_context(context);
-
-    let mut uuids: Vec<Uuid> = vec![];
+    let mut contexts: Vec<Uuid> = vec![];
 
     for equation in EQUATIONS.iter() {
-        let uuid = App::try_add_equation(Rc::clone(&app), ctx_uuid, equation.as_str())?;
-        uuids.push(uuid);
-        let mut borrowed_app = app.borrow_mut();
-        let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+        let context = Context::new(Rc::clone(&app));
+        let ctx_uuid = app.borrow_mut().add_context(context);
+        App::try_add_equation(Rc::clone(&app), ctx_uuid, equation.as_str())?;
+        contexts.push(ctx_uuid);
     }
 
-    for (pos, uuid) in uuids.into_iter().enumerate() {
+    for uuid in contexts {
         let mut borrowed_app = app.borrow_mut();
-        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-        context.solve();
-
-        borrowed_app.apply_strategy("flatten", uuid, ctx_uuid);
-
-        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-        context.solve();
-
-        borrowed_app.apply_strategy("simplify", uuid, ctx_uuid);
-
-        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-        let eq = context.get_equation(uuid).unwrap();
-        debug!("{eq:#?}");
+        borrowed_app.get_context_mut(uuid).unwrap();
+        App::solve(&mut borrowed_app, uuid);
 
         let mut line = String::new();
         std::io::stdin().read_line(&mut line)?;

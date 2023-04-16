@@ -97,17 +97,6 @@ impl Context {
 
         analysis
     }
-
-    // TODO: apply it on the equation
-    pub fn apply_strategy(&mut self, app: &mut App, strategy_name: &str, equation: Uuid) {
-        let mut strategy = app.strategies.remove(strategy_name).unwrap();
-        let eq = self.get_equation_mut(equation).unwrap();
-
-        let func = &mut strategy.equation.as_deref_mut().unwrap();
-        func(eq);
-
-        app.strategies.insert(strategy_name.to_string(), strategy);
-    }
 }
 
 #[derive(Debug)]

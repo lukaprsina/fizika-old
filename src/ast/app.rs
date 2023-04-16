@@ -85,13 +85,17 @@ impl App {
         self.contexts.get_mut(&uuid)
     }
 
+    pub fn remove_context(&mut self, uuid: Uuid) -> Option<Context> {
+        self.contexts.remove(&uuid)
+    }
+
     pub fn solve(&mut self, context_uuid: Uuid) {
         // println!("Context {}", self.uuid);
-        let context = self
-            .get_context_mut(context_uuid)
+        let mut context = self
+            .remove_context(context_uuid)
             .expect("Context not found");
 
-        for (uuid, equation) in &mut context.equations {
+        for (_, equation) in &mut context.equations {
             let mut i = 0;
             loop {
                 for element in &mut equation.equation_sides {
@@ -99,13 +103,13 @@ impl App {
                 }
 
                 let strategy = STRATEGY_ORDER[i % STRATEGY_ORDER.len()];
-                context.apply_strategy(self, strategy, *uuid);
-                // self.apply_strategy(strategy, *uuid, context.uuid);
-
+                equation.apply_strategy(self, strategy);
                 println!("{}", equation);
                 i += 1;
             }
         }
+
+        self.contexts.insert(context_uuid, context);
 
         // println!("Analysis: {:#?}", analysis);
     }

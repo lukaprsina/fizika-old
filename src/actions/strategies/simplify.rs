@@ -1,7 +1,3 @@
-#![allow(unused_variables)]
-
-use tracing::debug;
-
 use crate::ast::{Element, Equation, Expression, Node, NodeOrExpression};
 
 use super::strategy::Strategy;
@@ -9,7 +5,7 @@ use super::strategy::Strategy;
 // assume that it has been analysed
 fn simplify_equation(equation: &mut Equation) {
     for side_element in &mut equation.equation_sides {
-        debug!("{side_element:#?}");
+        // debug!("{side_element:#?}");
 
         side_element.apply_to_every_element_mut(
             &mut |element| {
@@ -32,13 +28,13 @@ fn simplify_equation(equation: &mut Equation) {
             None,
         );
 
-        debug!("{side_element:#?}");
+        // debug!("{side_element:#?}");
 
         side_element.analyze(None);
 
         side_element.apply_to_every_element_mut(
             &mut |element| {
-                debug!("{element} {}", element.is_number());
+                // debug!("{element} {}", element.is_number());
                 if let NodeOrExpression::Expression(expression) = &mut element.node_or_expression {
                     for product in &mut expression.products {
                         let mut delete_denominator = false;
