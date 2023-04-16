@@ -1,8 +1,16 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
+use petgraph::stable_graph::NodeIndex;
+use tracing::debug;
 use uuid::Uuid;
 
-use crate::actions::strategies::strategy::Strategy;
+use crate::{
+    actions::{
+        is_same::{IsSame, IsSameNames},
+        strategies::strategy::Strategy,
+    },
+    graph::graph::EquationGraph,
+};
 
 use super::{
     context::{Context, CreateEquationError},
@@ -10,7 +18,7 @@ use super::{
     Element, Equation,
 };
 
-const STRATEGY_ORDER: [&'static str; 2] = ["flatten", "simplify"];
+const STRATEGIES: [&'static str; 1] = ["solve_one_variable"];
 
 #[derive(Debug)]
 pub struct App {
@@ -30,42 +38,6 @@ impl App {
         app.add_strategies();
 
         let app = Rc::new(RefCell::new(app));
-
-        /* let ctx_uuid = {
-            let mut borrowed_app = app.borrow_mut();
-
-            let context = Context::new(Rc::clone(&app));
-            borrowed_app.formulas = borrowed_app.add_context(context);
-            borrowed_app.formulas
-        };
-
-        for line in include_str!("../../formulas.txt")
-            .lines()
-            .filter_map(|line| {
-                let new_line = line.trim();
-                if new_line.is_empty() {
-                    None
-                } else {
-                    Some(new_line)
-                }
-            })
-        {
-            // println!("\n\nNew formula: {}", line);
-
-            if let Some(eq_err) = App::try_add_equation(Rc::clone(&app), ctx_uuid, line).err() {
-                let mut throw = true;
-
-                if let CreateEquationError::ParseError(parse_err) = &eq_err {
-                    if let ParseError::Empty = parse_err {
-                        throw = false;
-                    }
-                }
-
-                if throw {
-                    return Err(eq_err);
-                }
-            }
-        } */
 
         Ok(app)
     }
@@ -96,22 +68,61 @@ impl App {
             .expect("Context not found");
 
         for (_, equation) in &mut context.equations {
-            let mut i = 0;
-            loop {
-                for element in &mut equation.equation_sides {
-                    element.analyze(None);
-                }
-
-                let strategy = STRATEGY_ORDER[i % STRATEGY_ORDER.len()];
-                equation.apply_strategy(self, strategy);
-                println!("{}", equation);
-                i += 1;
-            }
+            self.solve_equation(equation);
         }
 
         self.contexts.insert(context_uuid, context);
 
         // println!("Analysis: {:#?}", analysis);
+    }
+
+    pub fn solve_equation(&mut self, equation: &mut Equation) {
+        let (mut graph, center_index) = EquationGraph::new(equation.clone());
+        self.process_graph_node(center_index, &mut graph);
+    }
+
+    pub fn process_graph_node(
+        &mut self,
+        node_index: NodeIndex,
+        graph: &mut EquationGraph,
+    ) -> Vec<NodeIndex> {
+        let mut original_eq = graph.graph[node_index].clone();
+        debug!("{}", original_eq);
+
+        for element in &mut original_eq.equation_sides {
+            element.analyze(None);
+        }
+
+        let mut indices = vec![];
+
+        for strategy in ["flatten", "simplify"] {
+            original_eq.apply_strategy(self, strategy);
+        }
+
+        for strategy in STRATEGIES {
+            let mut cloned_eq = original_eq.clone();
+            let constraints = cloned_eq.apply_strategy(self, strategy);
+            debug!("{:#?}", cloned_eq);
+            let (node_index, _) = graph.add_path(cloned_eq.clone(), constraints, node_index);
+
+            let leaf_eq = &graph.graph[node_index];
+            let mut names = IsSameNames::new();
+            let is_same = IsSame::is_same(leaf_eq, &original_eq, &mut names);
+            if !is_same {
+                debug!("{:#?}", cloned_eq);
+                debug!("{:#?}", leaf_eq);
+                indices.push(node_index);
+            }
+        }
+
+        let mut new_indices = vec![];
+        for index in indices {
+            let leaves = self.process_graph_node(index, graph);
+            new_indices.extend(leaves);
+        }
+
+        graph.graph[node_index] = original_eq;
+        new_indices
     }
 
     pub fn try_add_equation<T: Debug + TryInto<NoContextEquation, Error = CreateEquationError>>(

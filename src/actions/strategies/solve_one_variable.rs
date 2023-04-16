@@ -5,10 +5,12 @@ use crate::ast::{Element, Equation, Node, NodeOrExpression};
 use super::strategy::Strategy;
 
 // imply that it has been analysed
-fn solve_one_variable(equation: &mut Equation) {
+fn solve_one_variable(equation: &mut Equation) -> Vec<Equation> {
     if equation.equation_sides.len() != 2 {
-        return;
+        return vec![];
     }
+
+    let constraints = vec![];
 
     for side_element in &mut equation.equation_sides {
         match &mut side_element.cache {
@@ -26,6 +28,8 @@ fn solve_one_variable(equation: &mut Equation) {
             None => panic!("Equation has not been analyzed, cannot simplify"),
         }
     }
+
+    constraints
 }
 
 pub fn get_solve_one_variable() -> Strategy {

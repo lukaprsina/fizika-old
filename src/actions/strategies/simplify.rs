@@ -3,7 +3,7 @@ use crate::ast::{Element, Equation, Expression, Node, NodeOrExpression};
 use super::strategy::Strategy;
 
 // assume that it has been analysed
-fn simplify_equation(equation: &mut Equation) {
+fn simplify_equation(equation: &mut Equation) -> Vec<Equation> {
     for side_element in &mut equation.equation_sides {
         // debug!("{side_element:#?}");
 
@@ -61,6 +61,8 @@ fn simplify_equation(equation: &mut Equation) {
             None,
         );
     }
+
+    vec![]
 }
 
 pub fn get_simplify() -> Strategy {

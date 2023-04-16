@@ -42,13 +42,14 @@ impl Equation {
         // println!("{:#?}", equation);
     }
 
-    pub fn apply_strategy(&mut self, app: &mut App, strategy_name: &str) {
+    pub fn apply_strategy(&mut self, app: &mut App, strategy_name: &str) -> Vec<Equation> {
         let mut strategy = app.strategies.remove(strategy_name).unwrap();
 
         let func = &mut strategy.equation.as_deref_mut().unwrap();
-        func(self);
+        let constraints = func(self);
 
         app.strategies.insert(strategy_name.to_string(), strategy);
+        constraints
     }
 }
 

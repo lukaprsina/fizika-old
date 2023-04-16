@@ -6,7 +6,7 @@ use crate::{
 };
 
 pub struct Strategy {
-    pub equation: Option<Box<dyn FnMut(&mut Equation) -> ()>>,
+    pub equation: Option<Box<dyn FnMut(&mut Equation) -> Vec<Equation>>>,
 }
 
 impl Debug for Strategy {

@@ -10,10 +10,11 @@ pub fn get_flatten() -> Strategy {
     }
 }
 
-fn flatten_equation(equation: &mut Equation) {
+fn flatten_equation(equation: &mut Equation) -> Vec<Equation> {
     for side_element in &mut equation.equation_sides {
         side_element.apply_to_every_element_mut(&mut flatten_element, false, None);
     }
+    vec![]
 }
 
 fn flatten_element(element: &mut Element) {
