@@ -27,6 +27,18 @@ impl Product {
         }
     }
 
+    pub fn calculate_sign(&self) -> Sign {
+        let mut sign = Sign::Positive;
+
+        for side in [&self.numerator, &self.denominator] {
+            for element in side {
+                sign = element.sign * sign;
+            }
+        }
+
+        sign
+    }
+
     pub fn rationalize(&mut self) -> Self {
         let mut new_product = Product::new(vec![], vec![]);
 
@@ -104,10 +116,27 @@ impl IsTimesVisible for Product {
 
 impl ShouldBeParenthesized for Product {
     fn should_be_parenthesized(&self) -> bool {
-        if self.numerator.len() == 1 {
-            self.numerator[0].should_be_parenthesized()
-        } else {
-            true
+        let mut open = !self.denominator.is_empty();
+
+        if let Some(first_elem) = self.numerator.first() {
+            open |= first_elem.should_be_parenthesized();
         }
+
+        open
+    }
+}
+
+impl ShouldBeParenthesized for Vec<Element> {
+    fn should_be_parenthesized(&self) -> bool {
+        let open = if self.len() == 1 {
+            match &self.first().expect("No element in side").node_or_expression {
+                NodeOrExpression::Node(_) => true,
+                NodeOrExpression::Expression(_) => false,
+            }
+        } else {
+            false
+        };
+
+        open
     }
 }

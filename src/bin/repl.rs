@@ -1,19 +1,14 @@
 use color_eyre::eyre::Result;
-use math_eval::ast::{app::App, context::Context};
+use math_eval::{
+    ast::{app::App, context::Context},
+    initialize,
+};
 use rustyline::{error::ReadlineError, DefaultEditor};
 use std::rc::Rc;
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
 
 // TODO: vec remove unwrap
 fn main() -> Result<()> {
-    color_eyre::install()?;
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::TRACE)
-        .without_time()
-        .finish();
-
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+    initialize()?;
 
     let app = App::new()?;
 

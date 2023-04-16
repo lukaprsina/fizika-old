@@ -7,7 +7,7 @@ impl Display for Equation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut result = String::new();
 
-        let len = self.equation_sides.len() as isize - 2;
+        let len = self.equation_sides.len() as isize - 1;
         if len.is_positive() {
             for side in &self.equation_sides[0..len as usize] {
                 result += &format!("{} = ", side)
@@ -118,20 +118,7 @@ impl Display for Product {
         // println!("{self:#?}");
 
         for (side_pos, side) in [&self.numerator, &self.denominator].into_iter().enumerate() {
-            let open = if self.denominator.is_empty() {
-                false
-            } else {
-                if side.len() == 1 {
-                    match &side.first().expect("No element in side").node_or_expression {
-                        NodeOrExpression::Node(_) => true,
-                        NodeOrExpression::Expression(_) => false,
-                    }
-                } else {
-                    false
-                }
-            };
-
-            // let open = false;
+            let open = side.should_be_parenthesized();
 
             if open {
                 result.push('(');

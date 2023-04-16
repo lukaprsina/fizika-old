@@ -2,20 +2,16 @@ use std::rc::Rc;
 
 use color_eyre::eyre::Result;
 use itertools::Itertools;
-use math_eval::ast::{app::App, context::Context};
+use math_eval::{
+    ast::{app::App, context::Context},
+    initialize,
+    output::equation_to_rpn::ReversePolishNotation,
+};
 use once_cell::sync::Lazy;
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
 use uuid::Uuid;
 
 fn main() -> Result<()> {
-    color_eyre::install()?;
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::TRACE)
-        .without_time()
-        .finish();
-
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+    initialize()?;
 
     let app = App::new()?;
     let mut contexts: Vec<Uuid> = vec![];
@@ -29,8 +25,14 @@ fn main() -> Result<()> {
 
     for uuid in contexts {
         let mut borrowed_app = app.borrow_mut();
-        borrowed_app.get_context_mut(uuid).unwrap();
-        App::solve(&mut borrowed_app, uuid);
+        let context = borrowed_app.get_context_mut(uuid).unwrap();
+
+        for (_, equation) in &context.equations {
+            // debug!("{}", equation);
+            equation.rpn();
+        }
+
+        // App::solve(&mut borrowed_app, uuid);
 
         let mut line = String::new();
         std::io::stdin().read_line(&mut line)?;
@@ -41,7 +43,13 @@ fn main() -> Result<()> {
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
-        "sin(x^3+1)=0",
+        "1/(2+x)",
+        "x+((y*a)-z)",
+        "(1+2)*(3+4) ",
+        "1+2*3+4",
+        "1+2*(3+4)",
+        "(1+2)*3+4",
+        // "sin(x^3+1)=0",
         // "sin(x+1)=(x^2+1+(f(x)/2))/2",
         // "a*(b+c)",
         // "-2/(-a/-8)",

@@ -7,22 +7,12 @@ use math_eval::{
         app::App,
         context::{Context, CreateEquationError},
     },
+    initialize,
     tokenizer::parser::ParseError,
 };
 
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
-
 fn main() -> Result<()> {
-    color_eyre::install()?;
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::TRACE)
-        .without_time()
-        .finish();
-
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-
-    // info!("Started the logger crate");
+    initialize()?;
 
     let app = App::new()?;
 
