@@ -3,9 +3,9 @@ use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 use thiserror::Error;
 use uuid::Uuid;
 
-use crate::{ast::element::ElementCache, tokenizer::parser::ParseError};
+use crate::tokenizer::parser::ParseError;
 
-use super::{app::App, token_to_element::TokensToEquationError, Equation, Node, NodeOrExpression};
+use super::{app::App, token_to_element::TokensToEquationError, Equation};
 
 #[derive(Debug, Clone)]
 pub enum Domain {}
@@ -33,7 +33,7 @@ pub enum ElementDefinition {
 #[derive(Debug, Clone)]
 pub struct Context {
     pub app: Rc<RefCell<App>>,
-    equations: HashMap<Uuid, Equation>,
+    pub equations: HashMap<Uuid, Equation>,
     pub definitions: HashMap<String, ElementDefinition>,
     pub uuid: Uuid,
 }
@@ -91,63 +91,22 @@ impl Context {
 
         for (_, equation) in &mut self.equations {
             for element in &mut equation.equation_sides {
-                element.apply_to_every_element_mut(
-                    &mut |elem| {
-                        let mut nested_elem_cache = ElementCache::new();
-
-                        if elem.cache.is_none() {
-                            elem.cache = Some(ElementCache::new());
-                        }
-
-                        let cache = elem.cache.as_mut().expect("No element cache");
-
-                        if let NodeOrExpression::Node(node) = &mut elem.node_or_expression {
-                            match node {
-                                Node::Function { name, arguments: _ } => {
-                                    analysis.functions.insert(name.clone(), None);
-                                    cache.functions.insert(name.clone());
-                                }
-                                Node::Variable(name) => {
-                                    analysis.variables.insert(name.clone(), None);
-                                    cache.variables.insert(name.clone());
-                                }
-                                _ => (),
-                            }
-                        }
-
-                        elem.apply_to_every_element_mut(
-                            &mut |elem_inner| {
-                                // println!("{:#?}", elem_inner);
-                                if let Some(cache) = &mut elem_inner.cache {
-                                    // println!("{:#?}", cache);
-                                    nested_elem_cache.functions.extend(cache.functions.clone());
-                                    nested_elem_cache.variables.extend(cache.variables.clone());
-                                }
-                            },
-                            false,
-                            Some(1),
-                        );
-
-                        if let Some(cache) = elem.cache.as_mut() {
-                            cache.functions.extend(nested_elem_cache.functions.clone());
-                            cache.variables.extend(nested_elem_cache.variables.clone());
-                        }
-                    },
-                    false,
-                    None,
-                );
+                element.analyze(Some(&mut analysis));
             }
         }
 
         analysis
     }
 
-    pub fn solve(&mut self) {
-        // println!("Context {}", self.uuid);
+    // TODO: apply it on the equation
+    pub fn apply_strategy(&mut self, app: &mut App, strategy_name: &str, equation: Uuid) {
+        let mut strategy = app.strategies.remove(strategy_name).unwrap();
+        let eq = self.get_equation_mut(equation).unwrap();
 
-        let _analysis = self.analyze();
+        let func = &mut strategy.equation.as_deref_mut().unwrap();
+        func(eq);
 
-        // println!("Analysis: {:#?}", analysis);
+        app.strategies.insert(strategy_name.to_string(), strategy);
     }
 }
 
@@ -166,8 +125,8 @@ pub enum FunctionType {
 
 #[derive(Default, Debug)]
 pub struct ContextAnalysis {
-    variables: HashMap<String, Option<VariableType>>,
-    functions: HashMap<String, Option<FunctionType>>,
+    pub variables: HashMap<String, Option<VariableType>>,
+    pub functions: HashMap<String, Option<FunctionType>>,
 }
 
 impl ContextAnalysis {

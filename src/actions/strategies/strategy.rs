@@ -6,7 +6,7 @@ use crate::{
 };
 
 pub struct Strategy {
-    pub equation: Option<Box<dyn FnMut(&mut Equation, &str) -> ()>>,
+    pub equation: Option<Box<dyn FnMut(&mut Equation) -> ()>>,
 }
 
 impl Debug for Strategy {
@@ -23,7 +23,9 @@ impl App {
                 "solve_one_variable",
                 strategies::solve_one_variable::get_solve_one_variable(),
             ),
+            ("flatten", strategies::flatten::get_flatten()),
         ];
+
         self.strategies.extend(
             tuples
                 .into_iter()

@@ -5,7 +5,7 @@ use crate::ast::{Element, Equation, Node, NodeOrExpression};
 use super::strategy::Strategy;
 
 // imply that it has been analysed
-fn solve_one_variable(equation: &mut Equation, variable_name: &str) {
+fn solve_one_variable(equation: &mut Equation) {
     if equation.equation_sides.len() != 2 {
         return;
     }
@@ -20,7 +20,7 @@ fn solve_one_variable(equation: &mut Equation, variable_name: &str) {
                 // get to variable
                 // keep track of the operations
                 // then do the inverse
-                build_stack(side_element, variable_name);
+                build_stack(side_element, "x");
                 println!("\n");
             }
             None => panic!("Equation has not been analyzed, cannot simplify"),

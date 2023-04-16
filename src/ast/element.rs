@@ -11,8 +11,9 @@ pub(crate) trait IsTimesVisible {
     fn is_times_visible(&self, last: &Element) -> bool;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Sign {
+    #[default]
     Positive,
     Negative,
 }
@@ -33,6 +34,12 @@ impl Mul for Sign {
 pub enum NodeOrExpression {
     Node(Node),
     Expression(Expression),
+}
+
+impl Default for NodeOrExpression {
+    fn default() -> Self {
+        NodeOrExpression::Expression(Expression::default())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -64,7 +71,7 @@ impl Ord for ElementCache {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Default)]
 pub struct Element {
     pub sign: Sign,
     pub node_or_expression: NodeOrExpression,

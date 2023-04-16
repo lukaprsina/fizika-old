@@ -2,12 +2,12 @@
 
 use tracing::debug;
 
-use crate::ast::{Element, Equation, Expression, NodeOrExpression};
+use crate::ast::{Element, Equation, Expression, Node, NodeOrExpression};
 
 use super::strategy::Strategy;
 
 // assume that it has been analysed
-fn simplify_equation(equation: &mut Equation, _: &str) {
+fn simplify_equation(equation: &mut Equation) {
     for side_element in &mut equation.equation_sides {
         debug!("{side_element:#?}");
 
@@ -34,10 +34,32 @@ fn simplify_equation(equation: &mut Equation, _: &str) {
 
         debug!("{side_element:#?}");
 
+        side_element.analyze(None);
+
         side_element.apply_to_every_element_mut(
             &mut |element| {
-                // a
                 debug!("{element} {}", element.is_number());
+                if let NodeOrExpression::Expression(expression) = &mut element.node_or_expression {
+                    for product in &mut expression.products {
+                        let mut delete_denominator = false;
+
+                        for pr_elem in &mut product.denominator {
+                            if let NodeOrExpression::Node(Node::Number(number)) =
+                                &mut pr_elem.node_or_expression
+                            {
+                                if *number
+                                    == num::BigInt::new(num::bigint::Sign::Plus, vec![1]).into()
+                                {
+                                    delete_denominator = true;
+                                }
+                            }
+                        }
+
+                        if delete_denominator {
+                            product.denominator.clear();
+                        }
+                    }
+                }
             },
             false,
             None,

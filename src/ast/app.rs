@@ -10,6 +10,8 @@ use super::{
     Element, Equation,
 };
 
+const STRATEGY_ORDER: [&'static str; 2] = ["flatten", "simplify"];
+
 #[derive(Debug)]
 pub struct App {
     pub formulas: Uuid,
@@ -81,6 +83,31 @@ impl App {
 
     pub fn get_context_mut(&mut self, uuid: Uuid) -> Option<&mut Context> {
         self.contexts.get_mut(&uuid)
+    }
+
+    pub fn solve(&mut self, context_uuid: Uuid) {
+        // println!("Context {}", self.uuid);
+        let context = self
+            .get_context_mut(context_uuid)
+            .expect("Context not found");
+
+        for (uuid, equation) in &mut context.equations {
+            let mut i = 0;
+            loop {
+                for element in &mut equation.equation_sides {
+                    element.analyze(None);
+                }
+
+                let strategy = STRATEGY_ORDER[i % STRATEGY_ORDER.len()];
+                context.apply_strategy(self, strategy, *uuid);
+                // self.apply_strategy(strategy, *uuid, context.uuid);
+
+                println!("{}", equation);
+                i += 1;
+            }
+        }
+
+        // println!("Analysis: {:#?}", analysis);
     }
 
     pub fn try_add_equation<T: Debug + TryInto<NoContextEquation, Error = CreateEquationError>>(

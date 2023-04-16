@@ -1,53 +1,56 @@
 use itertools::Itertools;
 
-use crate::ast::{product::Product, Element, Expression, NodeOrExpression, Sign};
+use crate::ast::{product::Product, Element, Equation, Expression, NodeOrExpression, Sign};
 
-impl Element {
-    pub fn flatten(&mut self) {
-        self.apply_to_every_element_mut(
-            &mut |element| {
-                // debug!("{element:#?}");
-                let sign = element.sign.clone();
+use super::strategy::Strategy;
 
-                let node_or_expression = match &mut element.node_or_expression {
-                    NodeOrExpression::Node(node) => NodeOrExpression::Node(node.clone()),
-                    NodeOrExpression::Expression(expression) => {
-                        let mut new_expression = Expression::new(vec![]);
-
-                        for product in &mut expression.products {
-                            let is_surrounded =
-                                (product.numerator.len() + product.denominator.len()) >= 2;
-
-                            let mut new_products: Vec<Product> = vec![];
-
-                            for (side_pos, side) in
-                                [&mut product.numerator, &mut product.denominator]
-                                    .into_iter()
-                                    .enumerate()
-                            {
-                                for inner_element in side {
-                                    process_inner_element(
-                                        inner_element,
-                                        &mut new_products,
-                                        side_pos,
-                                        is_surrounded,
-                                    );
-                                }
-                            }
-
-                            new_expression.products.extend(new_products);
-                        }
-
-                        NodeOrExpression::Expression(new_expression)
-                    }
-                };
-
-                *element = Element::new(sign, node_or_expression);
-            },
-            false,
-            None,
-        );
+pub fn get_flatten() -> Strategy {
+    Strategy {
+        equation: Some(Box::new(flatten_equation)),
     }
+}
+
+fn flatten_equation(equation: &mut Equation) {
+    for side_element in &mut equation.equation_sides {
+        side_element.apply_to_every_element_mut(&mut flatten_element, false, None);
+    }
+}
+
+fn flatten_element(element: &mut Element) {
+    let sign = element.sign.clone();
+
+    let node_or_expression = match &mut element.node_or_expression {
+        NodeOrExpression::Node(node) => NodeOrExpression::Node(node.clone()),
+        NodeOrExpression::Expression(expression) => {
+            let mut new_expression = Expression::new(vec![]);
+
+            for product in &mut expression.products {
+                let is_surrounded = (product.numerator.len() + product.denominator.len()) >= 2;
+
+                let mut new_products: Vec<Product> = vec![];
+
+                for (side_pos, side) in [&mut product.numerator, &mut product.denominator]
+                    .into_iter()
+                    .enumerate()
+                {
+                    for inner_element in side {
+                        process_inner_element(
+                            inner_element,
+                            &mut new_products,
+                            side_pos,
+                            is_surrounded,
+                        );
+                    }
+                }
+
+                new_expression.products.extend(new_products);
+            }
+
+            NodeOrExpression::Expression(new_expression)
+        }
+    };
+
+    *element = Element::new(sign, node_or_expression);
 }
 
 fn process_inner_element(

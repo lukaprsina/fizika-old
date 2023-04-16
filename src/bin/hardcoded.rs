@@ -33,52 +33,21 @@ fn main() -> Result<()> {
         let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
     }
 
-    {
+    for (pos, uuid) in uuids.into_iter().enumerate() {
         let mut borrowed_app = app.borrow_mut();
         let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-
         context.solve();
-    }
 
-    for (pos, uuid) in uuids.into_iter().enumerate() {
-        {
-            let mut borrowed_app = app.borrow_mut();
-            let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-            let eq = ctx.get_equation_mut(uuid).unwrap();
+        borrowed_app.apply_strategy("flatten", uuid, ctx_uuid);
 
-            for expr in &mut eq.equation_sides {
-                expr.flatten()
-            }
+        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+        context.solve();
 
-            ctx.solve();
-        }
+        borrowed_app.apply_strategy("simplify", uuid, ctx_uuid);
 
-        // debug!("{expr:#?}");
-        // debug!("{expr}");
-        // debug!("{}", EQUATIONS[pos]);
-        // debug!("{expr:#?}");
-        // debug!("{expr}");
-        // println!("\n\n");
-
-        {
-            let mut borrowed_app = app.borrow_mut();
-
-            let mut simplify = {
-                borrowed_app
-                    .strategies
-                    .remove("solve_one_variable")
-                    .unwrap()
-            };
-
-            let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
-            let eq = ctx.get_equation_mut(uuid).unwrap();
-
-            let func = &mut simplify.equation.as_deref_mut().unwrap();
-            let mut cloned_eq = eq.clone();
-            func(&mut cloned_eq, "x");
-            // debug!("{cloned_eq:#?}");
-            debug!("{cloned_eq}");
-        }
+        let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+        let eq = context.get_equation(uuid).unwrap();
+        debug!("{eq:#?}");
 
         let mut line = String::new();
         std::io::stdin().read_line(&mut line)?;
@@ -89,7 +58,8 @@ fn main() -> Result<()> {
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
-        "sin(x+1)=(x^2+1+(f(x)/2))/2",
+        "sin(x^3+1)=0",
+        // "sin(x+1)=(x^2+1+(f(x)/2))/2",
         // "a*(b+c)",
         // "-2/(-a/-8)",
         // "f(g(h, x+2))",

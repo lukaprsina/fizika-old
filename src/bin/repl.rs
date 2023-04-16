@@ -27,14 +27,16 @@ fn main() -> Result<()> {
         let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
-                let uuid = App::try_add_equation(Rc::clone(&app), ctx_uuid, line.as_str())?;
+                App::try_add_equation(Rc::clone(&app), ctx_uuid, line.as_str())?;
                 let mut borrowed_app = app.borrow_mut();
-                let ctx = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+                // let context = borrowed_app.get_context_mut(ctx_uuid).unwrap();
+                App::solve(&mut borrowed_app, ctx_uuid);
+                // borrowed_app.solve(ctx_uuid);
 
-                let eq = ctx.remove_equation(uuid).unwrap();
+                /* let eq = ctx.remove_equation(uuid).unwrap();
 
                 println!("{}", eq);
-                // println!("{:#?}", eq);
+                // println!("{:#?}", eq); */
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");

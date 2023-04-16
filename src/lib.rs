@@ -4,6 +4,7 @@ use tracing_subscriber::FmtSubscriber;
 
 pub mod actions;
 pub mod ast;
+pub mod graph;
 pub mod output;
 pub mod tokenizer;
 
