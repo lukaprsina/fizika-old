@@ -1,7 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 use petgraph::stable_graph::NodeIndex;
-use tracing::debug;
 use uuid::Uuid;
 
 use crate::{
@@ -72,7 +71,6 @@ impl App {
         }
 
         self.contexts.insert(context_uuid, context);
-
         // println!("Analysis: {:#?}", analysis);
     }
 
@@ -87,7 +85,7 @@ impl App {
         graph: &mut EquationGraph,
     ) -> Vec<NodeIndex> {
         let mut original_eq = graph.graph[node_index].clone();
-        debug!("{}", original_eq);
+        // debug!("{}", original_eq);
 
         for element in &mut original_eq.equation_sides {
             element.analyze(None);
@@ -102,15 +100,15 @@ impl App {
         for strategy in STRATEGIES {
             let mut cloned_eq = original_eq.clone();
             let constraints = cloned_eq.apply_strategy(self, strategy);
-            debug!("{:#?}", cloned_eq);
+            // debug!("{:#?}", cloned_eq);
             let (node_index, _) = graph.add_path(cloned_eq.clone(), constraints, node_index);
 
             let leaf_eq = &graph.graph[node_index];
             let mut names = IsSameNames::new();
             let is_same = IsSame::is_same(leaf_eq, &original_eq, &mut names);
             if !is_same {
-                debug!("{:#?}", cloned_eq);
-                debug!("{:#?}", leaf_eq);
+                // debug!("{:#?}", cloned_eq);
+                // debug!("{:#?}", leaf_eq);
                 indices.push(node_index);
             }
         }

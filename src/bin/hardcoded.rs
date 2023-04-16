@@ -8,6 +8,7 @@ use math_eval::{
     output::equation_to_rpn::ReversePolishNotation,
 };
 use once_cell::sync::Lazy;
+use tracing::debug;
 use uuid::Uuid;
 
 fn main() -> Result<()> {
@@ -27,12 +28,11 @@ fn main() -> Result<()> {
         let mut borrowed_app = app.borrow_mut();
         let context = borrowed_app.get_context_mut(uuid).unwrap();
 
-        for (_, equation) in &context.equations {
-            // debug!("{}", equation);
-            equation.rpn();
-        }
+        /* for (_, equation) in &context.equations {
+            debug!("{}", equation.rpn());
+        } */
 
-        // App::solve(&mut borrowed_app, uuid);
+        App::solve(&mut borrowed_app, uuid);
 
         let mut line = String::new();
         std::io::stdin().read_line(&mut line)?;
@@ -43,13 +43,14 @@ fn main() -> Result<()> {
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
+        "sin(x^3+1)=0",
+        "(-1-2)*3",
         "1/(2+x)",
         "x+((y*a)-z)",
         "(1+2)*(3+4) ",
         "1+2*3+4",
         "1+2*(3+4)",
         "(1+2)*3+4",
-        // "sin(x^3+1)=0",
         // "sin(x+1)=(x^2+1+(f(x)/2))/2",
         // "a*(b+c)",
         // "-2/(-a/-8)",

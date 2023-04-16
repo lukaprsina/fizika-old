@@ -1,5 +1,3 @@
-use tracing::debug;
-
 use crate::ast::{product::Product, Element, Equation, Expression, Node, NodeOrExpression};
 
 pub trait ReversePolishNotation {
@@ -14,18 +12,32 @@ impl ReversePolishNotation for Equation {
         if len.is_positive() {
             for side in &self.equation_sides[0..len as usize] {
                 let side_rpn = side.rpn();
-                debug!("{side_rpn}");
                 result += &format!("{side_rpn} = ",);
             }
         }
 
         if let Some(last) = self.equation_sides.last() {
             let side_rpn = last.rpn();
-            debug!("{side_rpn}");
             result += &format!("{side_rpn}")
         }
 
-        result
+        //  1  2  -  3 *
+        let mut new_result = String::new();
+        if let Some(mut previous_char) = result.trim().chars().nth(0) {
+            if !previous_char.is_whitespace() {
+                new_result.push(previous_char);
+            }
+
+            for character in result.chars().skip(1).into_iter() {
+                if !previous_char.is_whitespace() || !character.is_whitespace() {
+                    new_result.push(character);
+                }
+
+                previous_char = character;
+            }
+        }
+
+        new_result
     }
 }
 
@@ -44,13 +56,11 @@ impl ReversePolishNotation for Expression {
 
         for (pos, product) in self.products.iter().enumerate() {
             let product_rpn = product.rpn();
-            result.push_str(&format!("{product_rpn}"));
+            result.push_str(&format!("{product_rpn} "));
 
             if pos >= 1 {
                 let sign = product.calculate_sign();
                 result.push_str(&format!("{sign} "));
-            } else {
-                result.push(' ');
             }
         }
 
@@ -69,12 +79,10 @@ impl ReversePolishNotation for Product {
 
             for (elem_pos, element) in side.into_iter().enumerate() {
                 let element_rpn = element.rpn();
-                result.push_str(&format!("{element_rpn}"));
+                result.push_str(&format!("{element_rpn} "));
 
                 if elem_pos >= 1 {
                     result.push_str("* ");
-                } else {
-                    result.push(' ');
                 }
             }
 
