@@ -5,12 +5,15 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tracing::debug;
 
-use crate::ast::{Element, Equation, Node, NodeOrExpression, Sign};
+use crate::{
+    ast::{product::Product, Element, Equation, Expression, Node, NodeOrExpression, Sign},
+    output::equation_to_rpn::ReversePolishNotation,
+};
 
 use super::strategy::Strategy;
 
 // imply that it has been analysed
-fn solve_one_variable(equation: &mut Equation) -> Vec<Equation> {
+fn apply_inverse(equation: &mut Equation) -> Vec<Equation> {
     if equation.equation_sides.len() != 2 {
         return vec![];
     }
@@ -20,10 +23,11 @@ fn solve_one_variable(equation: &mut Equation) -> Vec<Equation> {
     let mut inverse = None;
 
     for side_element in &mut equation.equation_sides {
+        debug!("{}", side_element.rpn());
         match &mut side_element.cache {
             Some(cache) => {
-                if cache.variables.len() > 1 {
-                    inverse = get_inverse(side_element);
+                if cache.variables.len() >= 1 {
+                    inverse = get_element_inverse(side_element);
                     break;
                 }
             }
@@ -34,9 +38,9 @@ fn solve_one_variable(equation: &mut Equation) -> Vec<Equation> {
     constraints
 }
 
-pub fn get_solve_one_variable() -> Strategy {
+pub fn get_apply_inverse() -> Strategy {
     Strategy {
-        equation: Some(Box::new(solve_one_variable)),
+        equation: Some(Box::new(apply_inverse)),
     }
 }
 
@@ -72,7 +76,7 @@ static INVERSE_FUNCTIONS: Lazy<HashMap<String, (Element, Vec<String>)>> = Lazy::
     new_map
 });
 
-fn get_inverse(element: &mut Element) -> Option<(Element, Vec<String>)> {
+fn get_element_inverse(element: &mut Element) -> Option<(Element, Vec<String>)> {
     let mut constraints: Vec<String> = vec![];
 
     let inverse = match &element.node_or_expression {
@@ -90,9 +94,7 @@ fn get_inverse(element: &mut Element) -> Option<(Element, Vec<String>)> {
                     panic!("Not analyzed when getting the inverse")
                 }
             }
-            Node::Modulo { lhs, rhs } => None,
-            Node::Factorial { child } => None,
-            Node::Function { name, arguments } => {
+            Node::Function { name, arguments: _ } => {
                 if let Some(value) = INVERSE_FUNCTIONS.get(name) {
                     constraints.extend(value.1.clone());
                     Some(value.0.clone())
@@ -116,11 +118,63 @@ fn get_inverse(element: &mut Element) -> Option<(Element, Vec<String>)> {
             }
             _ => None,
         },
-        NodeOrExpression::Expression(expression) => todo!(),
+        NodeOrExpression::Expression(expression) => match expression.products.len() {
+            0 => None,
+            1 => one_product(expression.products.first().unwrap()),
+            _ => multiple_products(expression),
+        },
     };
 
     match inverse {
         Some(element) => Some((element, constraints)),
         None => None,
     }
+}
+
+fn one_product(product: &Product) -> Option<Element> {
+    for side in [&product.numerator, &product.denominator] {
+        for pr_elem in side {
+            match &pr_elem.cache {
+                Some(cache) => {
+                    let a = cache.variables.len() == 1;
+                }
+                None => panic!("Element should be analyzed when applying inverse"),
+            }
+        }
+    }
+
+    None
+}
+
+fn multiple_products(expression: &Expression) -> Option<Element> {
+    let mut new_expression = Expression::new(vec![]);
+
+    for product in &expression.products {
+        let mut skip_product = false;
+
+        for side in [&product.numerator, &product.denominator] {
+            for pr_elem in side {
+                skip_product = match &pr_elem.cache {
+                    Some(cache) => cache.variables.len() == 1,
+                    None => panic!("Element should be analyzed when applying inverse"),
+                };
+
+                if skip_product {
+                    break;
+                }
+            }
+        }
+
+        if !skip_product {
+            let mut new_product = product.clone();
+            if let Some(pr_elem) = new_product.numerator.first_mut() {
+                pr_elem.sign = pr_elem.sign * Sign::Negative;
+                new_expression.products.push(new_product);
+            }
+        }
+    }
+
+    debug!("{new_expression}");
+
+    None
 }

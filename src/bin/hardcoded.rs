@@ -5,10 +5,8 @@ use itertools::Itertools;
 use math_eval::{
     ast::{app::App, context::Context},
     initialize,
-    output::equation_to_rpn::ReversePolishNotation,
 };
 use once_cell::sync::Lazy;
-use tracing::debug;
 use uuid::Uuid;
 
 fn main() -> Result<()> {
@@ -26,9 +24,9 @@ fn main() -> Result<()> {
 
     for uuid in contexts {
         let mut borrowed_app = app.borrow_mut();
-        let context = borrowed_app.get_context_mut(uuid).unwrap();
+        let _context = borrowed_app.get_context_mut(uuid).unwrap();
 
-        /* for (_, equation) in &context.equations {
+        /* for (_, equation) in &_context.equations {
             debug!("{}", equation.rpn());
         } */
 
@@ -43,6 +41,7 @@ fn main() -> Result<()> {
 
 static EQUATIONS: Lazy<Vec<String>> = Lazy::new(|| {
     let strings = vec![
+        "x+1 = 0",
         "sin(x^3+1)=0",
         "(-1-2)*3",
         "1/(2+x)",

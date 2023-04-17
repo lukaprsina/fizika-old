@@ -17,7 +17,7 @@ use super::{
     Element, Equation,
 };
 
-const STRATEGIES: [&'static str; 1] = ["solve_one_variable"];
+const STRATEGIES: [&'static str; 1] = ["apply_inverse"];
 
 #[derive(Debug)]
 pub struct App {

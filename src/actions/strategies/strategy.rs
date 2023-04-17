@@ -20,8 +20,8 @@ impl App {
         let tuples = [
             ("simplify", strategies::simplify::get_simplify()),
             (
-                "solve_one_variable",
-                strategies::solve_one_variable::get_solve_one_variable(),
+                "apply_inverse",
+                strategies::apply_inverse::get_apply_inverse(),
             ),
             ("flatten", strategies::flatten::get_flatten()),
         ];
